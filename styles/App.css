@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald&display=swap");
+.com-tab-box .tab-content {
+  display: none; }
+
+.wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+  min-height: 100vh; }
+
+.container {
+  display: flex;
+  flex: 1; }
+
+.content_box {
+  flex: 1; }
+
+nav.left_menu {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  width: 200px;
+  border-right: 1px solid #ddd; }
+
+.schedule__calendar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column; }
+  .schedule__calendar .body {
+    display: flex;
+    flex-direction: column; }
+  .schedule__calendar .row {
+    display: flex;
+    flex: 1; }
+  .schedule__calendar .col {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center; }
+
+footer.footer {
+  width: 100%;
+  border-top: 1px solid #ddd; }

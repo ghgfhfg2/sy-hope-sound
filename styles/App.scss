@@ -1,0 +1,37 @@
+@import "scss-common.scss";
+
+.wrapper{
+  @include flex($d:column,$a:stretch);
+  min-height: 100vh;
+}
+.container{
+  display: flex;
+  flex:1;
+}
+.content_box{
+  flex:1;
+}
+
+nav.left_menu{
+  @include flex();
+  width: 200px;border-right: 1px solid #ddd;
+}
+
+.schedule__calendar{
+  @include flex($d:column,$a:stretch);
+  .body{
+    display:flex;
+    flex-direction:column;
+  }
+  .row{display:flex;flex:1;
+    &.header{
+
+    }
+  }  
+  .col{flex:1;display: flex;justify-content: center;align-items: center;}
+}
+
+
+footer.footer{
+  width: 100%;border-top: 1px solid #ddd;
+}
