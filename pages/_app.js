@@ -10,11 +10,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 function MyApp({ Component, pageProps }) {
   const router = useRouter(); 
   const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      router.push('/')
-    } 
-  });
+
   const getLayout = Component.getLayout || ((page)=>{
   return(
         <Layout>

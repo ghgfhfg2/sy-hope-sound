@@ -23,14 +23,17 @@ function Header() {
   const auth = getAuth();
   const router = useRouter(); 
   const [userAuth, setUserAuth] = useRecoilState(userState);
-
+  console.log(userAuth)
+  
   const onLogout = () => {
     signOut(auth)
-    .then(() => {
+    .then((res) => {
+      console.log(res)
       //setUserAuth({})  
       console.log("logged out");
+      console.log(userAuth)
     })
-    .then(res=>router.push('/'))
+    .then(res=>router.push('/login'))
     .catch((error) => {
       console.log(error);
     });
@@ -51,7 +54,7 @@ function Header() {
         </li>
       </ul>
       <ul className='right'>
-        {userAuth ? (
+        {Object.keys(userAuth).length > 0 ? (
           <>
             <li>
               <Link href="/mypage">
@@ -59,7 +62,7 @@ function Header() {
               </Link>
             </li>
             <li>
-              <a href='javascript:void(0)' onClick={onLogout}>
+              <a href='#' onClick={onLogout}>
                 로그아웃
               </a>
             </li>
