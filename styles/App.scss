@@ -10,11 +10,11 @@
 }
 .content_box{
   flex:1;
+  padding:1.5rem;
 }
 
 nav.left_menu{
-  @include flex();
-  width: 200px;border-right: 1px solid #ddd;
+
 }
 
 .schedule__calendar{

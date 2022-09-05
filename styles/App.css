@@ -14,15 +14,8 @@
   flex: 1; }
 
 .content_box {
-  flex: 1; }
-
-nav.left_menu {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
-  width: 200px;
-  border-right: 1px solid #ddd; }
+  flex: 1;
+  padding: 1.5rem; }
 
 .schedule__calendar {
   display: flex;
