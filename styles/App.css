@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Oswald&display=swap");
+html {
+  --m-color: #364650;
+  --p-color: #587d95; }
+
 .com-tab-box .tab-content {
   display: none; }
 
@@ -15,24 +19,27 @@
 
 .content_box {
   flex: 1;
-  padding: 1.5rem; }
+  padding: 3rem; }
 
 .schedule__calendar {
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   flex-direction: column; }
-  .schedule__calendar .body {
-    display: flex;
-    flex-direction: column; }
-  .schedule__calendar .row {
-    display: flex;
-    flex: 1; }
-  .schedule__calendar .col {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center; }
+
+.schedule__calendar .body {
+  display: flex;
+  flex-direction: column; }
+
+.schedule__calendar .row {
+  display: flex;
+  flex: 1; }
+
+.schedule__calendar .col {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
 
 footer.footer {
   width: 100%;

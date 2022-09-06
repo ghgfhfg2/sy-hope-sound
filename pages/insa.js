@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button } from "@chakra-ui/react";
+import UserList from "@component/insa/UserList";
 
 function Insa() {
-
-  
   return (
     <>
-      <Button colorScheme='blue'>Button</Button>
+      <UserList />
     </>
-  )
+  );
 }
 
-export default Insa
+export default Insa;

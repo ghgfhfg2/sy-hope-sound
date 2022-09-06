@@ -10,7 +10,7 @@ import {
   Button,
   Flex,
 } from "@chakra-ui/react";
-import LoginLayout from "../src/component/LoginLayout";
+import LoginLayout from "@component/LoginLayout";
 import Link from "next/link";
 import { app, db } from "src/firebase";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";

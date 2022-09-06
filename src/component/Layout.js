@@ -1,28 +1,22 @@
-import React from 'react'
-import Header from './Header'
-import LeftMenu from './LeftMenu'
-import { userState } from "../../src/recoil/state"
-import {useRecoilValue } from 'recoil';
+import React from "react";
+import Header from "./Header";
+import LeftMenu from "./LeftMenu";
 
-function Layout({children}) {
-  const user = useRecoilValue(userState)
-  console.log(user)
+function Layout({ children }) {
   return (
     <>
       <div className="wrapper">
         <Header />
-          <div className="container">
-            <LeftMenu />
-            <div className='content_box'>
-              <main>
-                {children}
-              </main>
-            </div>
+        <div className="container">
+          <LeftMenu />
+          <div className="content_box">
+            <main>{children}</main>
           </div>
+        </div>
         <footer className="footer">footer</footer>
       </div>
     </>
-  )
+  );
 }
 
-export default Layout
+export default Layout;

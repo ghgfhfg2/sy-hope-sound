@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import LoginLayout from "@component/LoginLayout";
 import Link from "next/link";
-import { app, db } from "../firebase";
+import { app, db } from "../../firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
