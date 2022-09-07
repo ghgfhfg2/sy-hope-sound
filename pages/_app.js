@@ -5,11 +5,13 @@ import "../styles/globals.css";
 import "../styles/App.css";
 import "../styles/scss-common.css";
 import wrapper from "@redux/store/configureStore";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { app, auth } from "src/firebase";
+import { app, auth, db } from "src/firebase";
+import { ref, onValue, off, get } from "firebase/database";
 import Layout from "@component/Layout";
 import Login from "@component/Login";
+import Loading from "@component/Loading";
 
 function App({ Component, pageProps }) {
   const dispatch = useDispatch();
@@ -20,32 +22,63 @@ function App({ Component, pageProps }) {
 
   const publicPath = ["/login", "/join"];
   const isPublicPath = publicPath.includes(path);
-
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      dispatch(setUser(user));
-      setAuthCheck(true);
-    } else {
-      dispatch(clearUser());
-      setAuthCheck(false);
+  const setVh = () => {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight*0.01}px`)
+  }
+  useEffect(() => {
+    window.addEventListener('resize',setVh)
+    return () => {
+      window.removeEventListener('resize',setVh)
     }
-    setisLoading(false);
-  });
-  console.log(Component);
+  }, [])
+
+  useEffect(()=>{
+    
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const userRef = ref(db, `user/${user.uid}`);
+        get(userRef)
+        .then(data=>{
+          if(data.val()){
+            let userData = {
+              ...user,
+              ...data.val()
+            }
+            dispatch(setUser(userData));
+          }
+        })
+        setAuthCheck(true);
+      } else {
+        dispatch(clearUser());
+        setAuthCheck(false);
+      }
+      setisLoading(false);
+    });
+  },[])
   const getLayout =
     Component.getLayout ||
     ((page) => {
       return <Layout>{page}</Layout>;
-    });
+  });
 
   return (
     <>
       <ChakraProvider>
-        {authCheck ? (
-          <>{getLayout(<Component {...pageProps} />)}</>
+        {isLoading ? (
+          <>
+            <Flex minHeight='100vh' justifyContent='center' alignItems='center'>
+              <Loading size={`xl`} />
+            </Flex>
+          </>
         ) : (
           <>
-            {isPublicPath ? getLayout(<Component {...pageProps} />) : <Login />}
+            {authCheck ? (
+              <>{getLayout(<Component {...pageProps} />)}</>
+            ) : (
+              <>
+                {isPublicPath ? getLayout(<Component {...pageProps} />) : <Login />}
+              </>
+            )}
           </>
         )}
       </ChakraProvider>

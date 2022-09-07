@@ -9,7 +9,7 @@ import {
   update,
 } from "firebase/database";
 
-export default function useGetUser(uid) {
+export default function useGetUser() {
   const [userList, setUserList] = useState();
   useEffect(() => {
     const dbRef = ref(db, `user`);

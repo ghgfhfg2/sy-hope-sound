@@ -1,11 +1,11 @@
-import { Button } from "@chakra-ui/react";
 import UserList from "@component/insa/UserList";
 
 function Insa() {
+ 
   return (
     <>
-      <UserList />
-    </>
+    <UserList />
+    </>  
   );
 }
 

@@ -25,6 +25,7 @@ function Login() {
     formState: { errors, isSubmitting },
   } = useForm();
   function onSubmit(values) {
+    
     signInWithEmailAndPassword(auth, values.email, values.password)
       .then((userCredential) => {
         // Signed in
@@ -94,11 +95,12 @@ function Login() {
               <Button
                 mb={2}
                 width="100%"
-                colorScheme="blue"
+                colorScheme="teal"
                 isLoading={isSubmitting}
                 type="submit"
               >
                 로그인
+                {isSubmitting}
               </Button>
               <Link href="/join">
                 <a style={{ alignSelf: "flex-end" }}>회원가입</a>

@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Oswald&display=swap");
 html {
-  --m-color: #364650;
-  --p-color: #587d95; }
+  --m-color: #1D4044;
+  --p-color: #2C7A7B; }
 
 .com-tab-box .tab-content {
   display: none; }
@@ -26,20 +26,17 @@ html {
   justify-content: flex-start;
   align-items: stretch;
   flex-direction: column; }
-
-.schedule__calendar .body {
-  display: flex;
-  flex-direction: column; }
-
-.schedule__calendar .row {
-  display: flex;
-  flex: 1; }
-
-.schedule__calendar .col {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center; }
+  .schedule__calendar .body {
+    display: flex;
+    flex-direction: column; }
+  .schedule__calendar .row {
+    display: flex;
+    flex: 1; }
+  .schedule__calendar .col {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center; }
 
 footer.footer {
   width: 100%;
