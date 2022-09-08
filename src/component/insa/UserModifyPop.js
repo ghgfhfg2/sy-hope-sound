@@ -4,9 +4,11 @@ import { FormErrorMessage,
   Select,
   Button,
   Flex } from "@chakra-ui/react";
-  import { useForm } from "react-hook-form";
-  import { app, db } from "src/firebase";
-  import { ref, child, push, update } from "firebase/database";
+import { useForm } from "react-hook-form";
+import { db } from "src/firebase";
+import { ref, child, push, update } from "firebase/database";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAllUser } from "@redux/actions/user_action";
 
 import styled from "styled-components";
 import PartSelect from "@component/popup/PartSelect"
@@ -34,6 +36,8 @@ const CommonPopup = styled.div`
 `
 
 export default function UserModifyPop({userData,closeUserModify}) {
+
+  const dispatch = useDispatch();
   
   const {
     handleSubmit,
@@ -42,12 +46,14 @@ export default function UserModifyPop({userData,closeUserModify}) {
   } = useForm();
 
   function onSubmit(values) {
-    console.log(values)
     update(ref(db,`user/${userData.uid}`),{
-      ...values
+      call: values.call || '',
+      part: values.part || '',
+      rank: values.rank || '',
+      dayoff: values.dayoff || '',
     })
     .then(()=>{
-      console.log('update')
+      dispatch(updateAllUser(values))
     })
     .catch((error)=>{
       console.error(error)
@@ -69,11 +75,13 @@ export default function UserModifyPop({userData,closeUserModify}) {
             >
               <Input
                 readOnly
-                defaultValue={userData.name}                
+                defaultValue={userData.name}   
+                {...register("name")}             
               />
               <Input
                 readOnly
                 defaultValue={userData.email}
+                {...register("email")}
               />
               <Select 
                 placeholder='부서'
@@ -91,7 +99,7 @@ export default function UserModifyPop({userData,closeUserModify}) {
               </Select>
               <FormControl isInvalid={errors.call}>
                 <Input
-                  type="call"
+                  type="number"
                   defaultValue={userData.call}
                   placeholder="전화번호"
                   {...register("call",{
@@ -101,6 +109,21 @@ export default function UserModifyPop({userData,closeUserModify}) {
                 <FormErrorMessage>
                   {errors.call && errors.call.type === "pattern" && (
                     <>{`전화번호는 숫자만 입력 할 수 있습니다.`}</>
+                  )}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.dayoff}>
+                <Input
+                  type="number"
+                  defaultValue={userData.dayoff}
+                  placeholder="연차"
+                  {...register("dayoff",{
+                    pattern: /\d/i,
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors.dayoff && errors.dayoff.type === "pattern" && (
+                    <>{`연차 숫자만 입력 할 수 있습니다.`}</>
                   )}
                 </FormErrorMessage>
               </FormControl>

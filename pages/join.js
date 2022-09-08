@@ -11,7 +11,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { app, db } from "src/firebase";
+import { db } from "src/firebase";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { format } from "date-fns";
@@ -33,42 +33,46 @@ function Join() {
   const [alertState, setAlertState] = useState(false);
 
   const onSubmit = (values) => {
-    createUserWithEmailAndPassword(auth, values.email, values.password)
-      .then((userCredential) => {
-        // Signed in
-        delete values['password'];
-        delete values['password2'];
-        const user = userCredential.user;
-        set(ref(db, `user/${user.uid}`), {
-          ...values,
-          date: format(new Date(),"yyyy-MM-dd HH:mm:ss"),
-          timestamp: new Date().getTime()
+
+    return new Promise((resolve) => {
+      createUserWithEmailAndPassword(auth, values.email, values.password)
+        .then((userCredential) => {
+          // Signed in
+          delete values['password'];
+          delete values['password2'];
+          const user = userCredential.user;
+          set(ref(db, `user/${user.uid}`), {
+            ...values,
+            date: format(new Date(),"yyyy-MM-dd HH:mm:ss"),
+            timestamp: new Date().getTime()
+          });
+          dispatch(setUser(user));
+          // ...
+        })
+        .then((res) => router.push("/"))
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          if(errorCode === 'auth/email-already-in-use'){
+            setAlertMessage('중복된 이메일 입니다.')
+            setAlertState(true);
+            setTimeout(()=>{
+              setAlertState(false);
+            },1500)
+          }
+          if(errorCode === 'auth/too-many-requests'){
+            setAlertMessage('반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요.')
+            setAlertState(true);
+            setTimeout(()=>{
+              setAlertState(false);
+            },1500)
+          } 
+
+          resolve()
+
         });
-        dispatch(setUser(user));
-        // ...
-      })
-      .then((res) => router.push("/"))
-      .catch((error) => {
-        console.log(error)
-        const errorCode = error.code;
-        console.log(errorCode)
-        const errorMessage = error.message;
-        if(errorCode === 'auth/email-already-in-use'){
-          setAlertMessage('중복된 이메일 입니다.')
-          setAlertState(true);
-          setTimeout(()=>{
-            setAlertState(false);
-          },1500)
-        }
-        if(errorCode === 'auth/too-many-requests'){
-          setAlertMessage('반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요.')
-          setAlertState(true);
-          setTimeout(()=>{
-            setAlertState(false);
-          },1500)
-        } 
-        // ..
-      });
+    })
+
   };
 
   return (
@@ -159,10 +163,14 @@ function Join() {
                 )}
               </FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.name}>
+            <FormControl isInvalid={errors.call}>
               <Input
                 id="call"
+                type="number"
                 placeholder="전화번호"
+                {...register("call", {
+                  required: "이름은 필수항목 입니다.",
+                })}
               />
             </FormControl>
             <Flex

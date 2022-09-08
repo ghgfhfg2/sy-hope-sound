@@ -8,13 +8,16 @@ import {
   runTransaction,
   update,
 } from "firebase/database";
+import { useDispatch } from "react-redux";
+import { setAllUser } from "@redux/actions/user_action";
 
 export default function useGetUser() {
+  const dispatch = useDispatch();
   const [userList, setUserList] = useState();
   useEffect(() => {
     const dbRef = ref(db, `user`);
-    let arr = [];
     onValue(dbRef, (data) => {
+      let arr = [];
       data.forEach((list) => {
         let user = {
           ...list.val(),
@@ -22,7 +25,9 @@ export default function useGetUser() {
         };
         arr.push(user);
       });
+      useDispatch
       setUserList(arr);
+      dispatch(setAllUser(arr))
     });
 
     return () => {

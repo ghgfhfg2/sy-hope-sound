@@ -35,6 +35,7 @@ function App({ Component, pageProps }) {
   useEffect(()=>{
     
     auth.onAuthStateChanged((user) => {
+
       if (user) {
         const userRef = ref(db, `user/${user.uid}`);
         get(userRef)
@@ -51,6 +52,7 @@ function App({ Component, pageProps }) {
       } else {
         dispatch(clearUser());
         setAuthCheck(false);
+        router.push('/login')
       }
       setisLoading(false);
     });
