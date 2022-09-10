@@ -1,4 +1,9 @@
-import { SET_USER, CLEAR_USER, SET_ALL_USER, UPDATE_ALL_USER } from "../actions/types";
+import {
+  SET_USER,
+  CLEAR_USER,
+  SET_ALL_USER,
+  UPDATE_ALL_USER,
+} from "../actions/types";
 
 const initState = {
   currentUser: null,
@@ -25,19 +30,20 @@ const user = (state = initState, action) => {
         allUser: action.payload,
       };
     case UPDATE_ALL_USER:
-      let newAllUser = state.allUser.map(el=>{
-        if(el.uid === action.payload.uid){
-          el = {
-            ...el,
-            ...action.payload
+      let newAllUser = state.allUser.map((el) => {
+        if (el.uid === action.payload.uid) {
+          for (const key in el) {
+            if (action.payload[key] && el[key] !== action.payload[key]) {
+              el[key] = action.payload[key];
+            }
           }
-          return el
         }
-      })
+        return el;
+      });
       return {
         ...state,
         allUser: newAllUser,
-      };  
+      };
     default:
       return state;
   }

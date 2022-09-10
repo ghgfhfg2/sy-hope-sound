@@ -25,14 +25,13 @@ export default function useGetUser() {
         };
         arr.push(user);
       });
-      useDispatch
       setUserList(arr);
-      dispatch(setAllUser(arr))
+      dispatch(setAllUser(arr));
     });
-
     return () => {
       off(dbRef);
     };
   }, []);
+
   return userList;
 }

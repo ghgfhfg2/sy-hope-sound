@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "@redux/actions/user_action";
 import { useRouter } from "next/router";
@@ -18,7 +18,6 @@ import { format } from "date-fns";
 import LoginLayout from "@component/LoginLayout";
 import AlertBox from "@component/popup/Alert";
 
-
 function Join() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -29,22 +28,22 @@ function Join() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
   const [alertState, setAlertState] = useState(false);
 
   const onSubmit = (values) => {
-
     return new Promise((resolve) => {
       createUserWithEmailAndPassword(auth, values.email, values.password)
         .then((userCredential) => {
           // Signed in
-          delete values['password'];
-          delete values['password2'];
+          delete values["password"];
+          delete values["password2"];
           const user = userCredential.user;
           set(ref(db, `user/${user.uid}`), {
             ...values,
-            date: format(new Date(),"yyyy-MM-dd HH:mm:ss"),
-            timestamp: new Date().getTime()
+            uid: user.uid,
+            date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+            timestamp: new Date().getTime(),
           });
           dispatch(setUser(user));
           // ...
@@ -53,34 +52,31 @@ function Join() {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          if(errorCode === 'auth/email-already-in-use'){
-            setAlertMessage('중복된 이메일 입니다.')
+          if (errorCode === "auth/email-already-in-use") {
+            setAlertMessage("중복된 이메일 입니다.");
             setAlertState(true);
-            setTimeout(()=>{
+            setTimeout(() => {
               setAlertState(false);
-            },1500)
+            }, 1500);
           }
-          if(errorCode === 'auth/too-many-requests'){
-            setAlertMessage('반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요.')
+          if (errorCode === "auth/too-many-requests") {
+            setAlertMessage(
+              "반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요."
+            );
             setAlertState(true);
-            setTimeout(()=>{
+            setTimeout(() => {
               setAlertState(false);
-            },1500)
-          } 
+            }, 1500);
+          }
 
-          resolve()
-
+          resolve();
         });
-    })
-
+    });
   };
 
   return (
     <>
-      {
-        alertState &&
-        <AlertBox text={alertMessage} />
-      }
+      {alertState && <AlertBox text={alertMessage} />}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex
@@ -142,7 +138,7 @@ function Join() {
                 {errors.password && errors.password.type === "maxLength" && (
                   <>비밀번호는 최대 16글자 이하 이어야 합니다.</>
                 )}
-              </FormErrorMessage>              
+              </FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={errors.password2}>
               <Input

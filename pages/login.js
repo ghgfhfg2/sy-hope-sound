@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "@redux/actions/user_action";
 import { useForm } from "react-hook-form";
@@ -14,13 +14,13 @@ import LoginLayout from "@component/LoginLayout";
 import Link from "next/link";
 import { app, db } from "../firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import AlertBox from "@component/popup/Alert"
+import AlertBox from "@component/popup/Alert";
 
 function Login() {
   const dispatch = useDispatch();
   const router = useRouter();
   const auth = getAuth();
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
   const [alertState, setAlertState] = useState(false);
   const {
     handleSubmit,
@@ -30,48 +30,47 @@ function Login() {
   function onSubmit(values) {
     return new Promise((resolve) => {
       signInWithEmailAndPassword(auth, values.email, values.password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        dispatch(setUser(user));
-        // ...
-      })
-      .then((res) => router.push("/"))
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        if(errorCode === 'auth/user-not-found'){
-          setAlertMessage('없는 이메일주소 입니다.')
-          setAlertState(true);
-          setTimeout(()=>{
-            setAlertState(false);
-          },1500)
-        }
-        if(errorCode === 'auth/wrong-password'){
-          setAlertMessage('잘못된 비밀번호 입니다.')
-          setAlertState(true);
-          setTimeout(()=>{
-            setAlertState(false);
-          },1500)
-        }
-        if(errorCode === 'auth/too-many-requests'){
-          setAlertMessage('반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요.')
-          setAlertState(true);
-          setTimeout(()=>{
-            setAlertState(false);
-          },1500)
-        } 
-        resolve()
-      });
-
-    })
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          window.sessionStorage.setItem("isLogin", true);
+          dispatch(setUser(user));
+          // ...
+        })
+        .then((res) => router.push("/"))
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          if (errorCode === "auth/user-not-found") {
+            setAlertMessage("없는 이메일주소 입니다.");
+            setAlertState(true);
+            setTimeout(() => {
+              setAlertState(false);
+            }, 1500);
+          }
+          if (errorCode === "auth/wrong-password") {
+            setAlertMessage("잘못된 비밀번호 입니다.");
+            setAlertState(true);
+            setTimeout(() => {
+              setAlertState(false);
+            }, 1500);
+          }
+          if (errorCode === "auth/too-many-requests") {
+            setAlertMessage(
+              "반복된 요청으로 인한 오류입니다.\n잠시 후 시도해 주세요."
+            );
+            setAlertState(true);
+            setTimeout(() => {
+              setAlertState(false);
+            }, 1500);
+          }
+          resolve();
+        });
+    });
   }
   return (
     <>
-      {
-        alertState &&
-        <AlertBox text={alertMessage} />
-      }
+      {alertState && <AlertBox text={alertMessage} />}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex

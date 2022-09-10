@@ -9,6 +9,7 @@ import { ChakraProvider, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { app, auth, db } from "src/firebase";
 import { ref, onValue, off, get } from "firebase/database";
+import { signOut } from "firebase/auth";
 import Layout from "@component/Layout";
 import Login from "@component/Login";
 import Loading from "@component/Loading";
@@ -23,52 +24,65 @@ function App({ Component, pageProps }) {
   const publicPath = ["/login", "/join"];
   const isPublicPath = publicPath.includes(path);
   const setVh = () => {
-    document.documentElement.style.setProperty('--vh', `${window.innerHeight*0.01}px`)
-  }
+    document.documentElement.style.setProperty(
+      "--vh",
+      `${window.innerHeight * 0.01}px`
+    );
+  };
+
   useEffect(() => {
-    window.addEventListener('resize',setVh)
+    window.addEventListener("resize", setVh);
     return () => {
-      window.removeEventListener('resize',setVh)
-    }
-  }, [])
+      window.removeEventListener("resize", setVh);
+    };
+  }, []);
 
-  useEffect(()=>{
-    
+  useEffect(() => {
     auth.onAuthStateChanged((user) => {
-
       if (user) {
+        const isLogin = window.sessionStorage.getItem("isLogin");
+        if (!isLogin) {
+          signOut(auth)
+            .then((res) => {
+              dispatch(clearUser());
+            })
+            .then((res) => router.push("/login"))
+            .catch((error) => {
+              console.log(error);
+            });
+        }
         const userRef = ref(db, `user/${user.uid}`);
-        get(userRef)
-        .then(data=>{
-          if(data.val()){
+        get(userRef).then((data) => {
+          if (data.val()) {
             let userData = {
               ...user,
-              ...data.val()
-            }
+              ...data.val(),
+            };
             dispatch(setUser(userData));
           }
-        })
+        });
         setAuthCheck(true);
       } else {
+        window.sessionStorage.setItem("isLogin", false);
         dispatch(clearUser());
         setAuthCheck(false);
-        router.push('/login')
+        router.push("/login");
       }
       setisLoading(false);
     });
-  },[])
+  }, []);
   const getLayout =
     Component.getLayout ||
     ((page) => {
       return <Layout>{page}</Layout>;
-  });
+    });
 
   return (
     <>
       <ChakraProvider>
         {isLoading ? (
           <>
-            <Flex minHeight='100vh' justifyContent='center' alignItems='center'>
+            <Flex minHeight="100vh" justifyContent="center" alignItems="center">
               <Loading size={`xl`} />
             </Flex>
           </>
@@ -78,7 +92,11 @@ function App({ Component, pageProps }) {
               <>{getLayout(<Component {...pageProps} />)}</>
             ) : (
               <>
-                {isPublicPath ? getLayout(<Component {...pageProps} />) : <Login />}
+                {isPublicPath ? (
+                  getLayout(<Component {...pageProps} />)
+                ) : (
+                  <Login />
+                )}
               </>
             )}
           </>
