@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import InsaSkeleton from "@component/insa/InsaSkeleton";
 import UserModifyPop from "@component/insa/UserModifyPop";
 import { format } from "date-fns";
+import { RiArrowUpDownFill } from "react-icons/ri";
 
 const ListUl = styled.div`
   display: flex;
@@ -45,7 +46,7 @@ export default function UserList() {
   useGetUser();
   const [userData, setUserData] = useState();
   const userInfo = useSelector((state) => state.user.currentUser);
-  const userAll = useSelector((state) => state.user.allUser);
+  let userAll = useSelector((state) => state.user.allUser);
   const [isLoading, setIsLoading] = useState(false);
   const [isModifyPop, setIsModifyPop] = useState(false);
 
@@ -66,14 +67,43 @@ export default function UserList() {
   };
 
   const [adminCheck, setAdminCheck] = useState(false);
+  const [userAllState, setUserAllState] = useState();
   useEffect(() => {
     if (userAll) {
+      setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);
       }
       setIsLoading(true);
     }
   }, [userAll, userInfo]);
+
+  const [sortState, setSortState] = useState();
+  const onSort = (type) => {
+    let sortObj = {
+      type,
+      sort: "asc",
+    };
+    if (sortState?.sort === "asc") {
+      sortObj.sort = "desc";
+    } else if (sortState?.sort === "desc") {
+      sortObj.sort = "asc";
+    }
+    setSortState(sortObj);
+    console.log(sortObj);
+
+    userAll = userAll.sort((a, b) => {
+      if (sortObj.sort === "asc") {
+        return a[type] - b[type];
+      } else {
+        return b[type] - a[type];
+      }
+    });
+
+    setUserAllState(userAll);
+    console.log(userAll);
+  };
+
   return (
     <>
       {isLoading ? (
@@ -85,7 +115,17 @@ export default function UserList() {
               <li className="box rank">직급</li>
               <li className="box call">전화번호</li>
               <li className="box email">이메일</li>
-              <li className="box date">입사일</li>
+              <li className="box date">
+                입사일
+                <button>
+                  <RiArrowUpDownFill
+                    onClick={() => {
+                      onSort("timestamp");
+                    }}
+                    style={{ marginLeft: "5px", fontSize: "1.1rem" }}
+                  />
+                </button>
+              </li>
               {adminCheck && (
                 <>
                   <li className="box dayoff"></li>
@@ -94,8 +134,8 @@ export default function UserList() {
               )}
             </ul>
             <ul className="body">
-              {userAll &&
-                userAll.map((el) => (
+              {userAllState &&
+                userAllState.map((el) => (
                   <>
                     <li key={el.uid}>
                       <span className="box name">{el.name}</span>

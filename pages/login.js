@@ -34,10 +34,12 @@ function Login() {
           // Signed in
           const user = userCredential.user;
           window.sessionStorage.setItem("isLogin", true);
-          dispatch(setUser(user));
           // ...
         })
-        .then((res) => router.push("/"))
+        .then((res) => {
+          dispatch(setUser(user));
+          router.push("/");
+        })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -71,7 +73,7 @@ function Login() {
   return (
     <>
       {alertState && <AlertBox text={alertMessage} />}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form style={{ width: "100vw" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex
             maxWidth={400}

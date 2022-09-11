@@ -45,10 +45,12 @@ function Join() {
             date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
             timestamp: new Date().getTime(),
           });
-          dispatch(setUser(user));
-          // ...
+          window.sessionStorage.setItem("isLogin", true);
         })
-        .then((res) => router.push("/"))
+        .then((res) => {
+          dispatch(setUser(user));
+          router.push("/");
+        })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -77,7 +79,7 @@ function Join() {
   return (
     <>
       {alertState && <AlertBox text={alertMessage} />}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form style={{ width: "100vw" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex
             maxWidth={400}
