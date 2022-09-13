@@ -90,8 +90,6 @@ export default function UserList() {
       sortObj.sort = "asc";
     }
     setSortState(sortObj);
-    console.log(sortObj);
-
     userAll = userAll.sort((a, b) => {
       if (sortObj.sort === "asc") {
         return a[type] - b[type];
@@ -99,9 +97,7 @@ export default function UserList() {
         return b[type] - a[type];
       }
     });
-
     setUserAllState(userAll);
-    console.log(userAll);
   };
 
   return (

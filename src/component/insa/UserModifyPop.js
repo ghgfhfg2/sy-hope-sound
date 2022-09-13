@@ -16,7 +16,7 @@ import styled from "styled-components";
 import PartSelect from "@component/popup/PartSelect";
 import RankSelect from "@component/popup/RankSelect";
 
-const CommonPopup = styled.div`
+export const CommonPopup = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
