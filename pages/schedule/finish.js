@@ -1,14 +1,14 @@
 import BoardList, { BoardLi } from "@component/BoardList";
 import { useEffect, useState } from "react";
 import { db } from "src/firebase";
-import { ref, onValue, remove, get, off, update } from "firebase/database";
+import { ref, onValue, remove, get, off, update, query, startAt, endAt,orderByKey } from "firebase/database";
 import shortid from "shortid";
 import { format } from "date-fns";
 import styled from "styled-components";
-import ConfirmPop from "@component/schedule/ConfirmPop";
+import FinishPop from "@component/schedule/FinishPop";
 import None from "@component/None";
 
-const ReadyList = styled(BoardLi)`
+const FinishList = styled(BoardLi)`
   li {
     .name {
       max-width: 150px;
@@ -26,26 +26,22 @@ const ReadyList = styled(BoardLi)`
   }
 `;
 
-export default function SignReady() {
-  const [readyList, setReadyList] = useState();
+export default function finish() {
+  const [finishList, setFinishList] = useState();
   useEffect(() => {
-    const listRef = ref(db, `dayoff/temp`);
+    const listRef = query(ref(db, `dayoff/finish`),orderByKey(),startAt('202209'),endAt('202209'));
     onValue(listRef, (data) => {
       let listArr = [];
-      data.forEach((el) => {
-        let daySum = 0;
-        el.val().list.forEach(li=>{
-          daySum += li.day
-        })
-        let obj = {
-          ...el.val(),
-          uid:el.key,
-          daySum
-        };
-        listArr.push(obj);
-      });
-      console.log(listArr)
-      setReadyList(listArr);
+      data.forEach(el=>{
+        for(const key in el.val()){
+          let obj = {
+            ...el.val()[key],
+            date:format(new Date(el.val()[key].timestamp,),"yyyy-MM-dd")
+          }
+          listArr.push(obj)
+        }
+      })
+      setFinishList(listArr);
     });
     return () => {
       off(listRef);
@@ -66,13 +62,13 @@ export default function SignReady() {
   return (
     <>
       <BoardList>
-        <ReadyList>
+        <FinishList>
           <li className="header">
             <span className="name">이름</span>
             <span className="subject">제목</span>
             <span className="date">작성일</span>
           </li>
-          {readyList && readyList.map((el) => (
+          {finishList && finishList.map((el) => (
             <li key={shortid()}>
               <span className="name">{el.userName}</span>
               <span className="subject">
@@ -81,15 +77,15 @@ export default function SignReady() {
                 </button>
               </span>
               <span className="date">
-                {format(new Date(el.timestamp), "yyyy-MM-dd")}
+                {el.date}
               </span>
             </li>
           ))}
-          {readyList?.length === 0 && <None />}
-        </ReadyList>
+          {finishList?.length === 0 && <None />}
+        </FinishList>
       </BoardList>
       {listData && isConfirmPop && (
-        <ConfirmPop listData={listData} closePopup={closePopup} />
+        <FinishPop listData={listData} closePopup={closePopup} />
       )}
     </>
   );

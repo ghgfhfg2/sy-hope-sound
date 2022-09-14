@@ -17,13 +17,13 @@ import {
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import Link from "next/link";
 import { db } from "src/firebase";
-import { ref, set } from "firebase/database";
+import { ref, set, get } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
-import { ko } from "date-fns/esm/locale";
 import AlertBox from "@component/popup/Alert";
 import RadioCard from "@component/RadioCard";
 import styled from "styled-components";
 import shortid from "shortid";
+import ko from "date-fns/locale/ko";
 
 export const DayOffList = styled.ul`
   display: flex;
@@ -80,6 +80,16 @@ export default function OffWrite({ userInfo }) {
   const [totalDay, setTotalDay] = useState();
 
   const onAddDayoff = () => {
+    let overlapDate = false;
+    offList.forEach(el=>{
+      if(el.date === format(new Date(selectDate), "yyyy-MM-dd")){
+        overlapDate = true
+      }
+    })
+    if(overlapDate){
+      window.alert('이미 추가된 날짜 입니다.')
+      return
+    }
     if (!offType) {
       setAlertMessage("유형을 선택해 주세요");
       setAlertType("error");
@@ -117,39 +127,53 @@ export default function OffWrite({ userInfo }) {
   }, [offList]);
 
   const onSubmit = (values) => {
-    return new Promise((resolve) => {
-      if (offList.length < 1) {
-        setAlertMessage("휴가리스트를 추가해 주세요");
-        setAlertType("error");
-        setAlertState(true);
-        setTimeout(() => {
-          setAlertState(false);
-        }, 1500);
-        resolve();
-        return;
+    get(ref(db,`user/${userInfo.uid.trim()}/dayoff`))
+    .then((data)=>{
+      if(data.val() < totalDay){
+        alert('휴가가 부족합니다.')
+        return false
       }
-      const uid = shortid.generate();
-      set(ref(db, `dayoff/temp/${uid}/`), {
-        subject: values.subject,
-        reason: values.reason,
-        userUid: userInfo.uid,
-        userName: userInfo.name,
-        manager: "6c1PcuTKbNdgKIA1zOi7xfwpuuA2",
-        timestamp: new Date().getTime(),
-        list: offList,
-      })
-        .then(() => {
-          setAlertMessage("제출완료 되었습니다.");
-          setAlertState(true);
-          setTimeout(() => {
-            setAlertState(false);
-          }, 1500);
-          resolve();
-        })
-        .catch((error) => {
-          console.error(error);
+      return true
+    })
+    .then(res=>{
+      if(res){
+        return new Promise((resolve) => {
+          if (offList.length < 1) {
+            setAlertMessage("휴가리스트를 추가해 주세요");
+            setAlertType("error");
+            setAlertState(true);
+            setTimeout(() => {
+              setAlertState(false);
+            }, 1500);
+            resolve();
+            return;
+          }
+          const uid = shortid.generate();
+          set(ref(db, `dayoff/temp/${uid}/`), {
+            subject:values.subject,
+            reason:values.reason,
+            userUid:userInfo.uid,
+            userName:userInfo.name,
+            manager:"6c1PcuTKbNdgKIA1zOi7xfwpuuA2",
+            timestamp:new Date().getTime(),
+            list:offList,
+          })
+            .then(() => {
+              setAlertMessage("제출완료 되었습니다.");
+              setAlertState(true);
+              setTimeout(() => {
+                setAlertState(false);
+              }, 1500);
+              resolve();
+            })
+            .catch((error) => {
+              console.error(error);
+            });
         });
-    });
+
+      }
+    })
+    return
   };
 
   return (

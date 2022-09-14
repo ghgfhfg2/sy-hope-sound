@@ -2,14 +2,14 @@ import React from "react";
 import { Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { db } from "src/firebase";
-import { ref, set, update, remove, runTransaction } from "firebase/database";
+import { ref, set, update, remove, query, orderByValue, equalTo } from "firebase/database";
 import { CommonPopup } from "@component/insa/UserModifyPop";
 import { DayOffList } from "@component/schedule/OffWrite";
 import styled from "styled-components";
 import shortid from "shortid";
 import { format } from "date-fns";
 
-const ConfirmPopup = styled(CommonPopup)`
+const FinishPopup = styled(CommonPopup)`
   .con_box {
     width: 100%;
     max-width: 500px;
@@ -27,52 +27,32 @@ const ConfirmPopup = styled(CommonPopup)`
   }
 `;
 
-export default function ConfirmPop({ listData, closePopup }) {
+export default function FinishPop({ listData, closePopup }) {
   function onSubmit() {
     return new Promise((resolve) => {
-      let finishDate = format(listData.timestamp,"yyyyMM")
-      runTransaction(ref(db,`user/${listData.userUid.trim()}/dayoff`),pre=>{
-        let newDay = pre ? pre - listData.daySum : null;
-        if(newDay < 0){
-          window.alert('휴가가 부족합니다.')
-          return;
-        }else{
-          return newDay;
-        }
-      })
-      .then((res)=>{
-        if(res.committed){
-          update(ref(db, `dayoff/finish/${finishDate}/${listData.uid}`), {...listData})
-          .then(()=>{
-            listData.list.forEach(el=>{
-              let d = el.date.split('-').join('');
-              update(ref(db, `dayoff/list/${d}/${shortid.generate()}`), {
-                ...el,
-                uid:listData.uid,
-                userName:listData.userName,
-                userUid:listData.userUid,
-                manager:listData.manager,
-                reason:listData.reason,
-                subject:listData.subject
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-            })
-          })
-          .then(()=>{
-            remove(ref(db,`dayoff/temp/${listData.uid}`))
-          })
-          .then(()=>{
-            closePopup();
-            resolve();
-          })
+      
+      let finishDate = format(listData.timestamp,"yyyyMM");
+      update(ref(db, `dayoff/temp/${listData.uid}`), {...listData})
+      .then(()=>{
+        listData.list.forEach(el=>{
+          let d = format(new Date(el.date),'yyyyMM')
+          remove(query(ref(db, `dayoff/list/${d}`),orderByValue('uid'),equalTo(listData.uid)))
           .catch((error) => {
             console.error(error);
-            resolve();
           });
-        }
+        })
       })
+      .then(()=>{
+        remove(ref(db,`dayoff/finish/${finishDate}/${listData.uid}`))
+      })
+      .then(()=>{
+        closePopup();
+        resolve();
+      })
+      .catch((error) => {
+        console.error(error);
+        resolve();
+      });
 
 
     });
@@ -80,7 +60,7 @@ export default function ConfirmPop({ listData, closePopup }) {
 
   return (
     <>
-    <ConfirmPopup>
+    <FinishPopup>
       <div className="con_box">
         <h2>{listData.subject}</h2>
         <div className="name">{listData.userName}</div>
@@ -101,12 +81,12 @@ export default function ConfirmPop({ listData, closePopup }) {
               </>
             ))}
           <Button onClick={onSubmit} colorScheme="teal" mt="5">
-            결재
+            결재취소
           </Button>
         </DayOffList>
       </div>
       <div className="bg" onClick={closePopup}></div>
-    </ConfirmPopup>
+    </FinishPopup>
     </>
   );
 }

@@ -58,6 +58,7 @@ function App({ Component, pageProps }) {
               ...user,
               ...data.val(),
             };
+            console.log('userData',userData)
             dispatch(setUser(userData));
           }
         });
