@@ -79,7 +79,7 @@ function Join() {
   return (
     <>
       {alertState && <AlertBox text={alertMessage} />}
-      <form style={{ width: "100vw" }} onSubmit={handleSubmit(onSubmit)}>
+      <form style={{ width: "100vw",paddingTop:"20vh" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex
             maxWidth={400}
@@ -167,7 +167,7 @@ function Join() {
                 type="number"
                 placeholder="전화번호"
                 {...register("call", {
-                  required: "이름은 필수항목 입니다.",
+                  required: "전화번호는 필수항목 입니다.",
                 })}
               />
             </FormControl>

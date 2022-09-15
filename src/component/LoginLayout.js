@@ -12,7 +12,6 @@ export default function LoginLayout({ children }) {
     <>
       <Flex
         width="100%"
-        paddingTop="20vh"
         justifyContent="center"
         alignItems="center"
       >

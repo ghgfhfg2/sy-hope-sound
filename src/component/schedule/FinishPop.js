@@ -1,8 +1,10 @@
 import React from "react";
 import { Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
-import { ref, set, update, remove, query, orderByValue, equalTo } from "firebase/database";
+import { ref, set, update, remove, query, orderByValue,orderByChild, equalTo, runTransaction } from "firebase/database";
 import { CommonPopup } from "@component/insa/UserModifyPop";
 import { DayOffList } from "@component/schedule/OffWrite";
 import styled from "styled-components";
@@ -28,31 +30,39 @@ const FinishPopup = styled(CommonPopup)`
 `;
 
 export default function FinishPop({ listData, closePopup }) {
+  const dispatch = useDispatch()
   function onSubmit() {
     return new Promise((resolve) => {
       
       let finishDate = format(listData.timestamp,"yyyyMM");
-      update(ref(db, `dayoff/temp/${listData.uid}`), {...listData})
+      runTransaction(ref(db,`user/${listData.userUid.trim()}/dayoff`), pre=> {
+        return  pre + listData.daySum;
+      })
       .then(()=>{
-        listData.list.forEach(el=>{
-          let d = format(new Date(el.date),'yyyyMM')
-          remove(query(ref(db, `dayoff/list/${d}`),orderByValue('uid'),equalTo(listData.uid)))
-          .catch((error) => {
-            console.error(error);
-          });
+        update(ref(db, `dayoff/temp/${listData.uid}`), {...listData})
+        .then(()=>{
+          listData.list.forEach(el=>{
+            let d = format(new Date(el.date),'yyyyMM')
+            remove(query(ref(db, `dayoff/list/${d}`),orderByValue('uid'),equalTo(listData.uid)))
+            .catch((error) => {
+              console.error(error);
+            });
+          })
         })
+        .then(()=>{
+          remove(ref(db,`dayoff/finish/${finishDate}/${listData.uid}`))
+        })
+        .then(()=>{
+          dispatch(updateDayoffCount(true))
+          closePopup();
+          resolve();
+        })
+        .catch((error) => {
+          console.error(error);
+          resolve();
+        });
       })
-      .then(()=>{
-        remove(ref(db,`dayoff/finish/${finishDate}/${listData.uid}`))
-      })
-      .then(()=>{
-        closePopup();
-        resolve();
-      })
-      .catch((error) => {
-        console.error(error);
-        resolve();
-      });
+
 
 
     });

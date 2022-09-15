@@ -21,26 +21,6 @@ html {
   flex: 1;
   padding: 3rem; }
 
-.schedule__calendar {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex-direction: column; }
-
-.schedule__calendar .body {
-  display: flex;
-  flex-direction: column; }
-
-.schedule__calendar .row {
-  display: flex;
-  flex: 1; }
-
-.schedule__calendar .col {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center; }
-
 footer.footer {
   width: 100%;
   border-top: 1px solid #ddd; }

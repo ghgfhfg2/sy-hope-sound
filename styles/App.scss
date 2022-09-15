@@ -13,28 +13,6 @@
   padding: 3rem;
 }
 
-nav.left_menu {
-}
-
-.schedule__calendar {
-  @include flex($d: column, $a: stretch);
-  .body {
-    display: flex;
-    flex-direction: column;
-  }
-  .row {
-    display: flex;
-    flex: 1;
-    &.header {
-    }
-  }
-  .col {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
 
 footer.footer {
   width: 100%;

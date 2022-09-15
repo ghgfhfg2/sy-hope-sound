@@ -1,5 +1,6 @@
 import BoardList, { BoardLi } from "@component/BoardList";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { db } from "src/firebase";
 import { ref, onValue, remove, get, off, update, query, startAt, endAt,orderByKey } from "firebase/database";
 import shortid from "shortid";
@@ -27,6 +28,7 @@ const FinishList = styled(BoardLi)`
 `;
 
 export default function finish() {
+  const userInfo = useSelector(state=>state.user.currentUser);
   const [finishList, setFinishList] = useState();
   useEffect(() => {
     const listRef = query(ref(db, `dayoff/finish`),orderByKey(),startAt('202209'),endAt('202209'));
@@ -41,12 +43,15 @@ export default function finish() {
           listArr.push(obj)
         }
       })
+      listArr = listArr.filter(el=>{
+        return el.manager === userInfo?.uid || el.userUid === userInfo?.uid
+      })
       setFinishList(listArr);
     });
     return () => {
       off(listRef);
     };
-  }, []);
+  }, [userInfo]);
 
   const [listData, setListData] = useState();
   const [isConfirmPop, setIsConfirmPop] = useState(false);

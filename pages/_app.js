@@ -4,6 +4,8 @@ import { setUser, clearUser } from "@redux/actions/user_action";
 import "../styles/globals.css";
 import "../styles/App.css";
 import "../styles/scss-common.css";
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 import wrapper from "@redux/store/configureStore";
 import { ChakraProvider, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -29,6 +31,25 @@ function App({ Component, pageProps }) {
       `${window.innerHeight * 0.01}px`
     );
   };
+
+
+  useEffect(() => {
+    const handleStart = (url) => {
+      NProgress.start()
+    }
+    const handleStop = () => {
+      NProgress.done()
+    }
+    router.events.on('routeChangeStart', handleStart)
+    router.events.on('routeChangeComplete', handleStop)
+    router.events.on('routeChangeError', handleStop)
+    return () => {
+      router.events.off('routeChangeStart', handleStart)
+      router.events.off('routeChangeComplete', handleStop)
+      router.events.off('routeChangeError', handleStop)
+    }
+  }, [router])
+
 
   useEffect(() => {
     window.addEventListener("resize", setVh);
@@ -67,7 +88,9 @@ function App({ Component, pageProps }) {
         window.sessionStorage.setItem("isLogin", false);
         dispatch(clearUser());
         setAuthCheck(false);
-        router.push("/login");
+        if(isPublicPath){
+          router.push("/login");
+        }
       }
       setisLoading(false);
     });

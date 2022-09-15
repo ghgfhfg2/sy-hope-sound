@@ -73,7 +73,7 @@ function Login() {
   return (
     <>
       {alertState && <AlertBox text={alertMessage} />}
-      <form style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
+      <form style={{ width: "100%", paddingTop:"20vh" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="center" marginTop={10}>
           <Flex
             maxWidth={400}

@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { updateDayoffCount } from "@redux/actions/counter_action"
 import { db } from "src/firebase";
 import { ref, set, update, remove, runTransaction } from "firebase/database";
 import { CommonPopup } from "@component/insa/UserModifyPop";
@@ -28,11 +30,12 @@ const ConfirmPopup = styled(CommonPopup)`
 `;
 
 export default function ConfirmPop({ listData, closePopup }) {
+  const dispatch = useDispatch()
   function onSubmit() {
     return new Promise((resolve) => {
       let finishDate = format(listData.timestamp,"yyyyMM")
-      runTransaction(ref(db,`user/${listData.userUid.trim()}/dayoff`),pre=>{
-        let newDay = pre ? pre - listData.daySum : null;
+      runTransaction(ref(db,`user/${listData.userUid.trim()}/dayoff`), pre=> {
+        let newDay = pre ? pre - listData.daySum : -1;
         if(newDay < 0){
           window.alert('휴가가 부족합니다.')
           return;
@@ -64,6 +67,7 @@ export default function ConfirmPop({ listData, closePopup }) {
             remove(ref(db,`dayoff/temp/${listData.uid}`))
           })
           .then(()=>{
+            dispatch(updateDayoffCount(true))
             closePopup();
             resolve();
           })

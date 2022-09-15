@@ -46,7 +46,14 @@ export const CommonPopup = styled.div`
     background: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
     padding: 1rem;
+    transform: translateY(30px);
     z-index: 10;
+    animation: fadeUp 0.2s forwards;
+  }
+  @keyframes fadeUp {
+    to {
+      transform: translateY(0);
+    }
   }
 `;
 
