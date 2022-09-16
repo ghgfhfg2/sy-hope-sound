@@ -10,7 +10,7 @@ import UserModifyPop from "@component/insa/UserModifyPop";
 import { format } from "date-fns";
 import { RiArrowUpDownFill } from "react-icons/ri";
 
-const ListUl = styled.div`
+export const ListUl = styled.div`
   display: flex;
   flex-direction: column;
   > ul {

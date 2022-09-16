@@ -51,9 +51,25 @@ function LeftMunu({userInfo}) {
   return (
     <>
       <LeftMenu>
+      {router.includes('/insa') && 
+          <>
+            <ul className='depth_1'>
+              <li className={router === "/insa" ? "on" : ""}>
+                <Link href="/insa/">직원정보</Link>
+              </li>
+              <li className={router === "/insa/setting" ? "on" : ""}>
+                <Link href="/insa/setting">설정</Link>
+              </li>
+            </ul>
+          
+          </>
+        }
         {router.includes('/schedule') && 
           <>
             <ul className='depth_1'>
+              <li className={router === "/schedule" ? "on" : ""}>
+                <Link href="/schedule">스케쥴표</Link>
+              </li>
               <li className={router === "/schedule/write" ? "on" : ""}>
                 <Link href="/schedule/write">글작성</Link>
               </li>

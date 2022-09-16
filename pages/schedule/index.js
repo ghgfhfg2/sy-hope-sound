@@ -79,6 +79,7 @@ const ScheduleCalendar = styled.div`
       justify-content: flex-start;
       align-items: flex-start;
       padding: 15px;
+      overflow:auto;
     }
     .disabled {
       background: #f1f1f1;
@@ -96,7 +97,27 @@ const ScheduleCalendar = styled.div`
     .valid:hover {
       background: #f9f9f9;
     }
+    .dayoff_list{
+      display:flex;
+      flex-wrap:wrap;
+      li{
+        padding:5px;font-size:11px;
+        color:#fff;margin:2px;
+        border-radius:3px;       
+      }
+    }
   }
+  .type_info{
+    display:flex;
+    margin-bottom:15px;
+    li{margin-right:4px;width:70px;
+      text-align:center;color:#fff;font-size:12px;
+      padding:5px;border-radius:4px;
+    }
+  }
+  .all_off{background:#319795}
+  .am_off{background:#3182CE}
+  .pm_off{background:#DD6B20}
 `;
 
 const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
@@ -158,7 +179,7 @@ const RenderCells = ({
       const cloneDay = day;
       days.push(
         <div
-          className={`col cell ${
+          className={`col ani__fade_in custom__scroll_bar cell ${
             !isSameMonth(day, monthStart)
               ? "disabled"
               : isSameDay(day, selectedDate)
@@ -179,11 +200,17 @@ const RenderCells = ({
             }
           >
             {formattedDate}
-            <ul>
+            <ul className="dayoff_list">
               {dayoffList?.[formattedDate] &&
                 dayoffList[formattedDate].map((el) => (
                   <>
-                    <li>{el.userName}</li>
+                    <li
+                      className={
+                        el.offType === '연차' ? 'all_off' 
+                        : el.offType === '오전반차' ? 'am_off'
+                        : el.offType === '오전반차' ? 'pm_off' : ''
+                      }
+                    >{el.userName}</li>
                   </>
                 ))}
             </ul>
@@ -247,6 +274,11 @@ function Schedule() {
   };
   return (
     <ScheduleCalendar>
+      <ul className="type_info">
+        <li className="am_off">오전반차</li>
+        <li className="pm_off">오후반차</li>
+        <li className="all_off">연차</li>
+      </ul>
       <RenderHeader
         currentMonth={currentMonth}
         prevMonth={prevMonth}

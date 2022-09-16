@@ -13,8 +13,35 @@
   padding: 3rem;
 }
 
+.custom__scroll_bar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom__scroll_bar::-webkit-scrollbar-thumb {
+  background-color: #4FD1C5;
+  border-radius: 5px;
+}
+.custom__scroll_bar::-webkit-scrollbar-track {
+  background-color: #B2F5EA;
+}
 
 footer.footer {
   width: 100%;
   border-top: 1px solid #ddd;
 }
+
+.ani__fade_in{
+  opacity: 0;
+  animation: ani_fade_in 0.6s forwards;
+}
+
+@keyframes ani_fade_in {
+  to{
+    opacity: 1;
+  }
+}
+
+
+.xs{width:12.5%}
+.sm{width:25%}
+.md{width:50%}
+.lg{width:100%}
