@@ -57,7 +57,14 @@ export const CommonPopup = styled.div`
   }
 `;
 
-export default function UserModifyPop({ userData, closeUserModify }) {
+export default function UserModifyPop({
+  userData,
+  closeUserModify,
+  partList,
+  rankList,
+}) {
+  console.log("partList", partList);
+  console.log("rankList", rankList);
   const dispatch = useDispatch();
 
   const {
@@ -76,6 +83,8 @@ export default function UserModifyPop({ userData, closeUserModify }) {
         dayoff: values.dayoff || "",
       })
         .then(() => {
+          values.part = values.part ? partList[values.part] : "";
+          values.rank = values.rank ? rankList[values.rank] : "";
           dispatch(updateAllUser(values));
           closeUserModify();
           resolve();
@@ -114,14 +123,14 @@ export default function UserModifyPop({ userData, closeUserModify }) {
                 defaultValue={userData.part}
                 {...register("part")}
               >
-                <PartSelect />
+                <PartSelect partList={partList} />
               </Select>
               <Select
                 placeholder="직급"
                 defaultValue={userData.rank}
                 {...register("rank")}
               >
-                <RankSelect />
+                <RankSelect rankList={rankList} />
               </Select>
               <FormControl isInvalid={errors.call}>
                 <Input

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "src/firebase";
-import { ref, onValue } from "firebase/database";
+import { ref, get, onValue } from "firebase/database";
 import useGetUser from "@component/hook/getUserDb";
 import styled from "styled-components";
 import { Button } from "@chakra-ui/react";
@@ -43,23 +43,24 @@ export const ListUl = styled.div`
 `;
 
 export default function UserList() {
-  useGetUser();
+  const getUserInfo = useGetUser();
+  const partList = getUserInfo[1]?.partList;
+  const rankList = getUserInfo[1]?.rankList;
+
   const [userData, setUserData] = useState();
   const userInfo = useSelector((state) => state.user.currentUser);
   let userAll = useSelector((state) => state.user.allUser);
   const [isLoading, setIsLoading] = useState(false);
   const [isModifyPop, setIsModifyPop] = useState(false);
 
-  const onUserModify = (uid) => {
+  const onUserModify = async (uid) => {
     const dbRef = ref(db, `user/${uid}`);
-    onValue(dbRef, (data) => {
-      let user = {
-        ...data.val(),
-        uid: data.key,
-      };
-      setUserData(user);
-      setIsModifyPop(true);
-    });
+    const getUser = await get(dbRef);
+    let user = {
+      ...getUser.val(),
+    };
+    setUserData(user);
+    setIsModifyPop(true);
   };
   const closeUserModify = () => {
     setUserData("");
@@ -110,6 +111,7 @@ export default function UserList() {
               <li className="box part">부서</li>
               <li className="box rank">직급</li>
               <li className="box call">전화번호</li>
+              <li className="box manager">담당자</li>
               <li className="box email">이메일</li>
               <li className="box date">
                 입사일
@@ -138,9 +140,10 @@ export default function UserList() {
                       <span className="box part">{el.part}</span>
                       <span className="box rank">{el.rank}</span>
                       <span className="box call">{el.call}</span>
+                      <span className="box manager"></span>
                       <span className="box email">{el.email}</span>
                       <span className="box date">
-                        {format(new Date(el.date), "yyyy-MM-dd")}
+                        {el.date && format(new Date(el.date), "yyyy-MM-dd")}
                       </span>
                       {adminCheck && (
                         <>
@@ -167,6 +170,8 @@ export default function UserList() {
           {userData && isModifyPop && (
             <UserModifyPop
               userData={userData}
+              partList={partList}
+              rankList={rankList}
               closeUserModify={closeUserModify}
             />
           )}

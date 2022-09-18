@@ -1,11 +1,21 @@
-import { Select } from "@chakra-ui/react";
-
-export default function PartSelect() {
+export default function PartSelect({ partList }) {
+  let partArr = [];
+  for (const key in partList) {
+    partArr.push({
+      uid: key,
+      name: partList[key],
+    });
+  }
   return (
     <>
-      <option value='option1'>Option 1</option>
-      <option value='option2'>Option 2</option>
-      <option value='option3'>Option 3</option>
+      {partArr &&
+        partArr.map((el, idx) => (
+          <>
+            <option key={idx} value={el.uid}>
+              {el.name}
+            </option>
+          </>
+        ))}
     </>
-  )
+  );
 }

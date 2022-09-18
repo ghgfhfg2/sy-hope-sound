@@ -2,7 +2,18 @@ import BoardList, { BoardLi } from "@component/BoardList";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { db } from "src/firebase";
-import { ref, onValue, remove, get, off, update, query, startAt, endAt,orderByKey } from "firebase/database";
+import {
+  ref,
+  onValue,
+  remove,
+  get,
+  off,
+  update,
+  query,
+  startAt,
+  endAt,
+  orderByKey,
+} from "firebase/database";
 import shortid from "shortid";
 import { format } from "date-fns";
 import styled from "styled-components";
@@ -27,25 +38,30 @@ const FinishList = styled(BoardLi)`
   }
 `;
 
-export default function finish() {
-  const userInfo = useSelector(state=>state.user.currentUser);
+export default function Finish() {
+  const userInfo = useSelector((state) => state.user.currentUser);
   const [finishList, setFinishList] = useState();
   useEffect(() => {
-    const listRef = query(ref(db, `dayoff/finish`),orderByKey(),startAt('202209'),endAt('202209'));
+    const listRef = query(
+      ref(db, `dayoff/finish`),
+      orderByKey(),
+      startAt("202209"),
+      endAt("202209")
+    );
     onValue(listRef, (data) => {
       let listArr = [];
-      data.forEach(el=>{
-        for(const key in el.val()){
+      data.forEach((el) => {
+        for (const key in el.val()) {
           let obj = {
             ...el.val()[key],
-            date:format(new Date(el.val()[key].timestamp,),"yyyy-MM-dd")
-          }
-          listArr.push(obj)
+            date: format(new Date(el.val()[key].timestamp), "yyyy-MM-dd"),
+          };
+          listArr.push(obj);
         }
-      })
-      listArr = listArr.filter(el=>{
-        return el.manager === userInfo?.uid || el.userUid === userInfo?.uid
-      })
+      });
+      listArr = listArr.filter((el) => {
+        return el.manager === userInfo?.uid || el.userUid === userInfo?.uid;
+      });
       setFinishList(listArr);
     });
     return () => {
@@ -73,19 +89,18 @@ export default function finish() {
             <span className="subject">제목</span>
             <span className="date">작성일</span>
           </li>
-          {finishList && finishList.map((el) => (
-            <li key={shortid()}>
-              <span className="name">{el.userName}</span>
-              <span className="subject">
-                <button type="button" onClick={() => onList(el)}>
-                  {el.subject}
-                </button>
-              </span>
-              <span className="date">
-                {el.date}
-              </span>
-            </li>
-          ))}
+          {finishList &&
+            finishList.map((el) => (
+              <li key={shortid()}>
+                <span className="name">{el.userName}</span>
+                <span className="subject">
+                  <button type="button" onClick={() => onList(el)}>
+                    {el.subject}
+                  </button>
+                </span>
+                <span className="date">{el.date}</span>
+              </li>
+            ))}
           {finishList?.length === 0 && <None />}
         </FinishList>
       </BoardList>

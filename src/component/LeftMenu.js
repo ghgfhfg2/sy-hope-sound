@@ -1,72 +1,98 @@
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setDayoffCount,updateDayoffCount } from "@redux/actions/counter_action";
-import Link from 'next/link';
+import {
+  setDayoffCount,
+  updateDayoffCount,
+} from "@redux/actions/counter_action";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import styled from 'styled-components';
+import styled from "styled-components";
 import { db } from "src/firebase";
-import { ref, onValue, remove, get, off, update, query,orderByChild, equalTo } from "firebase/database";
+import {
+  ref,
+  onValue,
+  remove,
+  get,
+  off,
+  update,
+  query,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
 
 const LeftMenu = styled.nav`
-width: 200px;border-right: 1px solid #ddd;
-flex-shrink:0;
-.depth_1{
-  display:flex;flex-direction:column;margin:10px 0;
-  >li{display:flex;margin:5px 0;
-    &.on{font-weight:bold}
+  width: 200px;
+  border-right: 1px solid #ddd;
+  flex-shrink: 0;
+  .depth_1 {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    > li {
+      display: flex;
+      margin: 5px 0;
+      &.on {
+        font-weight: bold;
+      }
+    }
+    > li > a {
+      padding: 0 15px;
+    }
   }
-  >li>a{padding:0 15px;}
-}  
-`
+`;
 
-function LeftMunu({userInfo}) {
+function LeftMunu({ userInfo }) {
   const router = useRouter().route;
-  const dispatch = useDispatch()
-  const dayoffCount = useSelector(state=>state.counter.dayoffCount)
-  const dayoffCheck = useSelector(state=>state.counter.dayoffCheck)
-  const [dayoffReady, setDayoffReady] = useState('결재대기')
+  const dispatch = useDispatch();
+  const dayoffCount = useSelector((state) => state.counter.dayoffCount);
+  const dayoffCheck = useSelector((state) => state.counter.dayoffCheck);
+  const [dayoffReady, setDayoffReady] = useState("결재대기");
   useEffect(() => {
     let countRef;
-    countRef = query(ref(db,`dayoff/temp`),orderByChild("manager"),equalTo(userInfo ? userInfo.uid : ''))
-    if(router.includes('/schedule')){
-      onValue(countRef,data=>{
+    countRef = query(
+      ref(db, `dayoff/temp`),
+      orderByChild("manager"),
+      equalTo(userInfo ? userInfo.uid : "")
+    );
+    if (router.includes("/schedule")) {
+      onValue(countRef, (data) => {
         let count = 0;
-        for(const key in data.val()){
+        for (const key in data.val()) {
           count++;
         }
-        dispatch(setDayoffCount(count))
-        dispatch(updateDayoffCount(false))
-      })
+        dispatch(setDayoffCount(count));
+        dispatch(updateDayoffCount(false));
+      });
     }
     return () => {
-      off(countRef)
-    }
-  }, [userInfo,dayoffCheck,router])
+      off(countRef);
+    };
+  }, [userInfo, dayoffCheck, router]);
 
   useEffect(() => {
-    setDayoffReady(`결재요청(${dayoffCount})`)
-  }, [dayoffCount])
-  
-    
+    setDayoffReady(`결재요청(${dayoffCount})`);
+  }, [dayoffCount]);
+
   return (
     <>
       <LeftMenu>
-      {router.includes('/insa') && 
+        {router.includes("/insa") && (
           <>
-            <ul className='depth_1'>
+            <ul className="depth_1">
               <li className={router === "/insa" ? "on" : ""}>
                 <Link href="/insa/">직원정보</Link>
               </li>
-              <li className={router === "/insa/setting" ? "on" : ""}>
-                <Link href="/insa/setting">설정</Link>
-              </li>
+              {userInfo && userInfo.authority?.includes("admin") && (
+                <li className={router === "/insa/setting" ? "on" : ""}>
+                  <Link href="/insa/setting">설정</Link>
+                </li>
+              )}
             </ul>
-          
           </>
-        }
-        {router.includes('/schedule') && 
+        )}
+        {router.includes("/schedule") && (
           <>
-            <ul className='depth_1'>
+            <ul className="depth_1">
               <li className={router === "/schedule" ? "on" : ""}>
                 <Link href="/schedule">스케쥴표</Link>
               </li>
@@ -74,20 +100,17 @@ function LeftMunu({userInfo}) {
                 <Link href="/schedule/write">글작성</Link>
               </li>
               <li className={router === "/schedule/sign_ready" ? "on" : ""}>
-                <Link href="/schedule/sign_ready">
-                  {dayoffReady}                
-                </Link>
+                <Link href="/schedule/sign_ready">{dayoffReady}</Link>
               </li>
               <li className={router === "/schedule/finish" ? "on" : ""}>
                 <Link href="/schedule/finish">결재완료</Link>
               </li>
             </ul>
-          
           </>
-        }
+        )}
       </LeftMenu>
     </>
-  )
+  );
 }
 
-export default LeftMunu
+export default LeftMunu;
