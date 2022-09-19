@@ -11,12 +11,14 @@ import { ChakraProvider, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { app, auth, db } from "src/firebase";
 import { ref, onValue, off, get } from "firebase/database";
+import { getStorage, ref as sRef, getDownloadURL } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import Layout from "@component/Layout";
 import Login from "@component/Login";
 import Loading from "@component/Loading";
 
 function App({ Component, pageProps }) {
+  const storage = getStorage();
   const dispatch = useDispatch();
   const router = useRouter();
   const path = router.pathname;
@@ -54,6 +56,18 @@ function App({ Component, pageProps }) {
     return () => {
       window.removeEventListener("resize", setVh);
     };
+  }, []);
+
+  const [logoImg, setLogoImg] = useState();
+  useEffect(() => {
+    const getLogo = async () => {
+      const logoRef = sRef(storage, `company/logo`);
+      const logoUrl = await getDownloadURL(logoRef);
+      if (logoUrl) {
+        setLogoImg(logoUrl);
+      }
+    };
+    getLogo();
   }, []);
 
   useEffect(() => {
@@ -95,7 +109,7 @@ function App({ Component, pageProps }) {
   const getLayout =
     Component.getLayout ||
     ((page) => {
-      return <Layout>{page}</Layout>;
+      return <Layout logoImg={logoImg}>{page}</Layout>;
     });
 
   return (

@@ -15,22 +15,42 @@ const HeaderTop = styled.div`
   height: 60px;
   display: flex;
   justify-content: space-between;
+  .left {
+    display: flex;
+    align-items: center;
+  }
+  .logo {
+    cursor: pointer;
+    display: flex;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    background: #fff;
+    padding: 0 1rem;
+    img {
+      max-height: 30px;
+    }
+  }
   .menu {
     display: flex;
     align-items: center;
     height: 100%;
   }
   li {
-    height:100%;
-    padding:0 1rem;
-    a{
-      display:flex;align-items:center;
-    justify-content:center;height:100%;
+    height: 100%;
+    padding: 0 1rem;
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
     }
-    &.on{
-      background:#fff;color: var(--m-color);
-      a{
-        font-weight:600;
+    &.on {
+      background: #fff;
+      color: var(--m-color);
+      a {
+        font-weight: 600;
       }
     }
   }
@@ -41,7 +61,7 @@ const HeaderTop = styled.div`
   }
 `;
 
-function Header() {
+function Header({ logoImg }) {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.currentUser);
   const auth = getAuth();
@@ -59,14 +79,21 @@ function Header() {
   return (
     <>
       <HeaderTop>
-        <ul className="menu">
-          <li className={router.route.indexOf("/insa") > -1 && "on"}>
-            <Link href="/insa">인사관리</Link>
-          </li>
-          <li className={router.route.indexOf("/schedule") > -1 && "on"}>
-            <Link href="/schedule">일정관리</Link>
-          </li>
-        </ul>
+        <div className="left">
+          <h1 className="logo">
+            <Link href="/">
+              <img src={logoImg} />
+            </Link>
+          </h1>
+          <ul className="menu">
+            <li className={router.route.indexOf("/insa") > -1 && "on"}>
+              <Link href="/insa">인사관리</Link>
+            </li>
+            <li className={router.route.indexOf("/schedule") > -1 && "on"}>
+              <Link href="/schedule">일정관리</Link>
+            </li>
+          </ul>
+        </div>
         <ul className="right">
           {userInfo ? (
             <>

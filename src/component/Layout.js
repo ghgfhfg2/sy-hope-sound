@@ -5,12 +5,12 @@ import Header from "./Header";
 import LeftMenu from "./LeftMenu";
 import Loading from "./Loading";
 
-function Layout({ children }) {
+function Layout({ children, logoImg }) {
   const userInfo = useSelector((state) => state.user.currentUser);
   return (
     <>
       <div className="wrapper">
-        <Header />
+        <Header logoImg={logoImg} />
         <div className="container">
           <LeftMenu userInfo={userInfo} />
           <div className="content_box">
