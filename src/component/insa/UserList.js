@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "src/firebase";
 import { ref, get, onValue } from "firebase/database";
-import useGetUser from "@component/hook/getUserDb";
+import useGetUser from "@component/hooks/getUserDb";
 import styled from "styled-components";
 import { Button } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
@@ -69,15 +69,40 @@ export default function UserList() {
 
   const [adminCheck, setAdminCheck] = useState(false);
   const [userAllState, setUserAllState] = useState();
+  const [managerList, setManagerList] = useState();
+
+  const [render, setRender] = useState(false)
+  const onRender = () => {
+    setRender(!render)
+  }
+  
   useEffect(() => {
     if (userAll) {
+      let userAllArr
+      userAllArr = userAll.map(el=>{
+        let user = userAll.find(li=>{
+          return el.manager_uid === li.uid
+        })
+        if(user){
+          el.manager_uid = user
+        }
+        return el
+      })
       setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);
       }
       setIsLoading(true);
+
+      let managerArr = []
+      userAll.map(el=>{
+        if(el.manager == '1'){
+          managerArr.push(el)
+        }
+      })
+      setManagerList(managerArr)      
     }
-  }, [userAll, userInfo]);
+  }, [userAll, userInfo , render]);
 
   const [sortState, setSortState] = useState();
   const onSort = (type) => {
@@ -140,7 +165,13 @@ export default function UserList() {
                       <span className="box part">{el.part}</span>
                       <span className="box rank">{el.rank}</span>
                       <span className="box call">{el.call}</span>
-                      <span className="box manager"></span>
+                      <span className="box manager">
+                        {el.manager_uid && 
+                          <>
+                            {el.manager_uid.name} ({el.manager_uid.rank})
+                          </>
+                        }
+                      </span>
                       <span className="box email">{el.email}</span>
                       <span className="box date">
                         {el.date && format(new Date(el.date), "yyyy-MM-dd")}
@@ -169,9 +200,11 @@ export default function UserList() {
           </ListUl>
           {userData && isModifyPop && (
             <UserModifyPop
+              managerList={managerList}
               userData={userData}
               partList={partList}
               rankList={rankList}
+              onRender={onRender}
               closeUserModify={closeUserModify}
             />
           )}

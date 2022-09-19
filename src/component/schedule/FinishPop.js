@@ -42,7 +42,7 @@ export default function FinishPop({ listData, closePopup }) {
         update(ref(db, `dayoff/temp/${listData.uid}`), {...listData})
         .then(()=>{
           listData.list.forEach(el=>{
-            let d = format(new Date(el.date),'yyyyMM')
+            let d = format(new Date(el.date),'yyyyMMdd')
             remove(query(ref(db, `dayoff/list/${d}`),orderByValue('uid'),equalTo(listData.uid)))
             .catch((error) => {
               console.error(error);

@@ -15,6 +15,7 @@ import { updateAllUser } from "@redux/actions/user_action";
 import styled from "styled-components";
 import PartSelect from "@component/popup/PartSelect";
 import RankSelect from "@component/popup/RankSelect";
+import ManagerSelect from "@component/popup/ManagerSelect";
 
 export const CommonPopup = styled.div`
   display: flex;
@@ -58,20 +59,24 @@ export const CommonPopup = styled.div`
 `;
 
 export default function UserModifyPop({
+  managerList,
   userData,
   closeUserModify,
   partList,
   rankList,
+  onRender
 }) {
-  console.log("partList", partList);
-  console.log("rankList", rankList);
-  const dispatch = useDispatch();
 
+  
+  const dispatch = useDispatch();
+  
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm();
+    
+
 
   function onSubmit(values) {
     return new Promise((resolve) => {
@@ -81,12 +86,14 @@ export default function UserModifyPop({
         part: values.part || "",
         rank: values.rank || "",
         dayoff: values.dayoff || "",
+        manager_uid: values.manager_uid || "",
       })
         .then(() => {
           values.part = values.part ? partList[values.part] : "";
           values.rank = values.rank ? rankList[values.rank] : "";
           dispatch(updateAllUser(values));
           closeUserModify();
+          onRender();
           resolve();
         })
         .catch((error) => {
@@ -131,6 +138,13 @@ export default function UserModifyPop({
                 {...register("rank")}
               >
                 <RankSelect rankList={rankList} />
+              </Select>
+              <Select
+                placeholder="담당자"
+                defaultValue={userData.manager_uid}
+                {...register("manager_uid")}
+              >
+                <ManagerSelect managerList={managerList} />
               </Select>
               <FormControl isInvalid={errors.call}>
                 <Input

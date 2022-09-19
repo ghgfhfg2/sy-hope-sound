@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -13,13 +14,12 @@ import {
   HStack,
   Box,
   useRadioGroup,
+  useToast
 } from "@chakra-ui/react";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
-import Link from "next/link";
 import { db } from "src/firebase";
 import { ref, set, get } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
-import AlertBox from "@component/popup/Alert";
 import RadioCard from "@component/RadioCard";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -55,8 +55,11 @@ export const DayOffList = styled.ul`
 `;
 
 export default function OffWrite({ userInfo }) {
+  const toast = useToast()
+  const userAll = useSelector(state=>state.user.allUser)
   const router = useRouter();
   const {
+    setValue,
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
@@ -71,14 +74,25 @@ export default function OffWrite({ userInfo }) {
 
   const group = getRootProps();
 
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertState, setAlertState] = useState(false);
-  const [alertType, setAlertType] = useState("info");
-
   const [selectDate, setSelectDate] = useState(new Date());
 
   const [offList, setOffList] = useState([]);
   const [totalDay, setTotalDay] = useState();
+  
+  const [userData, setUserData] = useState()
+  useEffect(() => {
+    if(userInfo && userAll){
+      let user = userAll.find(el=>{
+        return el.uid === userInfo.manager_uid
+      })
+      let obj = {
+        ...userInfo,
+        manager_uid: user || ''
+      }
+      setUserData(obj)
+    }
+  }, [userInfo, userAll])
+  
 
   const onAddDayoff = () => {
     let overlapDate = false;
@@ -88,16 +102,21 @@ export default function OffWrite({ userInfo }) {
       }
     });
     if (overlapDate) {
-      window.alert("이미 추가된 날짜 입니다.");
+      toast({
+        description: "이미 추가된 날짜 입니다.",
+        status: 'error',
+        duration: 1000,
+        isClosable: false,
+      })
       return;
     }
     if (!offType) {
-      setAlertMessage("유형을 선택해 주세요");
-      setAlertType("error");
-      setAlertState(true);
-      setTimeout(() => {
-        setAlertState(false);
-      }, 1500);
+      toast({
+        description: "유형을 선택해 주세요",
+        status: 'error',
+        duration: 1000,
+        isClosable: false,
+      })
       return;
     }
     let obj = {
@@ -140,12 +159,12 @@ export default function OffWrite({ userInfo }) {
         if (res) {
           return new Promise((resolve) => {
             if (offList.length < 1) {
-              setAlertMessage("휴가리스트를 추가해 주세요");
-              setAlertType("error");
-              setAlertState(true);
-              setTimeout(() => {
-                setAlertState(false);
-              }, 1500);
+              toast({
+                description: "휴가리스트를 추가해 주세요",
+                status: 'error',
+                duration: 1000,
+                isClosable: false,
+              })
               resolve();
               return;
             }
@@ -155,17 +174,20 @@ export default function OffWrite({ userInfo }) {
               reason: values.reason,
               userUid: userInfo.uid,
               userName: userInfo.name,
-              manager: "6c1PcuTKbNdgKIA1zOi7xfwpuuA2",
+              manager: userData.manager_uid?.uid || '',
               timestamp: new Date().getTime(),
               list: offList,
             })
               .then(() => {
-                setAlertMessage("제출완료 되었습니다.");
-                setAlertState(true);
-                setTimeout(() => {
-                  setAlertState(false);
-                }, 1500);
-                resolve();
+                toast({
+                  description: "제출완료 되었습니다.",
+                  status: 'success',
+                  duration: 1000,
+                  isClosable: false,
+                })
+              })
+              .then(()=>{
+                onFormInit()
               })
               .catch((error) => {
                 console.error(error);
@@ -176,9 +198,15 @@ export default function OffWrite({ userInfo }) {
     return;
   };
 
+  const onFormInit = () => {
+    setOffList([])
+    setValue('subject','')
+    setValue('reason','')
+  }
+
   return (
     <>
-      {alertState && <AlertBox text={alertMessage} type={alertType} />}
+      {userData &&
       <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex>
           <Flex width="100%" flexDirection="column" gap={2}>
@@ -220,7 +248,7 @@ export default function OffWrite({ userInfo }) {
                   id="manager"
                   placeholder="결재 담당자"
                   readOnly
-                  value="admin"
+                  value={userData?.manager_uid?.name}
                   className="xs"
                   {...register("manager", {
                     required: "담당자는 필수항목 입니다.",
@@ -314,6 +342,7 @@ export default function OffWrite({ userInfo }) {
           </Flex>
         </Flex>
       </CommonForm>
+      }
     </>
   );
 }

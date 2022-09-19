@@ -9,7 +9,7 @@ import {
   Flex,
   useToast,
 } from "@chakra-ui/react";
-import useGetUser from "@component/hook/getUserDb";
+import useGetUser from "@component/hooks/getUserDb";
 
 import styled from "styled-components";
 import { db } from "src/firebase";

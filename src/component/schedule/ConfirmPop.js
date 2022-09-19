@@ -1,7 +1,6 @@
-import React from "react";
-import { Button } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { Button, Flex, Box, useToast } from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
 import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
 import { ref, set, update, remove, runTransaction } from "firebase/database";
@@ -10,6 +9,7 @@ import { DayOffList } from "@component/schedule/OffWrite";
 import styled from "styled-components";
 import shortid from "shortid";
 import { format } from "date-fns";
+import Confirm from "@component/popup/Confirm";
 
 const ConfirmPopup = styled(CommonPopup)`
   .con_box {
@@ -29,8 +29,18 @@ const ConfirmPopup = styled(CommonPopup)`
   }
 `;
 
-export default function ConfirmPop({ listData, closePopup }) {
+export default function ConfirmPop({ listData, userInfo, closePopup }) {
   const dispatch = useDispatch();
+  const toast = useToast()
+
+  const [ownCheck, setOwnCheck] = useState(false)
+  useEffect(() => {
+    if(listData.userUid === userInfo.uid){
+      setOwnCheck(true)
+    }
+  }, [])
+  
+
   function onSubmit() {
     return new Promise((resolve) => {
       let finishDate = format(listData.timestamp, "yyyyMM");
@@ -83,6 +93,21 @@ export default function ConfirmPop({ listData, closePopup }) {
     });
   }
 
+  const onRemove = (uid) => {
+    console.log(uid)
+    remove(ref(db,`dayoff/temp/${uid}`))
+    .then(()=>{
+      toast({
+        description: "삭제되었습니다.",
+        status: 'success',
+        duration: 1000,
+        isClosable: true,
+      })
+    })
+    closePopup()
+    return
+  }
+
   return (
     <>
       <ConfirmPopup>
@@ -105,9 +130,25 @@ export default function ConfirmPop({ listData, closePopup }) {
                   </li>
                 </>
               ))}
-            <Button onClick={onSubmit} colorScheme="teal" mt="5">
+            <Flex justifyContent="center" mt="5">
+            <Button onClick={onSubmit} colorScheme="teal">
               결재
             </Button>
+            {ownCheck && 
+              <>
+              <Box ml={2}></Box>
+              <Confirm
+                submit={onRemove}
+                submitProps={listData.uid}
+                color={'red'}
+                btnTxt={'삭제'}
+                closeTxt={'취소'}
+                submitTxt={'삭제'}
+                desc={`삭제하시겠습니까?`}
+              />
+              </>
+            }
+            </Flex>
           </DayOffList>
         </div>
         <div className="bg" onClick={closePopup}></div>

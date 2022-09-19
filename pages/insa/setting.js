@@ -11,17 +11,18 @@ import {
   Input,
   Button,
   Flex,
+  useToast
 } from "@chakra-ui/react";
-import useGetUser from "@component/hook/getUserDb";
+import useGetUser from "@component/hooks/getUserDb";
+import useImgResize from "@component/hooks/useImgResize";
 import {
-  AiOutlineCheck,
   AiOutlineDelete,
   AiOutlineEnter,
 } from "react-icons/ai";
 import { HiOutlinePlus } from "react-icons/hi";
-import { BsPencilSquare } from "react-icons/bs";
+import { BsPencilSquare, BsListCheck, BsUpload } from "react-icons/bs";
+import { MdOutlineImageNotSupported } from "react-icons/md"
 import { FiSearch } from "react-icons/fi";
-import AlertBox from "@component/popup/Alert";
 import AdminSelectPop from "@component/insa/AdminSelectPop";
 import ManagerSelectPop from "@component/insa/ManagerSelectPop";
 import styled from "styled-components";
@@ -39,6 +40,7 @@ import {
   orderByValue,
   startAt,
 } from "firebase/database";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL, getMetadata, deleteObject } from "firebase/storage";
 
 export const CommonForm = styled.form`
   .row_section {
@@ -75,6 +77,13 @@ export const CommonForm = styled.form`
       margin-top: 10px;
     }
   }
+  .thumb{max-width:50px;max-height:50px;margin-right:15px;}
+  .empty_thumb{
+    width:50px;height:50px;display:flex;align-items:center;justify-content:center;
+  }
+  .input_file{position:absolute;width:0;height:0;overflow:hidden;opacity:0;}
+  .file_name{padding:0 1rem}
+  .btn_upload{width:100%;height:100%;display:flex;align-items:center;padding:0 1rem;margin:0;}
   .part_list {
     display: flex;
     margin: 10px 0;
@@ -111,6 +120,7 @@ export const CommonForm = styled.form`
 `;
 
 export default function Setting() {
+  const toast = useToast()
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
@@ -124,14 +134,25 @@ export default function Setting() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertState, setAlertState] = useState(false);
+  const storage = getStorage();
+  const logoRef = sRef(storage, 'company/logo');
 
   const [partList, setPartList] = useState([]);
   const [rankList, setRankList] = useState([]);
 
   const [settingState, setSettingState] = useState();
+
+  const [logoThumb, setLogoThumb] = useState()
   useEffect(() => {
+
+    getDownloadURL(logoRef)
+    .then(res=>{
+      setLogoThumb(res)
+    })
+    .catch(error=>{
+      console.error(error)
+    })
+
     const adminRef = ref(db, `admin/setting`);
     onValue(adminRef, (data) => {
       setSettingState(data.val());
@@ -270,10 +291,64 @@ export default function Setting() {
     }
   };
 
-  const onSubmit = (values) => {
+  const [logoName, setLogoName] = useState()
+  
+  const logoCheck = async () => {
+    const file = getValues('logo')[0];
+    const thumbnail = await useImgResize(file,50);
+    const limit = 2097152;
+    if(!file){
+      return
+    }
+    if(file.size > limit){
+      toast({
+        description: "이미지 용량은 2MB 이내로 등록 가능합니다.",
+        status: 'error',
+        duration: 1000,
+        isClosable: false,
+      })
+      setValue('logo','');
+      setLogoName('')
+      setLogoThumb('')
+      return
+    }
+    if(file.type !== 'image/gif' && file.type !== 'image/png' && file.type !== 'image/jpeg'){
+      toast({
+        description: "지원하지않는 형식 입니다.",
+        status: 'error',
+        duration: 1000,
+        isClosable: false,
+      })
+      setValue('logo','');
+      setLogoName('')
+      setLogoThumb('')
+      return
+    }
+    setLogoName(file.name);
+    setLogoThumb(thumbnail)
+  }
+
+  const removeLogo = () => {
+    setLogoThumb('');
+    deleteObject(logoRef)
+    .then(()=>{
+      toast({
+        description: "삭제 되었습니다.",
+        status: 'success',
+        duration: 1000,
+        isClosable: false,
+      })
+    })
+    .catch(error=>console.error(error))
+  }
+
+  const onSubmit = (values) => {    
+    
     let newValues;
     return new Promise((resolve) => {
+      uploadBytes(logoRef, values.logo[0])
       newValues = {
+        ...values,
         admin: values.admin,
         part: partList,
         rank: rankList,
@@ -283,7 +358,12 @@ export default function Setting() {
         ...newValues,
       })
         .then(() => {
-          console.log("set");
+          toast({
+            description: "수정 되었습니다.",
+            status: 'success',
+            duration: 1000,
+            isClosable: false,
+          })
         })
         .catch((error) => console.error(error));
       resolve();
@@ -292,7 +372,6 @@ export default function Setting() {
 
   return (
     <>
-      {alertState && <AlertBox text={alertMessage} />}
       {settingState && (
         <CommonForm onSubmit={handleSubmit(onSubmit)}>
           <Flex marginTop={5}>
@@ -301,7 +380,63 @@ export default function Setting() {
               flexDirection="column"
               alignItems="center"
               gap={2}
-            >
+            > 
+              <FormControl isInvalid={errors.company} className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="company">
+                    회사명
+                  </FormLabel>
+                  <Input
+                    id="company"
+                    className="input sm"
+                    placeholder="회사명"
+                    defaultValue={settingState?.company}
+                    {...register("company")}
+                  />
+                </div>
+              </FormControl>
+              <FormControl isInvalid={errors.adress} className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="adress">
+                    회사주소
+                  </FormLabel>
+                  <Input
+                    id="adress"
+                    className="input lg"
+                    placeholder="회사주소"
+                    defaultValue={settingState?.adress}
+                    {...register("adress")}
+                  />
+                </div>
+              </FormControl>
+              <FormControl isInvalid={errors.logo} className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="logo">
+                    회사로고
+                  </FormLabel>
+                  <input
+                    id="logo"
+                    type="file"
+                    className="input_file sm"
+                    {...register("logo",{
+                      onChange: logoCheck
+                    })}
+                  />
+                  {logoThumb ? <img className="thumb" src={logoThumb} /> :
+                    <div className="empty_thumb">
+                    <MdOutlineImageNotSupported fontSize="18px" />
+                    </div>
+                  }
+                  <Button colorScheme="teal" type="button" px={0}>
+                    <FormLabel className="btn_upload" htmlFor="logo">
+                    파일첨부<BsUpload style={{marginLeft:"5px"}} />
+                    </FormLabel>
+                  </Button>
+                  <Button onClick={removeLogo} ml={2} colorScheme="teal" variant='outline' type="button">삭제
+                  <AiOutlineDelete />
+                  </Button>
+                </div>
+              </FormControl>
               <FormControl isInvalid={errors.admin} className="row_section">
                 <div className="row_box">
                   <FormLabel className="label" htmlFor="admin">
@@ -328,8 +463,8 @@ export default function Setting() {
                   </FormLabel>
                   <Box size="lg">
                     <Button onClick={onManagerPop} colorScheme="teal">
-                      찾기
-                      <FiSearch style={{ marginLeft: "5px" }} />
+                      편집
+                      <BsListCheck style={{ marginLeft: "5px" }} />
                     </Button>
                     <ul className="manager_list">
                       {userAll &&
@@ -354,7 +489,7 @@ export default function Setting() {
                     부서
                   </FormLabel>
                   <Box className="lg">
-                    <finish
+                    <Input
                       id="part"
                       placeholder="추가할 부서명"
                       className="input xs"

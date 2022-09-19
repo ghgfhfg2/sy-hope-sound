@@ -208,7 +208,7 @@ const RenderCells = ({
                       className={
                         el.offType === '연차' ? 'all_off' 
                         : el.offType === '오전반차' ? 'am_off'
-                        : el.offType === '오전반차' ? 'pm_off' : ''
+                        : el.offType === '오후반차' ? 'pm_off' : ''
                       }
                     >{el.userName}</li>
                   </>

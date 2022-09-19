@@ -104,7 +104,7 @@ export default function SignReady() {
         </ReadyList>
       </BoardList>
       {listData && isConfirmPop && (
-        <ConfirmPop listData={listData} closePopup={closePopup} />
+        <ConfirmPop userInfo={userInfo} listData={listData} closePopup={closePopup} />
       )}
     </>
   );
