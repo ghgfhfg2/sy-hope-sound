@@ -92,6 +92,9 @@ function Header({ logoImg }) {
             <li className={router.route.indexOf("/schedule") > -1 && "on"}>
               <Link href="/schedule">일정관리</Link>
             </li>
+            <li className={router.route.indexOf("/board/list") > -1 && "on"}>
+              <Link href="/board/list">결재리스트</Link>
+            </li>
           </ul>
         </div>
         <ul className="right">

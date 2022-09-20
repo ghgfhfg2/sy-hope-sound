@@ -108,6 +108,20 @@ function LeftMunu({ userInfo }) {
             </ul>
           </>
         )}
+        {router.includes("/board") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/board/list" ? "on" : ""}>
+                <Link href="/board/list">결재리스트</Link>
+              </li>
+              {userInfo && userInfo.authority?.includes("admin") && (
+                <li className={router === "/board/write" ? "on" : ""}>
+                  <Link href="/board/write">글작성</Link>
+                </li>
+              )}
+            </ul>
+          </>
+        )}
       </LeftMenu>
     </>
   );
