@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-
 export default function Editor({ placeholder, value, ...rest }) {
   const toolbarOptions = [
     ["link", "image", "video"],
@@ -20,7 +19,9 @@ export default function Editor({ placeholder, value, ...rest }) {
     },
   };
   const quillRef = useRef();
-  const [initHtml, setInitHtml] = useState()
+  const [initHtml, setInitHtml] = useState(`<div style="display:flex">
+  <div>1</div><div>2</div>
+</div>`)
 
   useEffect(() => {
 
@@ -31,8 +32,6 @@ export default function Editor({ placeholder, value, ...rest }) {
     
     if (quillRef.current) {
       
-      console.log()
-      quillRef.current.getEditor().clipboard.dangerouslyPasteHTML(`<div style="display:flex"><div>1</div><div>2</div></div>`);
       const toolbar = quillRef.current.getEditor().getModule("toolbar");
       toolbar.addHandler("image", handleImage);
     }
