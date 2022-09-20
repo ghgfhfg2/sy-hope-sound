@@ -38,7 +38,9 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.4.1",
     "shortid": "^2.2.16",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "suneditor": "^2.43.14",
+    "suneditor-react": "^3.4.1"
   },
   "devDependencies": {
     "@types/node": "18.7.12",

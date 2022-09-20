@@ -14,7 +14,7 @@ import {
   HStack,
   Box,
   useRadioGroup,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
@@ -28,9 +28,8 @@ import { CommonForm } from "pages/insa/setting";
 import Editor from "@component/board/Editor";
 
 export default function Write() {
-  const editorRef = useRef();
-  const toast = useToast()
-  const userAll = useSelector(state=>state.user.allUser)
+  const toast = useToast();
+  const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
   const {
     setValue,
@@ -40,53 +39,53 @@ export default function Write() {
   } = useForm();
 
   const handleEditor = (value) => {
-    console.log(value)
-  }
+    console.log(value);
+  };
   const onSubmit = (values) => {
-    return new Promise(resolve => {
-      console.log(values)
-      resolve()
-    })
-  }
+    return new Promise((resolve) => {
+      console.log(values);
+      resolve();
+    });
+  };
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
-        <Flex>
-          <Flex width="100%" flexDirection="column" gap={2}>
-            <FormControl isInvalid={errors.subject}>
-              <div className="row_box">
-                <FormLabel className="label" htmlFor="subject">
-                  제목
-                </FormLabel>
-                <Input
-                  id="subject"
-                  className="lg"
-                  placeholder="* 제목"
-                  {...register("subject", {
-                    required: "제목은 필수항목 입니다.",
-                  })}
-                />
-              </div>
-              <FormErrorMessage>
-                {errors.subject && errors.subject.message}
-              </FormErrorMessage>
-            </FormControl>
+      <Flex>
+        <Flex width="100%" flexDirection="column" gap={2}>
+          <FormControl isInvalid={errors.subject}>
+            <div className="row_box">
+              <FormLabel className="label" htmlFor="subject">
+                제목
+              </FormLabel>
+              <Input
+                id="subject"
+                className="lg"
+                placeholder="* 제목"
+                {...register("subject", {
+                  required: "제목은 필수항목 입니다.",
+                })}
+              />
+            </div>
+            <FormErrorMessage>
+              {errors.subject && errors.subject.message}
+            </FormErrorMessage>
+          </FormControl>
 
-            <Editor onChange={handleEditor} />
-            
-            <Flex mt={4} width="100%" justifyContent="center">
-              <Button
-                width="150px"
-                size="lg"
-                colorScheme="teal"
-                isLoading={isSubmitting}
-                type="submit"
-              >
-                제출
-                {isSubmitting}
-              </Button>
-            </Flex>
+          <Editor />
+
+          <Flex mt={4} width="100%" justifyContent="center">
+            <Button
+              width="150px"
+              size="lg"
+              colorScheme="teal"
+              isLoading={isSubmitting}
+              type="submit"
+            >
+              제출
+              {isSubmitting}
+            </Button>
           </Flex>
         </Flex>
-      </CommonForm>
-  )
+      </Flex>
+    </CommonForm>
+  );
 }
