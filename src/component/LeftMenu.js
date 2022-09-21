@@ -76,17 +76,24 @@ function LeftMunu({ userInfo }) {
   return (
     <>
       <LeftMenu>
+        {router.includes("/setting") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/setting" ? "on" : ""}>
+                <Link href="/setting/">기본설정</Link>
+              </li>
+              <li className={router === "/setting/type_board" ? "on" : ""}>
+                <Link href="/setting/type_board">결재양식</Link>
+              </li>
+            </ul>
+          </>
+        )}
         {router.includes("/insa") && (
           <>
             <ul className="depth_1">
               <li className={router === "/insa" ? "on" : ""}>
                 <Link href="/insa/">직원정보</Link>
               </li>
-              {userInfo && userInfo.authority?.includes("admin") && (
-                <li className={router === "/insa/setting" ? "on" : ""}>
-                  <Link href="/insa/setting">설정</Link>
-                </li>
-              )}
             </ul>
           </>
         )}

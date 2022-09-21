@@ -28,7 +28,7 @@ import { CommonForm } from "pages/insa/setting";
 import Editor from "@component/board/Editor";
 import ComRadio from "@component/ComRadio";
 
-export default function Write() {
+export default function TypeBoard() {
   const toast = useToast();
   const userAll = useSelector((state) => state.user.allUser);
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -68,46 +68,51 @@ export default function Write() {
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
       <Flex>
         <Flex width="100%" flexDirection="column" gap={5}>
-          <FormControl isInvalid={errors.subject}>
+          <FormControl isInvalid={errors.title}>
             <div className="row_box">
-              <FormLabel className="label" htmlFor="subject">
-                제목
+              <FormLabel className="label" htmlFor="title">
+              * 양식명
               </FormLabel>
               <Input
-                id="subject"
-                className="lg"
-                placeholder="* 제목"
-                {...register("subject", {
-                  required: "제목은 필수항목 입니다.",
+                id="title"
+                className="sm"
+                placeholder="양식을 선택할때 보여지는 타이틀 입니다."
+                {...register("title", {
+                  required: "양식명은 필수항목 입니다.",
                 })}
               />
             </div>
             <FormErrorMessage>
-              {errors.subject && errors.subject.message}
+              {errors.title && errors.title.message}
             </FormErrorMessage>
           </FormControl>
 
           <FormControl isInvalid={errors.type}>
             <div className="row_box">
               <FormLabel className="label" htmlFor="type">
-                유형
+              * 양식타입
               </FormLabel>
-              <ComRadio name={'type'} list={radioList} 
-                label={`유형`}
-                register={register}
+              <Input
+                id="type"
+                className="sm"
+                placeholder="양식을 구분짓는 타입명 입니다.(영어)"
                 {...register("type", {
-                  required: "제목은 필수항목 입니다.",
+                  required: "양식타입은 필수항목 입니다.",
+                  pattern: /[a-zA-Z]/g
                 })}
               />
             </div>
             <FormErrorMessage>
-              {errors.type && errors.type.message}
+            {errors.type &&
+              errors.type.type === "required" &&
+              errors.type.message}
+            {errors.type && errors.type.type === "pattern" && (
+              <>양식타입은 영문만 가능합니다.</>
+            )}
             </FormErrorMessage>
           </FormControl>
           
-          {watchRadio && 
-            <Editor handleEditor={handleEditor} type={watchRadio} />
-          } 
+          <Editor handleEditor={handleEditor} />
 
           <Flex mt={4} width="100%" justifyContent="center">
             <Button

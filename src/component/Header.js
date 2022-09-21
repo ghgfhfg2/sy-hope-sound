@@ -11,7 +11,7 @@ const HeaderTop = styled.div`
   background: var(--m-color);
   color: #fff;
   font-size: 12px;
-  padding: 0 1rem;
+  padding-right: 1rem;
   height: 60px;
   display: flex;
   justify-content: space-between;
@@ -19,10 +19,15 @@ const HeaderTop = styled.div`
     display: flex;
     align-items: center;
   }
+  .logo_box{
+    width:200px;
+    padding-left:1rem
+  }
   .logo {
     cursor: pointer;
     display: flex;
     height: 40px;
+    width:auto;
     align-items: center;
     justify-content: center;
     margin-right: 1rem;
@@ -80,12 +85,20 @@ function Header({ logoImg }) {
     <>
       <HeaderTop>
         <div className="left">
-          <h1 className="logo">
-            <Link href="/">
-              <img src={logoImg} />
-            </Link>
-          </h1>
-          <ul className="menu">
+          <div className="logo_box">
+            <h1 className="logo">
+              <Link href="/">
+                <img src={logoImg} />
+              </Link>
+            </h1>
+          </div>
+          <ul className="menu">            
+            {
+              userInfo && userInfo.authority?.includes("admin") &&
+              <li className={router.route.indexOf("/setting") > -1 && "on"}>
+                <Link href="/setting">설정</Link>
+              </li>
+            }
             <li className={router.route.indexOf("/insa") > -1 && "on"}>
               <Link href="/insa">인사관리</Link>
             </li>
