@@ -17,7 +17,6 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
-import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
 import { ref, set, get } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
@@ -26,11 +25,9 @@ import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
 import Editor from "@component/board/Editor";
-import ComRadio from "@component/ComRadio";
 
 export default function TypeBoard() {
   const toast = useToast();
-  const userAll = useSelector((state) => state.user.allUser);
   const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
   const {
@@ -41,10 +38,9 @@ export default function TypeBoard() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  
-  const watchRadio = watch("type")
+  const watchRadio = watch("type");
 
-  const [editorState, setEditorState] = useState()
+  const [editorState, setEditorState] = useState();
   const handleEditor = (value) => {
     setEditorState(value);
   };
@@ -52,17 +48,15 @@ export default function TypeBoard() {
     return new Promise((resolve) => {
       let obj = {
         ...values,
-        editor:editorState,
-        timestamp:new Date().getTime(),
-        writer_uid:userInfo.uid,
-        manager:userInfo.manager_uid || ''
-      }
+        editor: editorState,
+        timestamp: new Date().getTime(),
+        writer_uid: userInfo.uid,
+        manager: userInfo.manager_uid || "",
+      };
       console.log(obj);
       resolve();
     });
   };
-
-  const radioList = ["payment_지출결의서","etc_양식1"]
 
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -71,7 +65,7 @@ export default function TypeBoard() {
           <FormControl isInvalid={errors.title}>
             <div className="row_box">
               <FormLabel className="label" htmlFor="title">
-              * 양식명
+                * 양식명
               </FormLabel>
               <Input
                 id="title"
@@ -90,7 +84,7 @@ export default function TypeBoard() {
           <FormControl isInvalid={errors.type}>
             <div className="row_box">
               <FormLabel className="label" htmlFor="type">
-              * 양식타입
+                * 양식타입
               </FormLabel>
               <Input
                 id="type"
@@ -98,20 +92,20 @@ export default function TypeBoard() {
                 placeholder="양식을 구분짓는 타입명 입니다.(영어)"
                 {...register("type", {
                   required: "양식타입은 필수항목 입니다.",
-                  pattern: /[a-zA-Z]/g
+                  pattern: /^[A-Za-z]+$/i,
                 })}
               />
             </div>
             <FormErrorMessage>
-            {errors.type &&
-              errors.type.type === "required" &&
-              errors.type.message}
-            {errors.type && errors.type.type === "pattern" && (
-              <>양식타입은 영문만 가능합니다.</>
-            )}
+              {errors.type &&
+                errors.type.type === "required" &&
+                errors.type.message}
+              {errors.type && errors.type.type === "pattern" && (
+                <>양식타입은 영문만 가능합니다.</>
+              )}
             </FormErrorMessage>
           </FormControl>
-          
+
           <Editor handleEditor={handleEditor} />
 
           <Flex mt={4} width="100%" justifyContent="center">
