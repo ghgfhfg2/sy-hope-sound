@@ -19,7 +19,7 @@ import {
 
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
-import { ref, set, get } from "firebase/database";
+import { ref, set, get, onValue, off } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -62,7 +62,27 @@ export default function Write() {
     });
   };
 
-  const radioList = ["payment_지출결의서","etc_양식1"]
+
+  const [radioList, setRadioList] = useState()
+  const [typeCon, setTypeCon] = useState()
+  useEffect(() => {
+    const typeRef = ref(db,`board/type_list`)
+    onValue(typeRef,data=>{
+      let arr = [];
+      let conArr = [];
+      data.forEach(el=>{
+        arr.push(`${el.val().uid}_${el.val().title}`)
+        conArr.push(el.val())
+      })
+      setTypeCon(conArr)
+      setRadioList(arr)
+    })
+  
+    return () => {
+      off(typeRef)
+    }
+  }, [])
+
 
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -92,13 +112,15 @@ export default function Write() {
               <FormLabel className="label" htmlFor="type">
                 유형
               </FormLabel>
-              <ComRadio name={'type'} list={radioList} 
-                label={`유형`}
-                register={register}
-                {...register("type", {
-                  required: "제목은 필수항목 입니다.",
-                })}
-              />
+              {radioList &&
+                <ComRadio name={'type'} list={radioList} 
+                  label={`유형`}
+                  register={register}
+                  {...register("type", {
+                    required: "제목은 필수항목 입니다.",
+                  })}
+                />
+              }
             </div>
             <FormErrorMessage>
               {errors.type && errors.type.message}
@@ -106,7 +128,7 @@ export default function Write() {
           </FormControl>
           
           {watchRadio && 
-            <Editor handleEditor={handleEditor} type={watchRadio} />
+            <Editor typeCon={typeCon} handleEditor={handleEditor} type={watchRadio} />
           } 
 
           <Flex mt={4} width="100%" justifyContent="center">

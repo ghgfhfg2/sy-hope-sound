@@ -94,7 +94,6 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
   }
 
   const onRemove = (uid) => {
-    console.log(uid)
     remove(ref(db,`dayoff/temp/${uid}`))
     .then(()=>{
       toast({

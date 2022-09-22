@@ -16,6 +16,12 @@ export const ListUl = styled.div`
   > ul {
     display: flex;
   }
+  .link{
+    cursor:pointer;
+    &:hover{
+      font-weight:bold
+    }
+  }
   .header {
     height: 55px;
     background: var(--p-color);

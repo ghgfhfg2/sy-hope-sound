@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, get } from "firebase/database";
+import { ref, set, get, onValue, query,orderByChild } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -39,21 +39,49 @@ export default function TypeBoard() {
   } = useForm();
 
   const watchRadio = watch("type");
-
   const [editorState, setEditorState] = useState();
+
+  const [initTypeCon, setInitTypeCon] = useState()
+  useEffect(() => {
+    const typeRef = query(ref(db,`board/type_list/${router.query.id}`))
+    onValue(typeRef,data=>{
+      setInitTypeCon(data.val())
+    })
+  
+    return () => {
+      
+    }
+  }, [])
+  
+
   const handleEditor = (value) => {
     setEditorState(value);
   };
   const onSubmit = (values) => {
+    console.log(values)
     return new Promise((resolve) => {
+      let uid = shortid.generate()
       let obj = {
         ...values,
         editor: editorState,
         timestamp: new Date().getTime(),
         writer_uid: userInfo.uid,
         manager: userInfo.manager_uid || "",
+        uid
       };
-      console.log(obj);
+      const typeRef = ref(db,`board/type_list/${uid}`)
+      set(typeRef,{
+        ...obj
+      })
+      .then(()=>{
+        toast({
+          description: "저장되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        router.push('/setting/type_board')
+      })
       resolve();
     });
   };
@@ -70,7 +98,7 @@ export default function TypeBoard() {
               <Input
                 id="title"
                 className="sm"
-                placeholder="양식을 선택할때 보여지는 타이틀 입니다."
+                defaultValue={initTypeCon ? initTypeCon.title : ''}
                 {...register("title", {
                   required: "양식명은 필수항목 입니다.",
                 })}
@@ -80,33 +108,11 @@ export default function TypeBoard() {
               {errors.title && errors.title.message}
             </FormErrorMessage>
           </FormControl>
-
-          <FormControl isInvalid={errors.type}>
-            <div className="row_box">
-              <FormLabel className="label" htmlFor="type">
-                * 양식타입
-              </FormLabel>
-              <Input
-                id="type"
-                className="sm"
-                placeholder="양식을 구분짓는 타입명 입니다.(영어)"
-                {...register("type", {
-                  required: "양식타입은 필수항목 입니다.",
-                  pattern: /^[A-Za-z]+$/i,
-                })}
-              />
-            </div>
-            <FormErrorMessage>
-              {errors.type &&
-                errors.type.type === "required" &&
-                errors.type.message}
-              {errors.type && errors.type.type === "pattern" && (
-                <>양식타입은 영문만 가능합니다.</>
-              )}
-            </FormErrorMessage>
-          </FormControl>
-
-          <Editor handleEditor={handleEditor} />
+          {initTypeCon && initTypeCon.editor ? (
+            <Editor initTypeCon={initTypeCon.editor} handleEditor={handleEditor} />
+            ) : (
+            <Editor handleEditor={handleEditor} />
+          )}
 
           <Flex mt={4} width="100%" justifyContent="center">
             <Button
@@ -116,7 +122,7 @@ export default function TypeBoard() {
               isLoading={isSubmitting}
               type="submit"
             >
-              제출
+              저장
               {isSubmitting}
             </Button>
           </Flex>

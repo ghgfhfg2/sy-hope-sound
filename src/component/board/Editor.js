@@ -14,33 +14,29 @@ const EditorBox = styled.div`
   }
 `;
 
-export default function Editor({ type, handleEditor }) {
+export default function Editor({ type, handleEditor, typeCon, initTypeCon }) {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
 
-  const typeList = {
-    payment: `
-    <table>
-      <header>
-        <tr>
-          <th>title</th>
-        </tr>
-      </header>
-    </table>
-`,
-  };
+
 
   useEffect(() => {
-    if (type && typeList) {
-      let typeObj = type.split("_");
+    let selCon;
+    if (type && typeCon) {
+      typeCon.forEach(el=>{
+        console.log(el)
+        if(el.uid === type){
+          selCon = el.editor
+        }
+    })
       setTimeout(() => {
-        inputHtml(typeList[typeObj[0]]);
+        inputHtml(selCon);
       }, 50);
       return;
     }
-  }, [type]);
+  }, [type,typeCon]);
 
   const inputHtml = (content) => {
     editor.current.setContents(content);
@@ -53,7 +49,7 @@ export default function Editor({ type, handleEditor }) {
           onChange={handleEditor}
           height="70vh"
           getSunEditorInstance={getSunEditorInstance}
-          setContents="My contents"
+          setContents={initTypeCon}
         />
       </EditorBox>
     </>
