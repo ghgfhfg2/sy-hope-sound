@@ -8,8 +8,73 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
 
 const EditorBox = styled.div`
   .sun-editor-editable {
-    .container {
+    .form_wrapper {
       display: flex;
+      justify-content: center;
+    }
+    .form_content {
+      width: 95vh;
+      max-width: 1000px;
+      border: 2px solid #ddd;
+      padding: 2.5rem;
+    }
+    .top_box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 120px;
+      margin-bottom: 2rem;
+      h2 {
+        flex: 1;
+        height: 100%;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .manager_box {
+        display: flex;
+        height: 100%;
+        .dl {
+          min-width: 80px;
+          height: 100%;
+          border: 1px solid #aaa;
+          margin-left: -1px;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .dt {
+          border-bottom: 1px solid #aaa;
+          height: 40px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .dd {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+
+    .con_box {
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .con_table {
+    }
+
+    .footer_box {
+      display: flex;
+      justify-content: center;
+      span {
+        margin: 1rem;
+      }
     }
   }
 `;
@@ -20,23 +85,20 @@ export default function Editor({ type, handleEditor, typeCon, initTypeCon }) {
     editor.current = sunEditor;
   };
 
-
-
   useEffect(() => {
     let selCon;
     if (type && typeCon) {
-      typeCon.forEach(el=>{
-        console.log(el)
-        if(el.uid === type){
-          selCon = el.editor
+      typeCon.forEach((el) => {
+        if (el.uid === type) {
+          selCon = el.editor;
         }
-    })
+      });
       setTimeout(() => {
         inputHtml(selCon);
-      }, 50);
+      }, 100);
       return;
     }
-  }, [type,typeCon]);
+  }, [type, typeCon]);
 
   const inputHtml = (content) => {
     editor.current.setContents(content);

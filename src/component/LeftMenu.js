@@ -82,7 +82,14 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/setting" ? "on" : ""}>
                 <Link href="/setting/">기본설정</Link>
               </li>
-              <li className={router === "/setting/type_board" ? "on" : ""}>
+              <li
+                className={
+                  router.includes("/setting/type_write") ||
+                  router.includes("/setting/type_board")
+                    ? "on"
+                    : ""
+                }
+              >
                 <Link href="/setting/type_board">결재양식</Link>
               </li>
             </ul>

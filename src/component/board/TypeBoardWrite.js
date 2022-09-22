@@ -18,13 +18,14 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, get, onValue, query,orderByChild } from "firebase/database";
+import { ref, set, get, onValue, query, orderByChild } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
 import Editor from "@component/board/Editor";
+import Link from "next/link";
 
 export default function TypeBoard() {
   const toast = useToast();
@@ -41,47 +42,44 @@ export default function TypeBoard() {
   const watchRadio = watch("type");
   const [editorState, setEditorState] = useState();
 
-  const [initTypeCon, setInitTypeCon] = useState()
+  const [initTypeCon, setInitTypeCon] = useState();
   useEffect(() => {
-    const typeRef = query(ref(db,`board/type_list/${router.query.id}`))
-    onValue(typeRef,data=>{
-      setInitTypeCon(data.val())
-    })
-  
-    return () => {
-      
-    }
-  }, [])
-  
+    const typeRef = query(ref(db, `board/type_list/${router.query.id}`));
+    onValue(typeRef, (data) => {
+      console.log(data.val());
+      setInitTypeCon(data.val());
+    });
+
+    return () => {};
+  }, []);
 
   const handleEditor = (value) => {
     setEditorState(value);
   };
   const onSubmit = (values) => {
-    console.log(values)
+    console.log(values);
     return new Promise((resolve) => {
-      let uid = shortid.generate()
+      let uid = shortid.generate();
       let obj = {
         ...values,
         editor: editorState,
         timestamp: new Date().getTime(),
         writer_uid: userInfo.uid,
         manager: userInfo.manager_uid || "",
-        uid
+        uid,
       };
-      const typeRef = ref(db,`board/type_list/${uid}`)
-      set(typeRef,{
-        ...obj
-      })
-      .then(()=>{
+      const typeRef = ref(db, `board/type_list/${uid}`);
+      set(typeRef, {
+        ...obj,
+      }).then(() => {
         toast({
           description: "저장되었습니다.",
           status: "success",
           duration: 1000,
           isClosable: false,
         });
-        router.push('/setting/type_board')
-      })
+        router.push("/setting/type_board");
+      });
       resolve();
     });
   };
@@ -98,7 +96,7 @@ export default function TypeBoard() {
               <Input
                 id="title"
                 className="sm"
-                defaultValue={initTypeCon ? initTypeCon.title : ''}
+                defaultValue={initTypeCon ? initTypeCon.title : ""}
                 {...register("title", {
                   required: "양식명은 필수항목 입니다.",
                 })}
@@ -109,8 +107,13 @@ export default function TypeBoard() {
             </FormErrorMessage>
           </FormControl>
           {initTypeCon && initTypeCon.editor ? (
-            <Editor initTypeCon={initTypeCon.editor} handleEditor={handleEditor} />
-            ) : (
+            <>
+              <Editor
+                initTypeCon={initTypeCon.editor}
+                handleEditor={handleEditor}
+              />
+            </>
+          ) : (
             <Editor handleEditor={handleEditor} />
           )}
 
@@ -123,8 +126,12 @@ export default function TypeBoard() {
               type="submit"
             >
               저장
-              {isSubmitting}
             </Button>
+            <Link href="/setting/type_board">
+              <Button width="150px" size="lg" colorScheme="teal" ml={2}>
+                목록
+              </Button>
+            </Link>
           </Flex>
         </Flex>
       </Flex>
