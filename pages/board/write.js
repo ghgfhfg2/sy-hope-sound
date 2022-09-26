@@ -42,60 +42,63 @@ export default function Write() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  
-  const watchRadio = watch("type")
+  const watchRadio = watch("type");
 
-  const [editorState, setEditorState] = useState()
+  const [editorState, setEditorState] = useState();
   const handleEditor = (value) => {
     setEditorState(value);
   };
   const onSubmit = (values) => {
     return new Promise((resolve) => {
+      let manager = managerList.map((el) => {
+        let mng = {
+          name: el.name,
+          uid: el.uid,
+        };
+        return mng;
+      });
       let obj = {
         ...values,
-        editor:editorState,
-        timestamp:new Date().getTime(),
-        writer_uid:userInfo.uid,
-        manager:userInfo.manager_uid || ''
-      }
+        editor: editorState,
+        timestamp: new Date().getTime(),
+        writer_uid: userInfo.uid,
+        manager: manager,
+      };
       console.log(obj);
       resolve();
     });
   };
 
-
-  const [radioList, setRadioList] = useState()
-  const [typeCon, setTypeCon] = useState()
+  const [radioList, setRadioList] = useState();
+  const [typeCon, setTypeCon] = useState();
   useEffect(() => {
-    const typeRef = ref(db,`board/type_list`)
-    onValue(typeRef,data=>{
+    const typeRef = ref(db, `board/type_list`);
+    onValue(typeRef, (data) => {
       let arr = [];
       let conArr = [];
-      data.forEach(el=>{
-        arr.push(`${el.val().uid}_${el.val().title}`)
-        conArr.push(el.val())
-      })
-      setTypeCon(conArr)
-      setRadioList(arr)
-    })
-    
+      data.forEach((el) => {
+        arr.push(`${el.val().uid}_${el.val().title}`);
+        conArr.push(el.val());
+      });
+      setTypeCon(conArr);
+      setRadioList(arr);
+    });
+
     return () => {
-      off(typeRef)
-    }
-  }, [])
-
-
+      off(typeRef);
+    };
+  }, []);
 
   // 담당자 편집
   const [managerList, setManagerList] = useState();
-  const [checkManagerList, setCheckManagerList] = useState()
+  const [checkManagerList, setCheckManagerList] = useState();
   useEffect(() => {
-    if(userAll){
-      let list = userAll.filter(el=>el.manager === 1);
-      setManagerList(list)
+    if (userAll) {
+      let list = userAll.filter((el) => el.manager === 1);
+      setManagerList(list);
     }
-  }, [userAll])
-  
+  }, [userAll]);
+
   const [isManagerPop, setIsManagerPop] = useState(false);
   const onManagerPop = () => {
     setIsManagerPop(true);
@@ -104,51 +107,55 @@ export default function Write() {
     setIsManagerPop(false);
   };
   const onSelectManager = (checkedItems) => {
-    let newList = checkedItems.sort((a,b)=>{
-      return a.value - b.value
-    })
-    setCheckManagerList(newList)
-    onManager()
+    let newList = checkedItems.sort((a, b) => {
+      return a.value - b.value;
+    });
+    setCheckManagerList(newList);
+    onManager();
     closeManagerPop();
   };
 
-  const [editorDisable, setEditorDisable] = useState(false)
-  const [insertHtml, setInsertHtml] = useState()
-  
+  const [editorDisable, setEditorDisable] = useState(false);
+  const [insertHtml, setInsertHtml] = useState();
+
   const onManager = () => {
     let newEditor = editorState;
-    managerList.forEach((el,idx)=>{
-      let pos = newEditor.indexOf(`<!-- manager${idx+1} -->`);
-      newEditor = [newEditor.slice(0,pos),el.name,newEditor.slice(pos)].join('')
-    })
-    setEditorDisable(true)
-    setInsertHtml(newEditor)
-    setEditorState(newEditor)
-  }
+    managerList.forEach((el, idx) => {
+      let pos = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+      newEditor = [
+        newEditor.slice(0, pos + 20),
+        el.name,
+        newEditor.slice(pos + 20),
+      ].join("");
+    });
+    setEditorDisable(true);
+    setInsertHtml(newEditor);
+    setEditorState(newEditor);
+  };
   const offManager = () => {
     let newEditor = editorState;
-    for(let i=1; i<=4; i++){
-      let pos = newEditor.indexOf(`<!-- manager${i} -->`);
-      newEditor = [newEditor.slice(0,pos),''.slice(pos)].join('')
-    }
-    console.log(newEditor)
-    return
-    setInsertHtml(newEditor)
-    setEditorState(newEditor)
-    setEditorDisable(false)
-    setCheckManagerList('')
-  }
-
+    managerList.forEach((el, idx) => {
+      let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+      let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
+      newEditor = [newEditor.slice(0, start + 20), newEditor.slice(end)].join(
+        ""
+      );
+    });
+    setInsertHtml(newEditor);
+    setEditorState(newEditor);
+    setEditorDisable(false);
+    setCheckManagerList("");
+  };
 
   return (
     <>
       {isManagerPop && managerList && (
-      <ManagerListPop
-        userData={managerList}
-        closeManagerPop={closeManagerPop}
-        onSelectManager={onSelectManager}
-        isManagerPop={isManagerPop}
-      />
+        <ManagerListPop
+          userData={managerList}
+          closeManagerPop={closeManagerPop}
+          onSelectManager={onSelectManager}
+          isManagerPop={isManagerPop}
+        />
       )}
       <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex>
@@ -177,41 +184,58 @@ export default function Write() {
                 <FormLabel className="label" htmlFor="type">
                   유형
                 </FormLabel>
-                {radioList &&
-                  <ComRadio name={'type'} list={radioList} 
+                {radioList && (
+                  <ComRadio
+                    name={"type"}
+                    list={radioList}
                     label={`유형`}
                     register={register}
                     {...register("type", {
                       required: "제목은 필수항목 입니다.",
                     })}
                   />
-                }
+                )}
               </div>
               <FormErrorMessage>
                 {errors.type && errors.type.message}
               </FormErrorMessage>
             </FormControl>
-            {watchRadio && 
-            <>
-              <Editor disable={editorDisable} insertHtml={insertHtml} typeCon={typeCon} handleEditor={handleEditor} type={watchRadio} />
-              <FormControl isInvalid={errors.manager}>
-                <div className="row_box">
-                  <FormLabel className="label" htmlFor="manager">
-                    결재자
-                  </FormLabel>
-                  <Input type="text" className="sm" 
-                  value={checkManagerList && checkManagerList.map(el=>el.name)} 
-                  readOnly
-                  />
-                  <Button colorScheme="teal" onClick={onManagerPop} ml={2}>결재자 선택</Button>
-                  <Button colorScheme="red" onClick={offManager} ml={2}>선택취소</Button>
-                </div>
-                <FormErrorMessage>
-                  {errors.manager && errors.manager.message}
-                </FormErrorMessage>
-              </FormControl>
-            </>
-            } 
+            {watchRadio && (
+              <>
+                <Editor
+                  disable={editorDisable}
+                  insertHtml={insertHtml}
+                  typeCon={typeCon}
+                  handleEditor={handleEditor}
+                  type={watchRadio}
+                />
+                <FormControl isInvalid={errors.manager}>
+                  <div className="row_box">
+                    <FormLabel className="label" htmlFor="manager">
+                      결재자
+                    </FormLabel>
+                    <Input
+                      type="text"
+                      className="sm"
+                      value={
+                        checkManagerList &&
+                        checkManagerList.map((el) => el.name)
+                      }
+                      readOnly
+                    />
+                    <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                      결재자 선택
+                    </Button>
+                    <Button colorScheme="red" onClick={offManager} ml={2}>
+                      선택취소
+                    </Button>
+                  </div>
+                  <FormErrorMessage>
+                    {errors.manager && errors.manager.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </>
+            )}
 
             <Flex mt={4} width="100%" justifyContent="center">
               <Button
