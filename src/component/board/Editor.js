@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "suneditor/dist/css/suneditor.min.css";
 import styled from "styled-components";
+import { basicForm } from "@component/BasicForm"
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
@@ -13,7 +14,7 @@ const EditorBox = styled.div`
       justify-content: center;
     }
     .form_content {
-      width: 95vh;
+      width: 95vw;
       max-width: 1000px;
       border: 2px solid #ddd;
       padding: 2.5rem;
@@ -111,7 +112,7 @@ export default function Editor({ type, handleEditor, typeCon, initTypeCon }) {
           onChange={handleEditor}
           height="70vh"
           getSunEditorInstance={getSunEditorInstance}
-          setContents={initTypeCon}
+          defaultValue={initTypeCon || basicForm}
         />
       </EditorBox>
     </>

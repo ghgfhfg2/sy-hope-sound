@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, get, onValue, query, orderByChild } from "firebase/database";
+import { ref, set, update, onValue, off, query, orderByChild } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -40,36 +40,42 @@ export default function TypeBoard() {
   } = useForm();
 
   const watchRadio = watch("type");
+  const watchTitle = watch('title')
   const [editorState, setEditorState] = useState();
 
   const [initTypeCon, setInitTypeCon] = useState();
   useEffect(() => {
     const typeRef = query(ref(db, `board/type_list/${router.query.id}`));
     onValue(typeRef, (data) => {
-      console.log(data.val());
+      console.log(data.val())
+      if(data.val().title){
+        setValue("title",data.val().title)
+      }
       setInitTypeCon(data.val());
     });
-
-    return () => {};
+    return () => {
+      off(typeRef)
+    };
   }, []);
 
   const handleEditor = (value) => {
     setEditorState(value);
   };
   const onSubmit = (values) => {
-    console.log(values);
+    let editCon = editorState || initTypeCon.editor || ""
+
     return new Promise((resolve) => {
-      let uid = shortid.generate();
+      let uid = router.query.id || shortid.generate();
       let obj = {
         ...values,
-        editor: editorState,
+        editor: editCon,
         timestamp: new Date().getTime(),
         writer_uid: userInfo.uid,
         manager: userInfo.manager_uid || "",
         uid,
       };
       const typeRef = ref(db, `board/type_list/${uid}`);
-      set(typeRef, {
+      update(typeRef, {
         ...obj,
       }).then(() => {
         toast({
@@ -96,7 +102,6 @@ export default function TypeBoard() {
               <Input
                 id="title"
                 className="sm"
-                defaultValue={initTypeCon ? initTypeCon.title : ""}
                 {...register("title", {
                   required: "양식명은 필수항목 입니다.",
                 })}
