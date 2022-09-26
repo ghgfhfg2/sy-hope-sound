@@ -80,7 +80,7 @@ const EditorBox = styled.div`
   }
 `;
 
-export default function Editor({ type, handleEditor, typeCon, initTypeCon }) {
+export default function Editor({ type, handleEditor, typeCon, initTypeCon, disable, insertHtml }) {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
@@ -101,14 +101,24 @@ export default function Editor({ type, handleEditor, typeCon, initTypeCon }) {
     }
   }, [type, typeCon]);
 
+  useEffect(() => {
+    if(insertHtml){
+      setTimeout(() => {
+        inputHtml(insertHtml);
+      }, 100);
+    }
+  }, [insertHtml])
+  
+
   const inputHtml = (content) => {
-    editor.current.setContents(content);
+    editor.current?.setContents(content);
   };
 
   return (
     <>
       <EditorBox>
         <SunEditor
+          disable={disable || false}
           onChange={handleEditor}
           height="70vh"
           getSunEditorInstance={getSunEditorInstance}
