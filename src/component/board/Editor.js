@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "suneditor/dist/css/suneditor.min.css";
 import styled from "styled-components";
-import { basicForm } from "@component/BasicForm"
+import { basicForm } from "@component/BasicForm";
 const SunEditor = dynamic(() => import("suneditor-react"), {
   ssr: false,
 });
@@ -58,24 +58,36 @@ const EditorBox = styled.div`
           display: flex;
           justify-content: center;
           align-items: center;
-          position:relative;
+          position: relative;
         }
-        .stamp{
+        .stamp {
           position: absolute;
           left: 50%;
           top: 50%;
           transform: translate(-50%, -50%);
           border-radius: 50%;
-          border: 3px solid red;
+          border: 3px solid #9b2c2c;
           width: 56px;
           height: 56px;
-          color: red;
+          color: #9b2c2c;
+          background: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 15px;
+          font-size: 13px;
           font-weight: bold;
-          background: #fff;
+          &::before {
+            content: "";
+            display: block;
+            width: 87%;
+            height: 87%;
+            position: absolute;
+            border: 1px solid #9b2c2c;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+          }
         }
       }
     }
@@ -84,7 +96,6 @@ const EditorBox = styled.div`
       width: 100%;
       margin-bottom: 2rem;
     }
-
 
     .con_table {
     }
@@ -99,7 +110,15 @@ const EditorBox = styled.div`
   }
 `;
 
-export default function Editor({ type, handleEditor, typeCon, initTypeCon, disable, insertHtml, onEditor }) {
+export default function Editor({
+  type,
+  handleEditor,
+  typeCon,
+  initTypeCon,
+  disable,
+  insertHtml,
+  onEditor,
+}) {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
@@ -121,13 +140,12 @@ export default function Editor({ type, handleEditor, typeCon, initTypeCon, disab
   }, [type, typeCon]);
 
   useEffect(() => {
-    if(insertHtml){
+    if (insertHtml) {
       setTimeout(() => {
         inputHtml(insertHtml);
       }, 100);
     }
-  }, [insertHtml])
-  
+  }, [insertHtml]);
 
   const inputHtml = (content) => {
     editor.current?.setContents(content);

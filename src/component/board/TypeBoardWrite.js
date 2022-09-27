@@ -18,7 +18,15 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, update, onValue, off, query, orderByChild } from "firebase/database";
+import {
+  ref,
+  set,
+  update,
+  onValue,
+  off,
+  query,
+  orderByChild,
+} from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -40,20 +48,20 @@ export default function TypeBoard() {
   } = useForm();
 
   const watchRadio = watch("type");
-  const watchTitle = watch('title')
+  const watchTitle = watch("title");
   const [editorState, setEditorState] = useState();
 
   const [initTypeCon, setInitTypeCon] = useState();
   useEffect(() => {
     const typeRef = query(ref(db, `board/type_list/${router.query.id}`));
     onValue(typeRef, (data) => {
-      if(data.val().title){
-        setValue("title",data.val().title)
+      if (data.val()?.title) {
+        setValue("title", data.val().title);
       }
       setInitTypeCon(data.val());
     });
     return () => {
-      off(typeRef)
+      off(typeRef);
     };
   }, []);
 
@@ -61,7 +69,7 @@ export default function TypeBoard() {
     setEditorState(value);
   };
   const onSubmit = (values) => {
-    let editCon = editorState || initTypeCon.editor || ""
+    let editCon = editorState || initTypeCon?.editor || "";
 
     return new Promise((resolve) => {
       let uid = router.query.id || shortid.generate();

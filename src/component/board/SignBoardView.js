@@ -18,7 +18,15 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, update, onValue, off, query, orderByChild } from "firebase/database";
+import {
+  ref,
+  set,
+  update,
+  onValue,
+  off,
+  query,
+  orderByChild,
+} from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -31,7 +39,7 @@ export default function SignBoardView() {
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
-  const queryPath = `${router.query.date}/${router.query.id}`
+  const queryPath = `${router.query.date}/${router.query.id}`;
 
   const {
     setValue,
@@ -42,7 +50,7 @@ export default function SignBoardView() {
   } = useForm();
 
   const watchRadio = watch("type");
-  const watchTitle = watch('subject')
+  const watchTitle = watch("subject");
   const [editorState, setEditorState] = useState();
 
   const [insertHtml, setInsertHtml] = useState();
@@ -50,13 +58,13 @@ export default function SignBoardView() {
   useEffect(() => {
     const listRef = query(ref(db, `board/list/${queryPath}`));
     onValue(listRef, (data) => {
-      if(data.val().subject){
-        setValue("subject",data.val().subject)
+      if (data.val().subject) {
+        setValue("subject", data.val().subject);
       }
       setInitTypeCon(data.val());
     });
     return () => {
-      off(listRef)
+      off(listRef);
     };
   }, []);
 
@@ -64,7 +72,7 @@ export default function SignBoardView() {
     setEditorState(value);
   };
   const onSubmit = (values) => {
-    let editCon = editorState || initTypeCon.editor || ""
+    let editCon = editorState || initTypeCon.editor || "";
 
     return new Promise((resolve) => {
       let uid = router.query.id || shortid.generate();
@@ -92,34 +100,38 @@ export default function SignBoardView() {
     });
   };
 
-  const [isSignLoading, setIsSignLoading] = useState(false)
+  const [isSignLoading, setIsSignLoading] = useState(false);
   //결재
   const onSign = () => {
-    setIsSignLoading(true)
+    setIsSignLoading(true);
 
     let newEditor = initTypeCon.editor;
-    initTypeCon.manager.forEach((el,idx)=>{
-      if(el.uid === userInfo.uid){
+    initTypeCon.manager.forEach((el, idx) => {
+      if (el.uid === userInfo.uid) {
         let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
         let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
-        newEditor = [newEditor.slice(0, start + 37),`<div class="stamp">${el.name}</div>`,newEditor.slice(end)].join(
-          ""
-        );
+        newEditor = [
+          newEditor.slice(0, start + 37),
+          `<div class="stamp">${el.name}</div>`,
+          newEditor.slice(end),
+        ].join("");
       }
-    })
+    });
 
-    const curIdx = initTypeCon.manager.findIndex(el=>el.uid===userInfo.uid)
-    console.log(initTypeCon.manager[curIdx+1])
-    update(ref(db,`board/list/${queryPath}`),{
-      editor:newEditor,
-      nextManager:initTypeCon.manager[curIdx+1]
-    })
+    const curIdx = initTypeCon.manager.findIndex(
+      (el) => el.uid === userInfo.uid
+    );
+    update(ref(db, `board/list/${queryPath}`), {
+      editor: newEditor,
+      nextManager: initTypeCon.manager[curIdx + 1] || "",
+      cancelManager: userInfo.uid,
+      state: initTypeCon.manager[curIdx + 1] ? "ing" : "finish",
+    });
 
-    setInsertHtml(newEditor)
-    setEditorState(newEditor);    
-    setIsSignLoading(false)
-
-  }
+    setInsertHtml(newEditor);
+    setEditorState(newEditor);
+    setIsSignLoading(false);
+  };
 
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -157,7 +169,7 @@ export default function SignBoardView() {
           )}
 
           <Flex mt={4} width="100%" justifyContent="center">
-            <Button
+            {/* <Button
               width="150px"
               size="lg"
               colorScheme="teal"
@@ -165,8 +177,8 @@ export default function SignBoardView() {
               type="submit"
             >
               저장
-            </Button>
-            {initTypeCon?.nextManager.uid === userInfo?.uid &&
+            </Button> */}
+            {initTypeCon?.nextManager.uid === userInfo?.uid && (
               <Button
                 width="150px"
                 size="lg"
@@ -177,7 +189,7 @@ export default function SignBoardView() {
               >
                 결재
               </Button>
-            }
+            )}
             <Link href="/board/list">
               <Button width="150px" size="lg" colorScheme="teal" ml={2}>
                 목록
