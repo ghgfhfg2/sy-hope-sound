@@ -55,15 +55,46 @@ export default function ManagerListPop({
   }, []);
 
   const [checkedItems, setCheckedItems] = useState([]);
-
+  const [checkNum, setCheckNum] = useState(1)
   const onChageCheckItem = (e) => {
     checkManager.forEach(el=>{
       if(!e.includes(el.id)){
         removeManager(el.id)
       }
     })
+    console.log(e)
     setCheckedItems(e);
   };
+  const handleCheck = (e) => {
+    const target = e.target;
+    if(target.checked){
+      setTimeout(()=>{
+        const input = document.querySelector(`input[data-uid=${target.value}]`)
+        const value = input.value;
+        const id = input.id.split('_')[0];
+        const name = input.id.split('_')[1];
+        let arr = [];
+        let isEqual = false
+        arr = checkManager.map(el=>{
+          if(el.id === id){
+            isEqual = true;
+            el.value = checkNum
+          }
+          return el
+        })
+        if(!isEqual){
+          arr.push({
+            id,name,value:checkNum
+          })
+        }
+        setCheckManager(arr)      
+        document.querySelector(`input[data-uid=${target.value}]`).value = checkNum
+        setCheckNum(pre=>pre+1)
+      },10)
+    }else{
+      document.querySelector(`input[data-uid=${target.value}]`).value = checkNum
+    }
+  }
 
   const [checkManager, setCheckManager] = useState([])
   const onNumber = (e) => {
@@ -116,11 +147,11 @@ export default function ManagerListPop({
                         <span className="box num">
                           {
                             checkedItems.includes(el.uid) &&
-                            <Input onChange={onNumber} maxLength={2} size="xs" id={`${el.uid}_${el.name}`} textAlign="center" type="number" />
+                            <Input onChange={onNumber} maxLength={2} size="xs" id={`${el.uid}_${el.name}`} data-uid={el.uid} textAlign="center" type="number" />
                           }
                         </span>
                         <span className="box chk">
-                          <Checkbox value={el.uid}></Checkbox>
+                          <Checkbox onChange={handleCheck} value={el.uid}></Checkbox>
                         </span>
                         <span className="box name">{el.name}</span>
                         <span className="box part">{el.part}</span>

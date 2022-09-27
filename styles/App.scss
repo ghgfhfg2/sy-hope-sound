@@ -40,6 +40,11 @@ footer.footer {
   }
 }
 
+.link{
+  cursor: pointer;
+  &:hover{font-weight:600}
+}
+
 .xs {
   width: 12.5%;
 }

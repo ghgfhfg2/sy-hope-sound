@@ -27,10 +27,12 @@ import { CommonForm } from "pages/insa/setting";
 import Editor from "@component/board/Editor";
 import Link from "next/link";
 
-export default function TypeBoard() {
+export default function SignBoardView() {
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
+  const queryPath = `${router.query.date}/${router.query.id}`
+
   const {
     setValue,
     watch,
@@ -40,20 +42,21 @@ export default function TypeBoard() {
   } = useForm();
 
   const watchRadio = watch("type");
-  const watchTitle = watch('title')
+  const watchTitle = watch('subject')
   const [editorState, setEditorState] = useState();
 
+  const [insertHtml, setInsertHtml] = useState();
   const [initTypeCon, setInitTypeCon] = useState();
   useEffect(() => {
-    const typeRef = query(ref(db, `board/type_list/${router.query.id}`));
-    onValue(typeRef, (data) => {
-      if(data.val().title){
-        setValue("title",data.val().title)
+    const listRef = query(ref(db, `board/list/${queryPath}`));
+    onValue(listRef, (data) => {
+      if(data.val().subject){
+        setValue("subject",data.val().subject)
       }
       setInitTypeCon(data.val());
     });
     return () => {
-      off(typeRef)
+      off(listRef)
     };
   }, []);
 
@@ -73,8 +76,8 @@ export default function TypeBoard() {
         manager: userInfo.manager_uid || "",
         uid,
       };
-      const typeRef = ref(db, `board/type_list/${uid}`);
-      update(typeRef, {
+      const listRef = ref(db, `board/list/${uid}`);
+      update(listRef, {
         ...obj,
       }).then(() => {
         toast({
@@ -83,11 +86,40 @@ export default function TypeBoard() {
           duration: 1000,
           isClosable: false,
         });
-        router.push("/setting/type_board");
+        router.push("/board/list");
       });
       resolve();
     });
   };
+
+  const [isSignLoading, setIsSignLoading] = useState(false)
+  //결재
+  const onSign = () => {
+    setIsSignLoading(true)
+
+    let newEditor = initTypeCon.editor;
+    initTypeCon.manager.forEach((el,idx)=>{
+      if(el.uid === userInfo.uid){
+        let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+        let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
+        newEditor = [newEditor.slice(0, start + 37),`<div class="stamp">${el.name}</div>`,newEditor.slice(end)].join(
+          ""
+        );
+      }
+    })
+
+    const curIdx = initTypeCon.manager.findIndex(el=>el.uid===userInfo.uid)
+    console.log(initTypeCon.manager[curIdx+1])
+    update(ref(db,`board/list/${queryPath}`),{
+      editor:newEditor,
+      nextManager:initTypeCon.manager[curIdx+1]
+    })
+
+    setInsertHtml(newEditor)
+    setEditorState(newEditor);    
+    setIsSignLoading(false)
+
+  }
 
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -95,25 +127,28 @@ export default function TypeBoard() {
         <Flex width="100%" flexDirection="column" gap={5}>
           <FormControl isInvalid={errors.title}>
             <div className="row_box">
-              <FormLabel className="label" htmlFor="title">
-                * 양식명
+              <FormLabel className="label" htmlFor="subject">
+                * 제목
               </FormLabel>
               <Input
-                id="title"
+                id="subject"
+                readOnly
                 className="sm"
-                {...register("title", {
-                  required: "양식명은 필수항목 입니다.",
+                {...register("subject", {
+                  required: "제목은 필수항목 입니다.",
                 })}
               />
             </div>
             <FormErrorMessage>
-              {errors.title && errors.title.message}
+              {errors.subject && errors.subject.message}
             </FormErrorMessage>
           </FormControl>
           {initTypeCon && initTypeCon.editor ? (
             <>
               <Editor
+                disable={true}
                 initTypeCon={initTypeCon.editor}
+                insertHtml={insertHtml}
                 handleEditor={handleEditor}
               />
             </>
@@ -131,7 +166,19 @@ export default function TypeBoard() {
             >
               저장
             </Button>
-            <Link href="/setting/type_board">
+            {initTypeCon?.nextManager.uid === userInfo?.uid &&
+              <Button
+                width="150px"
+                size="lg"
+                ml={2}
+                colorScheme="teal"
+                isLoading={isSignLoading}
+                onClick={onSign}
+              >
+                결재
+              </Button>
+            }
+            <Link href="/board/list">
               <Button width="150px" size="lg" colorScheme="teal" ml={2}>
                 목록
               </Button>

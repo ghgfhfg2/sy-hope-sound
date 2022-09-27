@@ -58,6 +58,24 @@ const EditorBox = styled.div`
           display: flex;
           justify-content: center;
           align-items: center;
+          position:relative;
+        }
+        .stamp{
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+          border: 3px solid red;
+          width: 56px;
+          height: 56px;
+          color: red;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 15px;
+          font-weight: bold;
+          background: #fff;
         }
       }
     }
@@ -66,6 +84,7 @@ const EditorBox = styled.div`
       width: 100%;
       margin-bottom: 2rem;
     }
+
 
     .con_table {
     }
@@ -80,7 +99,7 @@ const EditorBox = styled.div`
   }
 `;
 
-export default function Editor({ type, handleEditor, typeCon, initTypeCon, disable, insertHtml }) {
+export default function Editor({ type, handleEditor, typeCon, initTypeCon, disable, insertHtml, onEditor }) {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;

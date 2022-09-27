@@ -20,7 +20,7 @@ import {
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
 import { ref, set, get, onValue, off } from "firebase/database";
-import { format, getMonth, getDate } from "date-fns";
+import { format, getYear, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
@@ -47,8 +47,10 @@ export default function Write() {
   const [editorState, setEditorState] = useState();
   const handleEditor = (value) => {
     setEditorState(value);
-  };
+  };  
+
   const onSubmit = (values) => {
+    const CurDate = new Date()
     return new Promise((resolve) => {
       let manager = managerList.map((el) => {
         let mng = {
@@ -60,11 +62,27 @@ export default function Write() {
       let obj = {
         ...values,
         editor: editorState,
-        timestamp: new Date().getTime(),
+        timestamp: CurDate.getTime(),
         writer_uid: userInfo.uid,
         manager: manager,
+        state: 'ing',
+        nextManager: manager[0]
       };
-      console.log(obj);
+      const listRef = ref(db,`board/list/${format(CurDate,"yyyyMM")}/${shortid.generate()}`)
+      set(listRef,{
+        ...obj
+      })
+      .then(()=>{
+        toast({
+          description: "제출 완료 되었습니다.",
+          status: 'success',
+          duration: 1000,
+          isClosable: false,
+        })
+      })
+      .then(()=>{
+
+      })
       resolve();
     });
   };
@@ -101,7 +119,16 @@ export default function Write() {
 
   const [isManagerPop, setIsManagerPop] = useState(false);
   const onManagerPop = () => {
-    setIsManagerPop(true);
+    if(checkManagerList){
+      toast({
+        description: "다시 선택하려면 선택취소를 해주세요.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+    }else{
+      setIsManagerPop(true);
+    }
   };
   const closeManagerPop = () => {
     setIsManagerPop(false);
@@ -111,21 +138,22 @@ export default function Write() {
       return a.value - b.value;
     });
     setCheckManagerList(newList);
-    onManager();
+    onManager(newList);
     closeManagerPop();
   };
 
   const [editorDisable, setEditorDisable] = useState(false);
   const [insertHtml, setInsertHtml] = useState();
 
-  const onManager = () => {
-    let newEditor = editorState;
+  const onManager = (managerList) => {
+
+    let newEditor = clearManager(editorState,managerList)
     managerList.forEach((el, idx) => {
       let pos = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
       newEditor = [
-        newEditor.slice(0, pos + 20),
+        newEditor.slice(0, pos + 37),
         el.name,
-        newEditor.slice(pos + 20),
+        newEditor.slice(pos + 37),
       ].join("");
     });
     setEditorDisable(true);
@@ -133,19 +161,36 @@ export default function Write() {
     setEditorState(newEditor);
   };
   const offManager = () => {
-    let newEditor = editorState;
-    managerList.forEach((el, idx) => {
-      let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
-      let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
-      newEditor = [newEditor.slice(0, start + 20), newEditor.slice(end)].join(
-        ""
-      );
-    });
+
+    let newEditor = clearManager(editorState,managerList)
     setInsertHtml(newEditor);
     setEditorState(newEditor);
     setEditorDisable(false);
     setCheckManagerList("");
   };
+
+  const clearManager = (editorState,managerList) => {
+    let newEditor = editorState;
+    managerList.forEach((el, idx) => {
+      let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+      let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
+      newEditor = [newEditor.slice(0, start + 37), newEditor.slice(end)].join(
+        ""
+      );
+    });
+    return newEditor
+  }
+
+  const onEditor = () => {
+    if(editorDisable){
+      toast({
+        description: "결재자 선택시 양식을 수정할 수 없습니다.",
+        status: "info",
+        duration: 1000,
+        isClosable: false,
+      })
+    }
+  }
 
   return (
     <>
@@ -202,6 +247,7 @@ export default function Write() {
             </FormControl>
             {watchRadio && (
               <>
+                <div onClick={onEditor}>
                 <Editor
                   disable={editorDisable}
                   insertHtml={insertHtml}
@@ -209,6 +255,7 @@ export default function Write() {
                   handleEditor={handleEditor}
                   type={watchRadio}
                 />
+                </div>
                 <FormControl isInvalid={errors.manager}>
                   <div className="row_box">
                     <FormLabel className="label" htmlFor="manager">

@@ -1,7 +1,7 @@
-import React from 'react'
+import SignBoardList from "@component/board/SignBoardList"
 
 export default function List() {
   return (
-    <div>list</div>
+    <SignBoardList />
   )
 }
