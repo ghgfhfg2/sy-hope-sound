@@ -60,14 +60,11 @@ function App({ Component, pageProps }) {
 
   const [logoImg, setLogoImg] = useState();
   useEffect(() => {
-    const getLogo = async () => {
-      const logoRef = sRef(storage, `company/logo`);
-      const logoUrl = await getDownloadURL(logoRef);
-      if (logoUrl) {
-        setLogoImg(logoUrl);
-      }
-    };
-    getLogo();
+    getDownloadURL(sRef(storage, `company/logo`))
+      .then((url) => {
+        setLogoImg(url);
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {

@@ -339,6 +339,7 @@ export default function Setting() {
       return;
     }
     if (
+      file.type !== "image/svg+xml" &&
       file.type !== "image/gif" &&
       file.type !== "image/png" &&
       file.type !== "image/jpeg"

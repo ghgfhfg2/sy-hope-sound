@@ -19,19 +19,16 @@ const HeaderTop = styled.div`
     display: flex;
     align-items: center;
   }
-  .logo_box{
-    width:200px;
-    padding-left:1rem
+  .logo_box {
+    width: 200px;
   }
   .logo {
     cursor: pointer;
     display: flex;
     height: 40px;
-    width:auto;
+    width: auto;
     align-items: center;
     justify-content: center;
-    margin-right: 1rem;
-    background: #fff;
     padding: 0 1rem;
     img {
       max-height: 30px;
@@ -92,13 +89,12 @@ function Header({ logoImg }) {
               </Link>
             </h1>
           </div>
-          <ul className="menu">            
-            {
-              userInfo && userInfo.authority?.includes("admin") &&
+          <ul className="menu">
+            {userInfo && userInfo.authority?.includes("admin") && (
               <li className={router.route.indexOf("/setting") > -1 && "on"}>
                 <Link href="/setting">설정</Link>
               </li>
-            }
+            )}
             <li className={router.route.indexOf("/insa") > -1 && "on"}>
               <Link href="/insa">인사관리</Link>
             </li>

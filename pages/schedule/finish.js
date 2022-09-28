@@ -41,13 +41,13 @@ const FinishList = styled(BoardLi)`
 
 export default function Finish() {
   const userInfo = useSelector((state) => state.user.currentUser);
-  const [selectDate, setSelectDate] = useState(new Date())
+  const [selectDate, setSelectDate] = useState(new Date());
   const [finishList, setFinishList] = useState();
   useEffect(() => {
     const listRef = query(
       ref(db, `dayoff/finish`),
       orderByKey(),
-      equalTo(format(selectDate,"yyyyMM"))
+      equalTo(format(selectDate, "yyyyMM"))
     );
     onValue(listRef, (data) => {
       let listArr = [];
@@ -61,7 +61,8 @@ export default function Finish() {
         }
       });
       listArr = listArr.filter((el) => {
-        return el.manager === userInfo?.uid || el.userUid === userInfo?.uid;
+        const mgList = el.manager.map((el) => el.id);
+        return mgList.includes(userInfo?.uid) || el.userUid === userInfo?.uid;
       });
       setFinishList(listArr);
     });
@@ -106,7 +107,11 @@ export default function Finish() {
         </FinishList>
       </BoardList>
       {listData && isConfirmPop && (
-        <FinishPop listData={listData} userInfo={userInfo} closePopup={closePopup} />
+        <FinishPop
+          listData={listData}
+          userInfo={userInfo}
+          closePopup={closePopup}
+        />
       )}
     </>
   );
