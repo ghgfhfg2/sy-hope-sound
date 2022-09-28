@@ -22,21 +22,34 @@ import {
 
 const LeftMenu = styled.nav`
   width: 200px;
-  border-right: 1px solid #ddd;
   flex-shrink: 0;
+  background: #234e52;
   .depth_1 {
     display: flex;
     flex-direction: column;
-    margin: 10px 0;
     > li {
       display: flex;
-      margin: 5px 0;
+      padding: 1rem 0;
+      position: relative;
       &.on {
-        font-weight: bold;
+        background: #1d4044;
+        a {
+          color: #fff;
+          font-weight: 600;
+        }
       }
     }
     > li > a {
       padding: 0 15px;
+      display: block;
+      width: 100%;
+      font-size: 13px;
+      color: #bcdde1;
+      &:hover {
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+      }
     }
   }
 `;
@@ -49,14 +62,15 @@ function LeftMunu({ userInfo }) {
   const [dayoffReady, setDayoffReady] = useState("결재대기");
   useEffect(() => {
     let countRef;
-    countRef = query(
-      ref(db, `dayoff/temp`)
-    );
+    countRef = query(ref(db, `dayoff/temp`));
     if (router.includes("/schedule")) {
       onValue(countRef, (data) => {
         let count = 0;
         for (const key in data.val()) {
-          if(data.val()[key].nextManager.id === userInfo.uid || data.val()[key].userUid === userInfo.uid){
+          if (
+            data.val()[key].nextManager.id === userInfo.uid ||
+            data.val()[key].userUid === userInfo.uid
+          ) {
             count++;
           }
         }
@@ -125,16 +139,19 @@ function LeftMunu({ userInfo }) {
         {router.includes("/board") && (
           <>
             <ul className="depth_1">
-              <li className={router.includes("/board/list") ||
+              <li
+                className={
+                  router.includes("/board/list") ||
                   router.includes("/board/view")
                     ? "on"
-                    : ""}>
+                    : ""
+                }
+              >
                 <Link href="/board/list">결재리스트</Link>
               </li>
               <li className={router === "/board/write" ? "on" : ""}>
                 <Link href="/board/write">글작성</Link>
               </li>
-             
             </ul>
           </>
         )}

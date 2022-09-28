@@ -8,7 +8,8 @@ import { getAuth, signOut } from "firebase/auth";
 
 const HeaderTop = styled.div`
   width: 100%;
-  background: var(--m-color);
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
   color: #fff;
   font-size: 12px;
   padding-right: 1rem;
@@ -41,18 +42,23 @@ const HeaderTop = styled.div`
   }
   li {
     height: 100%;
-    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 0.5rem;
     a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+      color: var(--m-color);
     }
     &.on {
-      background: #fff;
       color: var(--m-color);
       a {
         font-weight: 600;
+        border-radius: 6px;
+        background: var(--m-color);
+        color: #fff;
       }
     }
   }
