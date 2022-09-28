@@ -22,6 +22,7 @@ import FinishPop from "@component/schedule/FinishPop";
 import None from "@component/None";
 import Link from "next/link";
 import ManagerListPop from "./ManagerListPop";
+import useGetUser from "@component/hooks/getUserDb";
 
 const SignBoardLi = styled(BoardLi)`
   li {
@@ -46,6 +47,7 @@ const SignBoardLi = styled(BoardLi)`
 `;
 
 export default function SignBoardList() {
+  useGetUser()
   const userInfo = useSelector((state) => state.user.currentUser);
   const userAll = useSelector((state) => state.user.allUser);
   const [boardList, setBoardList] = useState();
@@ -58,32 +60,32 @@ export default function SignBoardList() {
       equalTo(formatDate)
     );
     onValue(listRef, (data) => {
+      if(userInfo && userAll){
       let listArr = [];
-      data.forEach((el) => {
-        for (const key in el.val()) {
-          let mg_list = [];
-          mg_list = el.val()[key].manager.map((el) => el.uid);
-          let writer = userAll.find(
-            (user) => user.uid === el.val()[key].writer_uid
-          );
-          console.log(writer);
-          if (
-            mg_list.includes(userInfo.uid) ||
-            el.val()[key].writer_uid === userInfo.uid
-          ) {
-            let obj = {
-              ...el.val()[key],
-              uid: key,
-              writer,
-              date: format(el.val()[key].timestamp, "yyyyMM"),
-              date_: format(el.val()[key].timestamp, "yyyy-MM-dd"),
-            };
-            console.log(obj);
-            listArr.push(obj);
+        data.forEach((el) => {
+          for (const key in el.val()) {
+            let mg_list = [];
+            mg_list = el.val()[key].manager.map((el) => el.uid);
+            let writer = userAll.find(
+              (user) => user.uid === el.val()[key].writer_uid
+            );
+            if (
+              mg_list.includes(userInfo.uid) ||
+              el.val()[key].writer_uid === userInfo.uid
+            ) {
+              let obj = {
+                ...el.val()[key],
+                uid: key,
+                writer,
+                date: format(el.val()[key].timestamp, "yyyyMM"),
+                date_: format(el.val()[key].timestamp, "yyyy-MM-dd"),
+              };
+              listArr.push(obj);
+            }
           }
-        }
-      });
-      setBoardList(listArr);
+          setBoardList(listArr);
+        });
+      }
     });
     return () => {
       off(listRef);

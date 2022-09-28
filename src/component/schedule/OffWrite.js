@@ -25,6 +25,7 @@ import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
+import ManagerListPop from "@component/board/ManagerListPop";
 
 export const DayOffList = styled.ul`
   display: flex;
@@ -174,7 +175,9 @@ export default function OffWrite({ userInfo }) {
               reason: values.reason,
               userUid: userInfo.uid,
               userName: userInfo.name,
-              manager: userData.manager_uid?.uid || '',
+              manager: checkManagerList,
+              nextManager:checkManagerList[0],
+              cancelManager:"",
               timestamp: new Date().getTime(),
               list: offList,
             })
@@ -188,6 +191,7 @@ export default function OffWrite({ userInfo }) {
               })
               .then(()=>{
                 onFormInit()
+                router.push('/schedule/sign_ready')
               })
               .catch((error) => {
                 console.error(error);
@@ -204,8 +208,43 @@ export default function OffWrite({ userInfo }) {
     setValue('reason','')
   }
 
+
+  //결재자 선택
+  const [managerList, setManagerList] = useState();
+  const [checkManagerList, setCheckManagerList] = useState();
+  useEffect(() => {
+    if (userAll) {
+      let list = userAll.filter((el) => el.manager === 1);
+      setManagerList(list);
+    }
+  }, [userAll]);
+  const [isManagerPop, setIsManagerPop] = useState(false);
+  const onManagerPop = () => {
+    setIsManagerPop(true);
+  };
+  const closeManagerPop = () => {
+    setIsManagerPop(false);
+  };
+  const onSelectManager = (checkedItems) => {
+    let newList = checkedItems.sort((a, b) => {
+      return a.value - b.value;
+    });
+    setCheckManagerList(newList);
+    let val = newList.map(el=>el.name).join(',')
+    setValue('manager',val)
+    closeManagerPop();
+  };
+
   return (
     <>
+      {isManagerPop && managerList && (
+        <ManagerListPop
+          userData={managerList}
+          closeManagerPop={closeManagerPop}
+          onSelectManager={onSelectManager}
+          isManagerPop={isManagerPop}
+        />
+      )}
       {userData &&
       <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex>
@@ -213,7 +252,7 @@ export default function OffWrite({ userInfo }) {
             <FormControl isInvalid={errors.subject}>
               <div className="row_box">
                 <FormLabel className="label" htmlFor="subject">
-                  이름
+                  제목
                 </FormLabel>
                 <Input
                   id="subject"
@@ -246,14 +285,20 @@ export default function OffWrite({ userInfo }) {
                 </FormLabel>
                 <Input
                   id="manager"
-                  placeholder="결재 담당자"
+                  placeholder="결재자"
+                  value={
+                    checkManagerList &&
+                    checkManagerList.map((el) => el.name)
+                  }
                   readOnly
-                  value={userData?.manager_uid?.name}
                   className="xs"
                   {...register("manager", {
                     required: "담당자는 필수항목 입니다.",
                   })}
                 />
+                <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                  결재자 선택
+                </Button>
               </div>
               <FormErrorMessage>
                 {errors.manager && errors.manager.message}

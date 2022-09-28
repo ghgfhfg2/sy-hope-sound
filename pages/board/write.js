@@ -50,7 +50,17 @@ export default function Write() {
   };  
 
   const onSubmit = (values) => {
-    const CurDate = new Date()
+
+    const CurDate = new Date();
+    if(!checkManagerList){
+      toast({
+        description: "결재자를 선택해주세요",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      })
+      return;
+    }
     return new Promise((resolve) => {
       let manager = managerList.map((el) => {
         let mng = {
@@ -81,9 +91,9 @@ export default function Write() {
         })
       })
       .then(()=>{
-
+        router.push('/board/list')
+        resolve();
       })
-      resolve();
     });
   };
 

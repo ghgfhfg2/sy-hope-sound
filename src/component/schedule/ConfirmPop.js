@@ -3,7 +3,7 @@ import { Button, Flex, Box, useToast } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
-import { ref, set, update, remove, runTransaction } from "firebase/database";
+import { ref, set, get, update, remove, runTransaction } from "firebase/database";
 import { CommonPopup } from "@component/insa/UserModifyPop";
 import { DayOffList } from "@component/schedule/OffWrite";
 import styled from "styled-components";
@@ -11,7 +11,7 @@ import shortid from "shortid";
 import { format } from "date-fns";
 import Confirm from "@component/popup/Confirm";
 
-const ConfirmPopup = styled(CommonPopup)`
+export const ConfirmPopup = styled(CommonPopup)`
   .con_box {
     width: 100%;
     max-width: 500px;
@@ -23,9 +23,46 @@ const ConfirmPopup = styled(CommonPopup)`
     font-size: 1.4rem;
     text-align: center;
     font-weight: 600;
+    margin-bottom:1rem;
   }
-  .name {
-    text-align: right;
+
+  .info_box{
+    display:flex;justify-content:space-between;
+  }
+
+  .manager_list{
+    font-size:13px;
+    display:flex;align-items:center;
+    li{
+      display:flex;flex-direction:column;align-items:center;
+      width:70px;border:1px solid #ddd;margin-left:-1px;
+      &>div{
+        display:flex;justify-content:center;align-items:center;
+        width:100%;
+      }
+      .title{height:30px;border-bottom:1px solid #ddd;}
+      .sign{height:auto;
+        height:65px;
+        display:flex;justify-content:center;align-items:center;
+        .check{display:flex;justify-content:center;align-items:center;
+          border:2px solid #9C4221;border-radius:50%;
+          width:45px;height:45px;color:#9C4221;
+          position:relative;
+          &::before {
+            content: "";
+            display: block;
+            width: 87%;
+            height: 87%;
+            position: absolute;
+            border: 1px solid #9b2c2c;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+          }
+        }
+      }
+    }
   }
 `;
 
@@ -39,58 +76,123 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
       setOwnCheck(true)
     }
   }, [])
+
+
+  //결재자 콤포넌트
+  const Manager = () => {
+    let addSignList;
+    addSignList = listData.manager.map(el=>{
+      if(el.value <= listData.cancelManager.value){
+        el.sign = true;
+      }
+      return el;
+    })
+    return (
+      <ul className="manager_list">
+
+        {
+          addSignList.map((el,idx)=>(
+            <li key={idx}>
+              <div className="title">결재자{idx+1}</div>
+              <div className="sign">{
+                el.sign ? (<span className="check">{el.name}</span>)
+               : (<span className="ready">{el.name}</span>)
+              }
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    )
+  }
   
 
-  function onSubmit() {
-    return new Promise((resolve) => {
-      let finishDate = format(listData.timestamp, "yyyyMM");
-      runTransaction(
-        ref(db, `user/${listData.userUid.trim()}/dayoff`),
-        (pre) => {
-          let newDay = pre ? pre - listData.daySum : -1;
-          if (newDay < 0) {
-            window.alert("휴가가 부족합니다.");
-            return;
-          } else {
-            return String(newDay);
-          }
-        }
-      ).then((res) => {
-        if (res.committed) {
-          update(ref(db, `dayoff/finish/${finishDate}/${listData.uid}`), {
-            ...listData,
-          })
-            .then(() => {
-              listData.list.forEach((el) => {
-                let d = el.date.split("-").join("");
-                update(ref(db, `dayoff/list/${d}/${shortid.generate()}`), {
-                  ...el,
-                  uid: listData.uid,
-                  userName: listData.userName,
-                  userUid: listData.userUid,
-                  manager: listData.manager,
-                  reason: listData.reason,
-                  subject: listData.subject,
-                }).catch((error) => {
-                  console.error(error);
-                });
-              });
+  const onSubmit = async () => {
+    const checkIdx = listData.manager.findIndex(el=>el.id === listData.nextManager.id);
+    const userRef = ref(db,`user/${listData.userUid.trim()}/dayoff`);
+    const restDayoff = await get(userRef)
+    .then((data)=>{
+      return data.val()
+    })
+    const newDayoff = restDayoff - listData.daySum;
+    if(newDayoff < 0){
+      toast({
+        description: "휴가가 부족합니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      })
+      return;
+    }else{
+      update(userRef,{...newDayoff})
+      .then(()=>{
+        
+        //결재처리
+        return new Promise((resolve) => {
+          let finishDate = format(listData.timestamp, "yyyyMM");
+          if(listData.manager[checkIdx+1]){
+            update(ref(db,`dayoff/temp/${listData.uid}`),{
+              cancelManager: listData.manager[checkIdx],
+              nextManager: listData.manager[checkIdx+1]
             })
-            .then(() => {
-              remove(ref(db, `dayoff/temp/${listData.uid}`));
-            })
-            .then(() => {
+            .then(()=>{
+              toast({
+                description: "결재처리 되었습니다.",
+                status: "success",
+                duration: 1000,
+                isClosable: false,
+              })
               dispatch(updateDayoffCount(true));
               closePopup();
               resolve();
             })
-            .catch((error) => {
-              console.error(error);
-              resolve();
+          }else{
+            listData.list.forEach((el) => {
+              let d = el.date.split("-").join("");
+              update(ref(db, `dayoff/list/${d}/${shortid.generate()}`), {
+                ...el,
+                uid: listData.uid,
+                userName: listData.userName,
+                userUid: listData.userUid,
+                manager: listData.manager,
+                reason: listData.reason,
+                subject: listData.subject,
+              })
+              .then(()=>{
+                update(ref(db, `dayoff/finish/${finishDate}/${listData.uid}`), {
+                  ...listData,
+                  cancelManager: listData.manager[checkIdx],
+                  nextManager: ""
+                })    
+
+              })
+              .then(()=>{
+                remove(ref(db,`dayoff/temp/${listData.uid}`))
+                toast({
+                  description: "결재처리 되었습니다.",
+                  status: "success",
+                  duration: 1000,
+                  isClosable: false,
+                })
+                dispatch(updateDayoffCount(true));
+                closePopup();
+                resolve();
+              })
+              .catch((error) => {
+                console.error(error);
+              });
             });
-        }
+          }
+        });
+        //결재처리
+      })
+      .catch((error) => {
+        console.error(error);
+        resolve();
       });
-    });
+    }
+   
+
   }
 
   const onRemove = (uid) => {
@@ -112,7 +214,18 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
       <ConfirmPopup>
         <div className="con_box">
           <h2>{listData.subject}</h2>
-          <div className="name">{listData.userName}</div>
+          <div className="info_box">
+            <ul className="manager_list">
+              <li>
+                <div className="title">작성자</div>
+                <div className="sign">
+                  {listData.userName}
+                </div>
+
+              </li>
+            </ul>
+            <Manager />
+          </div>
           <DayOffList>
             <li className="header">
               <span className="type">유형</span>
@@ -130,9 +243,12 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                 </>
               ))}
             <Flex justifyContent="center" mt="5">
-            <Button onClick={onSubmit} colorScheme="teal">
-              결재
-            </Button>
+            {
+              listData.nextManager.id === userInfo?.uid &&
+              <Button onClick={onSubmit} colorScheme="teal">
+                결재
+              </Button>
+            }
             {ownCheck && 
               <>
               <Box ml={2}></Box>

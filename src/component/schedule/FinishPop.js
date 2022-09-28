@@ -1,36 +1,49 @@
 import React from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
 import { ref, set, update, remove, query, orderByValue,orderByChild, equalTo, runTransaction } from "firebase/database";
-import { CommonPopup } from "@component/insa/UserModifyPop";
+import { ConfirmPopup } from "@component/schedule/ConfirmPop";
 import { DayOffList } from "@component/schedule/OffWrite";
 import styled from "styled-components";
 import shortid from "shortid";
 import { format } from "date-fns";
 
-const FinishPopup = styled(CommonPopup)`
-  .con_box {
-    width: 100%;
-    max-width: 500px;
-  }
-  span.day {
-    margin-left: auto;
-  }
-  h2 {
-    font-size: 1.4rem;
-    text-align: center;
-    font-weight: 600;
-  }
-  .name {
-    text-align: right;
-  }
-`;
 
-export default function FinishPop({ listData, closePopup }) {
-  const dispatch = useDispatch()
+export default function FinishPop({ listData, userInfo, closePopup }) {
+  const dispatch = useDispatch();
+
+
+  //결재자 콤포넌트
+  const Manager = () => {
+    let addSignList;
+    addSignList = listData.manager.map(el=>{
+      if(el.value <= listData.cancelManager.value){
+        el.sign = true;
+      }
+      return el;
+    })
+    return (
+      <ul className="manager_list">
+
+        {
+          addSignList.map((el,idx)=>(
+            <li key={idx}>
+              <div className="title">결재자{idx+1}</div>
+              <div className="sign">{
+                el.sign ? (<span className="check">{el.name}</span>)
+              : (<span className="ready">{el.name}</span>)
+              }
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    )
+  }  
+
   function onSubmit() {
     return new Promise((resolve) => {
       
@@ -70,33 +83,49 @@ export default function FinishPop({ listData, closePopup }) {
 
   return (
     <>
-    <FinishPopup>
-      <div className="con_box">
-        <h2>{listData.subject}</h2>
-        <div className="name">{listData.userName}</div>
-        <DayOffList>
-          <li className="header">
-            <span className="type">유형</span>
-            <span className="date">날짜</span>
-            <span className="day">일수</span>
-          </li>
-          {listData &&
-            listData.list.map((el) => (
-              <>
-                <li>
-                  <span className="type">{el.offType}</span>
-                  <span className="date">{el.date}</span>
-                  <span className="day">{el.day}</span>
-                </li>
-              </>
-            ))}
-          <Button onClick={onSubmit} colorScheme="teal" mt="5">
-            결재취소
-          </Button>
-        </DayOffList>
-      </div>
-      <div className="bg" onClick={closePopup}></div>
-    </FinishPopup>
+    <ConfirmPopup>
+    <div className="con_box">
+          <h2>{listData.subject}</h2>
+          <div className="info_box">
+            <ul className="manager_list">
+              <li>
+                <div className="title">작성자</div>
+                <div className="sign">
+                  {listData.userName}
+                </div>
+
+              </li>
+            </ul>
+            <Manager />
+          </div>
+          <DayOffList>
+            <li className="header">
+              <span className="type">유형</span>
+              <span className="date">날짜</span>
+              <span className="day">일수</span>
+            </li>
+            {listData &&
+              listData.list.map((el) => (
+                <>
+                  <li>
+                    <span className="type">{el.offType}</span>
+                    <span className="date">{el.date}</span>
+                    <span className="day">{el.day}</span>
+                  </li>
+                </>
+              ))}
+            <Flex justifyContent="center" mt="5">
+            {
+              listData.nextManager.id === userInfo?.uid &&
+              <Button onClick={onSubmit} colorScheme="teal">
+                결재취소
+              </Button>
+            }
+            </Flex>
+          </DayOffList>
+        </div>
+        <div className="bg" onClick={closePopup}></div>
+    </ConfirmPopup>
     </>
   );
 }

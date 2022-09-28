@@ -56,7 +56,7 @@ export default function SignReady() {
           listArr.push(obj);
         });
         listArr = listArr.filter(el=>{
-          return el.manager === userInfo?.uid || el.userUid === userInfo?.uid
+          return el.nextManager.id === userInfo?.uid || el.userUid === userInfo?.uid
         })
         setReadyList(listArr);
       });

@@ -13,6 +13,7 @@ import {
   startAt,
   endAt,
   orderByKey,
+  equalTo,
 } from "firebase/database";
 import shortid from "shortid";
 import { format } from "date-fns";
@@ -40,13 +41,13 @@ const FinishList = styled(BoardLi)`
 
 export default function Finish() {
   const userInfo = useSelector((state) => state.user.currentUser);
+  const [selectDate, setSelectDate] = useState(new Date())
   const [finishList, setFinishList] = useState();
   useEffect(() => {
     const listRef = query(
       ref(db, `dayoff/finish`),
       orderByKey(),
-      startAt("202209"),
-      endAt("202209")
+      equalTo(format(selectDate,"yyyyMM"))
     );
     onValue(listRef, (data) => {
       let listArr = [];
@@ -105,7 +106,7 @@ export default function Finish() {
         </FinishList>
       </BoardList>
       {listData && isConfirmPop && (
-        <FinishPop listData={listData} closePopup={closePopup} />
+        <FinishPop listData={listData} userInfo={userInfo} closePopup={closePopup} />
       )}
     </>
   );

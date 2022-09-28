@@ -26,6 +26,7 @@ import {
   off,
   query,
   orderByChild,
+  remove,
 } from "firebase/database";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
@@ -58,10 +59,12 @@ export default function SignBoardView() {
   useEffect(() => {
     const listRef = query(ref(db, `board/list/${queryPath}`));
     onValue(listRef, (data) => {
-      if (data.val().subject) {
-        setValue("subject", data.val().subject);
+      if(data.val()){
+        if (data.val().subject) {
+          setValue("subject", data.val().subject);
+        }
+        setInitTypeCon(data.val());
       }
-      setInitTypeCon(data.val());
     });
     return () => {
       off(listRef);
@@ -124,14 +127,67 @@ export default function SignBoardView() {
     update(ref(db, `board/list/${queryPath}`), {
       editor: newEditor,
       nextManager: initTypeCon.manager[curIdx + 1] || "",
-      cancelManager: userInfo.uid,
+      cancelManager: initTypeCon.manager[curIdx],
       state: initTypeCon.manager[curIdx + 1] ? "ing" : "finish",
-    });
+    })
+    .then(()=>{
+      toast({
+        description: "결재 되었습니다.",
+        status: 'success',
+        duration: 1000,
+        isClosable: false,
+      })
+      setInsertHtml(newEditor);
+      setEditorState(newEditor);
+      setIsSignLoading(false);
+    })
 
-    setInsertHtml(newEditor);
-    setEditorState(newEditor);
-    setIsSignLoading(false);
   };
+
+  //결재취소
+  const onSignCancel = () => {
+    const idx = initTypeCon.manager.findIndex(el=>el.uid === userInfo.uid)
+    let newEditor = initTypeCon.editor;
+    let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+    let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
+    newEditor = [
+      newEditor.slice(0, start + 37),
+      `${userInfo.name}`,
+      newEditor.slice(end),
+    ].join("");
+
+    update(ref(db, `board/list/${queryPath}`), {
+      editor: newEditor,
+      nextManager: initTypeCon.manager[idx],
+      cancelManager: idx > 0 ? initTypeCon.manager[idx] : "",
+      state: "ing",
+    })
+    .then(()=>{
+      toast({
+        description: "결재가 취소되었습니다.",
+        status: 'success',
+        duration: 1000,
+        isClosable: false,
+      })
+      setInsertHtml(newEditor);
+      setEditorState(newEditor);
+    })
+
+  }
+
+  //글 삭제
+  const onRemove = () => {
+    remove(ref(db,`board/list/${queryPath}`))
+    .then(()=>{
+      toast({
+        description: "삭제 되었습니다.",
+        status: 'success',
+        duration: 1000,
+        isClosable: false,
+      })
+      router.push('/board/list')
+    })
+  }
 
   return (
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -190,6 +246,30 @@ export default function SignBoardView() {
                 결재
               </Button>
             )}
+            {initTypeCon && initTypeCon.cancelManager?.uid === userInfo?.uid && (
+              <Button
+                width="150px"
+                size="lg"
+                ml={2}
+                colorScheme="red"
+                isLoading={isSignLoading}
+                onClick={onSignCancel}
+              >
+                결재취소
+              </Button>
+            )}
+            {initTypeCon && !initTypeCon.cancelManager && initTypeCon.writer_uid === userInfo?.uid && 
+              <Button
+                width="150px"
+                size="lg"
+                ml={2}
+                colorScheme="red"
+                isLoading={isSignLoading}
+                onClick={onRemove}
+              >
+                삭제
+              </Button>
+            }
             <Link href="/board/list">
               <Button width="150px" size="lg" colorScheme="teal" ml={2}>
                 목록

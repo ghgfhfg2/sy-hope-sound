@@ -50,15 +50,15 @@ function LeftMunu({ userInfo }) {
   useEffect(() => {
     let countRef;
     countRef = query(
-      ref(db, `dayoff/temp`),
-      orderByChild("manager"),
-      equalTo(userInfo ? userInfo.uid : "")
+      ref(db, `dayoff/temp`)
     );
     if (router.includes("/schedule")) {
       onValue(countRef, (data) => {
         let count = 0;
         for (const key in data.val()) {
-          count++;
+          if(data.val()[key].nextManager.id === userInfo.uid || data.val()[key].userUid === userInfo.uid){
+            count++;
+          }
         }
         dispatch(setDayoffCount(count));
         dispatch(updateDayoffCount(false));
