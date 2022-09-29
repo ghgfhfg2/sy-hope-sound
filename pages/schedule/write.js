@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import {
-  Flex
-} from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import AlertBox from "@component/popup/Alert";
 import OffWrite from "@component/schedule/OffWrite";
@@ -14,7 +12,6 @@ export default function Write() {
   return (
     <>
       {alertState && <AlertBox text={alertMessage} />}
-
       <OffWrite userInfo={userInfo} />
     </>
   );

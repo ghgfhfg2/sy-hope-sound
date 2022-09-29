@@ -29,6 +29,7 @@ import { CommonForm } from "pages/insa/setting";
 // import Editor from "@component/board/Editor";
 import ComRadio from "@component/ComRadio";
 import ManagerListPop from "@component/board/ManagerListPop";
+import UploadBox from "@component/UploadBox";
 
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
@@ -52,18 +53,19 @@ export default function Write() {
   const [editorState, setEditorState] = useState();
   const handleEditor = (value) => {
     setEditorState(value);
-  };  
+  };
 
   const onSubmit = (values) => {
-    
+    console.log(values);
+    return;
     const CurDate = new Date();
-    if(!checkManagerList){
+    if (!checkManagerList) {
       toast({
         description: "결재자를 선택해주세요",
         status: "error",
         duration: 1000,
         isClosable: false,
-      })
+      });
       return;
     }
     return new Promise((resolve) => {
@@ -81,28 +83,29 @@ export default function Write() {
         timestamp: CurDate.getTime(),
         writer_uid: userInfo.uid,
         manager: manager,
-        state: 'ing',
-        nextManager: manager[0]
+        state: "ing",
+        nextManager: manager[0],
       };
-      console.log(obj)
-      resolve()
-      return
-      const listRef = ref(db,`board/list/${format(CurDate,"yyyyMM")}/${shortid.generate()}`)
-      set(listRef,{
-        ...obj
+
+      const listRef = ref(
+        db,
+        `board/list/${format(CurDate, "yyyyMM")}/${shortid.generate()}`
+      );
+      set(listRef, {
+        ...obj,
       })
-      .then(()=>{
-        toast({
-          description: "제출 완료 되었습니다.",
-          status: 'success',
-          duration: 1000,
-          isClosable: false,
+        .then(() => {
+          toast({
+            description: "제출 완료 되었습니다.",
+            status: "success",
+            duration: 1000,
+            isClosable: false,
+          });
         })
-      })
-      .then(()=>{
-        router.push('/board/list')
-        resolve();
-      })
+        .then(() => {
+          router.push("/board/list");
+          resolve();
+        });
     });
   };
 
@@ -138,14 +141,14 @@ export default function Write() {
 
   const [isManagerPop, setIsManagerPop] = useState(false);
   const onManagerPop = () => {
-    if(checkManagerList){
+    if (checkManagerList) {
       toast({
         description: "다시 선택하려면 선택취소를 해주세요.",
         status: "error",
         duration: 1000,
         isClosable: false,
       });
-    }else{
+    } else {
       setIsManagerPop(true);
     }
   };
@@ -165,8 +168,7 @@ export default function Write() {
   const [insertHtml, setInsertHtml] = useState();
 
   const onManager = (managerList) => {
-
-    let newEditor = clearManager(editorState,managerList)
+    let newEditor = clearManager(editorState, managerList);
     managerList.forEach((el, idx) => {
       let pos = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
       newEditor = [
@@ -180,15 +182,14 @@ export default function Write() {
     setEditorState(newEditor);
   };
   const offManager = () => {
-
-    let newEditor = clearManager(editorState,managerList)
+    let newEditor = clearManager(editorState, managerList);
     setInsertHtml(newEditor);
     setEditorState(newEditor);
     setEditorDisable(false);
     setCheckManagerList("");
   };
 
-  const clearManager = (editorState,managerList) => {
+  const clearManager = (editorState, managerList) => {
     let newEditor = editorState;
     managerList.forEach((el, idx) => {
       let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
@@ -197,19 +198,41 @@ export default function Write() {
         ""
       );
     });
-    return newEditor
-  }
+    return newEditor;
+  };
 
   const onEditor = () => {
-    if(editorDisable){
+    if (editorDisable) {
       toast({
         description: "결재자 선택시 양식을 수정할 수 없습니다.",
         status: "info",
         duration: 1000,
         isClosable: false,
-      })
+      });
     }
-  }
+  };
+
+  const [uploadList, setUploadList] = useState([]);
+  const onAddUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 2097152) {
+      toast({
+        description: "첨부파일 최대용량은 2MB 입니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      e.target.value = null;
+      return;
+    } else {
+      const newList = [...uploadList, file];
+      console.log(newList);
+      setUploadList(newList);
+    }
+  };
 
   return (
     <>
@@ -267,13 +290,13 @@ export default function Write() {
             {watchRadio && (
               <>
                 <div onClick={onEditor}>
-                <Editor
-                  disable={editorDisable}
-                  insertHtml={insertHtml}
-                  typeCon={typeCon}
-                  handleEditor={handleEditor}
-                  type={watchRadio}
-                />
+                  <Editor
+                    disable={editorDisable}
+                    insertHtml={insertHtml}
+                    typeCon={typeCon}
+                    handleEditor={handleEditor}
+                    type={watchRadio}
+                  />
                 </div>
                 <FormControl isInvalid={errors.manager}>
                   <div className="row_box">
@@ -300,6 +323,7 @@ export default function Write() {
                     {errors.manager && errors.manager.message}
                   </FormErrorMessage>
                 </FormControl>
+                <UploadBox onAddUpload={onAddUpload} uploadList={uploadList} />
               </>
             )}
 

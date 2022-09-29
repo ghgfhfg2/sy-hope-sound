@@ -55,6 +55,7 @@ export const CommonForm = styled.form`
   .row_box {
     display: flex;
     align-items: center;
+    margin-bottom: 1rem;
     .label {
       width: 100px;
       margin: 0;

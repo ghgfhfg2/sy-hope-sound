@@ -14,7 +14,7 @@ import {
   HStack,
   Box,
   useRadioGroup,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
@@ -26,6 +26,7 @@ import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
 import ManagerListPop from "@component/board/ManagerListPop";
+import useGetUser from "@component/hooks/getUserDb";
 
 export const DayOffList = styled.ul`
   display: flex;
@@ -56,8 +57,9 @@ export const DayOffList = styled.ul`
 `;
 
 export default function OffWrite({ userInfo }) {
-  const toast = useToast()
-  const userAll = useSelector(state=>state.user.allUser)
+  useGetUser();
+  const toast = useToast();
+  const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
   const {
     setValue,
@@ -79,21 +81,20 @@ export default function OffWrite({ userInfo }) {
 
   const [offList, setOffList] = useState([]);
   const [totalDay, setTotalDay] = useState();
-  
-  const [userData, setUserData] = useState()
+
+  const [userData, setUserData] = useState();
   useEffect(() => {
-    if(userInfo && userAll){
-      let user = userAll.find(el=>{
-        return el.uid === userInfo.manager_uid
-      })
+    if (userInfo && userAll) {
+      let user = userAll.find((el) => {
+        return el.uid === userInfo.manager_uid;
+      });
       let obj = {
         ...userInfo,
-        manager_uid: user || ''
-      }
-      setUserData(obj)
+        manager_uid: user || "",
+      };
+      setUserData(obj);
     }
-  }, [userInfo, userAll])
-  
+  }, [userInfo, userAll]);
 
   const onAddDayoff = () => {
     let overlapDate = false;
@@ -105,19 +106,19 @@ export default function OffWrite({ userInfo }) {
     if (overlapDate) {
       toast({
         description: "이미 추가된 날짜 입니다.",
-        status: 'error',
+        status: "error",
         duration: 1000,
         isClosable: false,
-      })
+      });
       return;
     }
     if (!offType) {
       toast({
         description: "유형을 선택해 주세요",
-        status: 'error',
+        status: "error",
         duration: 1000,
         isClosable: false,
-      })
+      });
       return;
     }
     let obj = {
@@ -162,10 +163,10 @@ export default function OffWrite({ userInfo }) {
             if (offList.length < 1) {
               toast({
                 description: "휴가리스트를 추가해 주세요",
-                status: 'error',
+                status: "error",
                 duration: 1000,
                 isClosable: false,
-              })
+              });
               resolve();
               return;
             }
@@ -176,22 +177,22 @@ export default function OffWrite({ userInfo }) {
               userUid: userInfo.uid,
               userName: userInfo.name,
               manager: checkManagerList,
-              nextManager:checkManagerList[0],
-              cancelManager:"",
+              nextManager: checkManagerList[0],
+              cancelManager: "",
               timestamp: new Date().getTime(),
               list: offList,
             })
               .then(() => {
                 toast({
                   description: "제출완료 되었습니다.",
-                  status: 'success',
+                  status: "success",
                   duration: 1000,
                   isClosable: false,
-                })
+                });
               })
-              .then(()=>{
-                onFormInit()
-                router.push('/schedule/sign_ready')
+              .then(() => {
+                onFormInit();
+                router.push("/schedule/sign_ready");
               })
               .catch((error) => {
                 console.error(error);
@@ -203,11 +204,10 @@ export default function OffWrite({ userInfo }) {
   };
 
   const onFormInit = () => {
-    setOffList([])
-    setValue('subject','')
-    setValue('reason','')
-  }
-
+    setOffList([]);
+    setValue("subject", "");
+    setValue("reason", "");
+  };
 
   //결재자 선택
   const [managerList, setManagerList] = useState();
@@ -230,8 +230,8 @@ export default function OffWrite({ userInfo }) {
       return a.value - b.value;
     });
     setCheckManagerList(newList);
-    let val = newList.map(el=>el.name).join(',')
-    setValue('manager',val)
+    let val = newList.map((el) => el.name).join(",");
+    setValue("manager", val);
     closeManagerPop();
   };
 
@@ -245,149 +245,152 @@ export default function OffWrite({ userInfo }) {
           isManagerPop={isManagerPop}
         />
       )}
-      {userData &&
-      <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
-        <Flex>
-          <Flex width="100%" flexDirection="column" gap={2}>
-            <FormControl isInvalid={errors.subject}>
-              <div className="row_box">
-                <FormLabel className="label" htmlFor="subject">
-                  제목
-                </FormLabel>
-                <Input
-                  id="subject"
-                  className="lg"
-                  placeholder="* 제목"
-                  {...register("subject", {
-                    required: "제목은 필수항목 입니다.",
-                  })}
-                />
-              </div>
-              <FormErrorMessage>
-                {errors.subject && errors.subject.message}
-              </FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={errors.reason}>
-              <div className="row_box">
-                <FormLabel className="label" htmlFor="reason">
-                  사유
-                </FormLabel>
-                <Input id="reason" placeholder="사유" {...register("reason")} />
-              </div>
-              <FormErrorMessage>
-                {errors.reason && errors.reason.message}
-              </FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={errors.manager}>
-              <div className="row_box">
-                <FormLabel className="label" htmlFor="reason">
-                  담당자
-                </FormLabel>
-                <Input
-                  id="manager"
-                  placeholder="결재자"
-                  value={
-                    checkManagerList &&
-                    checkManagerList.map((el) => el.name)
-                  }
-                  readOnly
-                  className="xs"
-                  {...register("manager", {
-                    required: "담당자는 필수항목 입니다.",
-                  })}
-                />
-                <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                  결재자 선택
-                </Button>
-              </div>
-              <FormErrorMessage>
-                {errors.manager && errors.manager.message}
-              </FormErrorMessage>
-            </FormControl>
-            <div className="row_box">
-              <FormLabel className="label" htmlFor="type"></FormLabel>
-              <Box className="lg">
-                <HStack {...group}>
-                  {options.map((value) => {
-                    const radio = getRadioProps({ value });
-                    return (
-                      <RadioCard key={value} {...radio}>
-                        {value}
-                      </RadioCard>
-                    );
-                  })}
-                  <Box>
-                    <DatePicker
-                      style={{ width: "100px" }}
-                      selected={selectDate}
-                      onChange={(date) => setSelectDate(date)}
-                      locale={ko}
-                      dateFormat="yyyy.MM.dd (eee)"
-                      showPopperArrow={false}
-                      customInput={<Input maxWidth="140px" />}
-                    />
-                  </Box>
-                  <Button
-                    colorScheme="teal"
-                    variant="outline"
-                    onClick={onAddDayoff}
-                  >
-                    <Box fontSize="14px">추가</Box>
-                    <AiOutlinePlus />
+      {userData && (
+        <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
+          <Flex>
+            <Flex width="100%" flexDirection="column" gap={2}>
+              <FormControl isInvalid={errors.subject}>
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="subject">
+                    제목
+                  </FormLabel>
+                  <Input
+                    id="subject"
+                    className="lg"
+                    placeholder="* 제목"
+                    {...register("subject", {
+                      required: "제목은 필수항목 입니다.",
+                    })}
+                  />
+                </div>
+                <FormErrorMessage>
+                  {errors.subject && errors.subject.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.reason}>
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="reason">
+                    사유
+                  </FormLabel>
+                  <Input
+                    id="reason"
+                    placeholder="사유"
+                    {...register("reason")}
+                  />
+                </div>
+                <FormErrorMessage>
+                  {errors.reason && errors.reason.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.manager}>
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="reason">
+                    담당자
+                  </FormLabel>
+                  <Input
+                    id="manager"
+                    placeholder="결재자"
+                    value={
+                      checkManagerList && checkManagerList.map((el) => el.name)
+                    }
+                    readOnly
+                    className="xs"
+                    {...register("manager", {
+                      required: "담당자는 필수항목 입니다.",
+                    })}
+                  />
+                  <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                    결재자 선택
                   </Button>
-                </HStack>
-                {offList?.length > 0 && (
-                  <DayOffList>
-                    <li className="header">
-                      <span className="type">유형</span>
-                      <span className="date">날짜</span>
-                      <span className="day">일수</span>
-                      <span className="btn"></span>
-                    </li>
-                    {offList.map((el) => (
-                      <>
-                        <li>
-                          <span className="type">{el.offType}</span>
-                          <span className="date">{el.date}</span>
-                          <span className="day">{el.day}</span>
-                          <span className="btn">
-                            <Button
-                              size="xs"
-                              onClick={() => onRemoveDayOff(el.timestamp)}
-                              colorScheme="teal"
-                              variant="outline"
-                            >
-                              <AiOutlineDelete fontSize="1rem" /> 삭제
-                            </Button>
-                          </span>
-                        </li>
-                      </>
-                    ))}
-                    <li className="footer">
-                      <span>합계일수</span>
-                      <span></span>
-                      <span>{totalDay}</span>
-                    </li>
-                  </DayOffList>
-                )}
-              </Box>
-            </div>
-            <Flex mt={4} width="100%" justifyContent="center">
-              <Button
-                width="150px"
-                size="lg"
-                colorScheme="teal"
-                isLoading={isSubmitting}
-                type="submit"
-              >
-                제출
-                {isSubmitting}
-              </Button>
+                </div>
+                <FormErrorMessage>
+                  {errors.manager && errors.manager.message}
+                </FormErrorMessage>
+              </FormControl>
+              <div className="row_box">
+                <FormLabel className="label" htmlFor="type"></FormLabel>
+                <Box className="lg">
+                  <HStack {...group}>
+                    {options.map((value) => {
+                      const radio = getRadioProps({ value });
+                      return (
+                        <RadioCard key={value} {...radio}>
+                          {value}
+                        </RadioCard>
+                      );
+                    })}
+                    <Box>
+                      <DatePicker
+                        style={{ width: "100px" }}
+                        selected={selectDate}
+                        onChange={(date) => setSelectDate(date)}
+                        locale={ko}
+                        dateFormat="yyyy.MM.dd (eee)"
+                        showPopperArrow={false}
+                        customInput={<Input maxWidth="140px" />}
+                      />
+                    </Box>
+                    <Button
+                      colorScheme="teal"
+                      variant="outline"
+                      onClick={onAddDayoff}
+                    >
+                      <Box fontSize="14px">추가</Box>
+                      <AiOutlinePlus />
+                    </Button>
+                  </HStack>
+                  {offList?.length > 0 && (
+                    <DayOffList>
+                      <li className="header">
+                        <span className="type">유형</span>
+                        <span className="date">날짜</span>
+                        <span className="day">일수</span>
+                        <span className="btn"></span>
+                      </li>
+                      {offList.map((el) => (
+                        <>
+                          <li>
+                            <span className="type">{el.offType}</span>
+                            <span className="date">{el.date}</span>
+                            <span className="day">{el.day}</span>
+                            <span className="btn">
+                              <Button
+                                size="xs"
+                                onClick={() => onRemoveDayOff(el.timestamp)}
+                                colorScheme="teal"
+                                variant="outline"
+                              >
+                                <AiOutlineDelete fontSize="1rem" /> 삭제
+                              </Button>
+                            </span>
+                          </li>
+                        </>
+                      ))}
+                      <li className="footer">
+                        <span>합계일수</span>
+                        <span></span>
+                        <span>{totalDay}</span>
+                      </li>
+                    </DayOffList>
+                  )}
+                </Box>
+              </div>
+              <Flex mt={4} width="100%" justifyContent="center">
+                <Button
+                  width="150px"
+                  size="lg"
+                  colorScheme="teal"
+                  isLoading={isSubmitting}
+                  type="submit"
+                >
+                  제출
+                  {isSubmitting}
+                </Button>
+              </Flex>
             </Flex>
           </Flex>
-        </Flex>
-      </CommonForm>
-      }
+        </CommonForm>
+      )}
     </>
   );
 }

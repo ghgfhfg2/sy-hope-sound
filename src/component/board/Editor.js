@@ -4,7 +4,8 @@ import "suneditor/dist/css/suneditor.min.css";
 import styled from "styled-components";
 import { basicForm } from "@component/BasicForm";
 
-import SunEditor, { buttonList } from 'suneditor-react';
+import SunEditor, { buttonList } from "suneditor-react";
+import { useToast } from "@chakra-ui/react";
 
 // const SunEditor = dynamic(() => import("suneditor-react"), {
 //   ssr: false,
@@ -121,11 +122,11 @@ export default function Editor({
   disable,
   insertHtml,
 }) {
+  const toast = useToast();
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
-
 
   useEffect(() => {
     let selCon;
@@ -154,6 +155,14 @@ export default function Editor({
     editor.current?.setContents(content);
   };
 
+  const handleImageUploadBefore = (files, info, uploadHandler) => {
+    toast({
+      description: "에디터내 파일첨부는 하실 수 없습니다.",
+      status: "error",
+      duration: 1000,
+      isClosable: false,
+    });
+  };
 
   return (
     <>
@@ -162,6 +171,7 @@ export default function Editor({
           disable={disable || false}
           onChange={handleEditor}
           height="70vh"
+          onImageUploadBefore={handleImageUploadBefore}
           getSunEditorInstance={getSunEditorInstance}
           defaultValue={initTypeCon || basicForm}
         />
