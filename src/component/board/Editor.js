@@ -3,9 +3,12 @@ import dynamic from "next/dynamic";
 import "suneditor/dist/css/suneditor.min.css";
 import styled from "styled-components";
 import { basicForm } from "@component/BasicForm";
-const SunEditor = dynamic(() => import("suneditor-react"), {
-  ssr: false,
-});
+
+import SunEditor, { buttonList } from 'suneditor-react';
+
+// const SunEditor = dynamic(() => import("suneditor-react"), {
+//   ssr: false,
+// });
 
 const EditorBox = styled.div`
   .sun-editor-editable {
@@ -117,12 +120,12 @@ export default function Editor({
   initTypeCon,
   disable,
   insertHtml,
-  onEditor,
 }) {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
+
 
   useEffect(() => {
     let selCon;
@@ -150,6 +153,7 @@ export default function Editor({
   const inputHtml = (content) => {
     editor.current?.setContents(content);
   };
+
 
   return (
     <>

@@ -15,6 +15,9 @@ const HeaderTop = styled.div`
   padding-right: 1rem;
   height: 60px;
   display: flex;
+  position:sticky;
+  top:0;
+  z-index:10;
   justify-content: space-between;
   .left {
     display: flex;
@@ -107,7 +110,7 @@ function Header({ logoImg }) {
             <li className={router.route.indexOf("/schedule") > -1 && "on"}>
               <Link href="/schedule">일정관리</Link>
             </li>
-            <li className={router.route.indexOf("/board/list") > -1 && "on"}>
+            <li className={router.route.includes("/board/") && "on"}>
               <Link href="/board/list">결재리스트</Link>
             </li>
           </ul>

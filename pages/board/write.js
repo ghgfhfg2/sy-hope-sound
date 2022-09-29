@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -25,9 +26,13 @@ import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
-import Editor from "@component/board/Editor";
+// import Editor from "@component/board/Editor";
 import ComRadio from "@component/ComRadio";
 import ManagerListPop from "@component/board/ManagerListPop";
+
+const Editor = dynamic(() => import("@component/board/Editor"), {
+  ssr: false,
+});
 
 export default function Write() {
   const toast = useToast();
@@ -50,7 +55,7 @@ export default function Write() {
   };  
 
   const onSubmit = (values) => {
-
+    
     const CurDate = new Date();
     if(!checkManagerList){
       toast({
@@ -69,6 +74,7 @@ export default function Write() {
         };
         return mng;
       });
+
       let obj = {
         ...values,
         editor: editorState,
@@ -78,6 +84,9 @@ export default function Write() {
         state: 'ing',
         nextManager: manager[0]
       };
+      console.log(obj)
+      resolve()
+      return
       const listRef = ref(db,`board/list/${format(CurDate,"yyyyMM")}/${shortid.generate()}`)
       set(listRef,{
         ...obj
