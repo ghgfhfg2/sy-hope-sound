@@ -15,6 +15,7 @@ import {
   Box,
   useRadioGroup,
   useToast,
+  Checkbox
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
@@ -116,6 +117,45 @@ export default function TypeBoard() {
             </div>
             <FormErrorMessage>
               {errors.title && errors.title.message}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl isInvalid={errors.date}>
+            {initTypeCon && initTypeCon.date ? (
+              <>
+                <Checkbox
+                colorScheme="teal"
+                defaultChecked
+                {...register("date")}
+              >날짜입력</Checkbox>
+              </>
+            ) : (
+              <Checkbox
+              colorScheme="teal"
+              {...register("date")}
+            >날짜입력</Checkbox>
+            )}
+            <FormErrorMessage>
+              {errors.date && errors.date.message}
+            </FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.price}>
+            {initTypeCon && initTypeCon.price ? (
+              <>
+                <Checkbox
+                colorScheme="teal"
+                defaultChecked
+                {...register("price")}
+              >금액(지출/수입)</Checkbox>
+              </>
+            ) : (
+              <Checkbox
+              colorScheme="teal"
+              {...register("price")}
+            >금액(지출/수입)</Checkbox>
+            )}
+            <FormErrorMessage>
+              {errors.price && errors.price.message}
             </FormErrorMessage>
           </FormControl>
           {initTypeCon && initTypeCon.editor ? (

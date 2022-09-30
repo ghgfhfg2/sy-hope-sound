@@ -15,12 +15,14 @@ import {
   Stack,
   Box,
   useRadioGroup,
+  NumberInput,
   useToast,
 } from "@chakra-ui/react";
 
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
 import { ref, set, get, onValue, off } from "firebase/database";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, getYear, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -30,12 +32,15 @@ import { CommonForm } from "pages/insa/setting";
 import ComRadio from "@component/ComRadio";
 import ManagerListPop from "@component/board/ManagerListPop";
 import UploadBox from "@component/UploadBox";
+import useGetUser from "@component/hooks/getUserDb";
 
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
 
 export default function Write() {
+  useGetUser();
+  const storage = getStorage();
   const toast = useToast();
   const userAll = useSelector((state) => state.user.allUser);
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -56,7 +61,14 @@ export default function Write() {
   };
 
   const onSubmit = (values) => {
-    console.log(values);
+    console.log(values)
+    const uid = shortid.generate()
+    uploadList.forEach(el=>{
+      const storageRef = sRef(storage, `board/image/${uid}/${shortid.generate()}`);
+      uploadBytes(storageRef, el).then((snapshot) => {
+        console.log(snapshot);
+      });
+    })
     return;
     const CurDate = new Date();
     if (!checkManagerList) {
@@ -89,7 +101,7 @@ export default function Write() {
 
       const listRef = ref(
         db,
-        `board/list/${format(CurDate, "yyyyMM")}/${shortid.generate()}`
+        `board/list/${format(CurDate, "yyyyMM")}/${uid}`
       );
       set(listRef, {
         ...obj,
@@ -128,6 +140,23 @@ export default function Write() {
       off(typeRef);
     };
   }, []);
+
+  
+  const [writeOption, setWriteOption] = useState()
+  useEffect(() => {
+    if(watchRadio){
+      const currentType = typeCon.find(el=>el.uid === watchRadio)
+      let option = {
+        date: currentType.date,
+        price: currentType.price
+      }
+      setWriteOption({
+        ...option
+      })
+    }
+  }, [watchRadio])
+  
+
 
   // 담당자 편집
   const [managerList, setManagerList] = useState();
@@ -229,10 +258,17 @@ export default function Write() {
       return;
     } else {
       const newList = [...uploadList, file];
-      console.log(newList);
       setUploadList(newList);
+      e.target.value = null;
     }
   };
+  const removeFile = (uid) => {
+    let newFileList = uploadList;
+    newFileList = newFileList.filter(el=>{
+      return el.lastModified !== uid
+    })
+    setUploadList(newFileList);
+  }
 
   return (
     <>
@@ -287,6 +323,55 @@ export default function Write() {
                 {errors.type && errors.type.message}
               </FormErrorMessage>
             </FormControl>
+            {writeOption?.date && 
+              <>
+                <FormControl>
+                  <div className="row_box">
+                    <FormLabel className="label" htmlFor="date">
+                      날짜
+                    </FormLabel>
+                    <Input
+                      id="date"
+                      type="date"
+                      className="xs"
+                      placeholder="날짜"
+                      {...register("date")}
+                    />
+                  </div>
+                </FormControl>
+              </>
+            }
+            {writeOption?.price && 
+              <>
+                <FormControl>
+                  <div className="row_box">
+                    <FormLabel className="label" htmlFor="income">
+                    소득금액
+                    </FormLabel>
+                    <Input
+                      id="income"
+                      type="number"
+                      className="xs"
+                      {...register("income")}
+                    />
+                  </div>
+                </FormControl>
+                <FormControl>
+                  <div className="row_box">
+                    <FormLabel className="label" htmlFor="spend">
+                    지출금액
+                    </FormLabel>
+                    <Input
+                      id="spend"
+                      type="number"
+                      className="xs"
+                      {...register("spend")}
+                    />
+                  </div>
+                </FormControl>
+              </>
+            }
+            
             {watchRadio && (
               <>
                 <div onClick={onEditor}>
@@ -323,9 +408,9 @@ export default function Write() {
                     {errors.manager && errors.manager.message}
                   </FormErrorMessage>
                 </FormControl>
-                <UploadBox onAddUpload={onAddUpload} uploadList={uploadList} />
+                <UploadBox onAddUpload={onAddUpload} uploadList={uploadList} removeFile={removeFile} />
               </>
-            )}
+            )}            
 
             <Flex mt={4} width="100%" justifyContent="center">
               <Button

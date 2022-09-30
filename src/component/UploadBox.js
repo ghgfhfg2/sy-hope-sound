@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Input, Button, Flex, FormLabel, Box } from "@chakra-ui/react";
 import { imageResize } from "@component/hooks/useImgResize";
 import styled from "styled-components";
+import { FiPlus } from "react-icons/fi";
+import { RiDeleteBinLine } from "react-icons/ri";
 const FileList = styled.div`
   input {
     width: 0;
@@ -25,7 +27,13 @@ const FileList = styled.div`
     li {
       margin-top: 10px;
       .thumb {
-        width: 100px;
+        width: 50px;height:50px;
+        display: flex;
+        justify-content: center;
+        img{
+          width:50p;height:50px;
+          object-fit: contain; 
+        }
       }
       display: flex;
       align-items: center;
@@ -33,13 +41,13 @@ const FileList = styled.div`
   }
 `;
 
-export default function UploadBox({ onAddUpload, uploadList }) {
+export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
   const [fileList, setFileList] = useState();
   useEffect(() => {
     let newFileList = uploadList;
     uploadList &&
       uploadList.map((el, idx) => {
-        imageResize(el, 100).then((img) => {
+        imageResize(el, 70).then((img) => {
           newFileList[idx].thumb = typeof img === "string" ? img : "";
         });
       });
@@ -47,6 +55,8 @@ export default function UploadBox({ onAddUpload, uploadList }) {
       setFileList(newFileList);
     }, 100);
   }, [uploadList]);
+
+  
 
   return (
     <div className="row_box">
@@ -56,20 +66,21 @@ export default function UploadBox({ onAddUpload, uploadList }) {
       <Box>
         <FileList>
           <input type="file" id="upload" onChange={onAddUpload} />
-          <Button className="btn_add">
+          <Button className="btn_add" colorScheme="teal" variant='outline' >
             <FormLabel className="label" htmlFor="upload">
-              추가하기
+              <FiPlus style={{paddingTop:"2px",marginRight:"3px"}} />추가
             </FormLabel>
           </Button>
           <ul className="file_list">
             {fileList &&
               fileList.map((el, idx) => (
                 <>
-                  <li>
+                  <li key={idx}>
                     <div className="thumb">
                       {el.thumb && <img src={el.thumb} />}
                     </div>
                     <div className="name">{el.name}</div>
+                    <Button colorScheme="red" ml={2} onClick={()=>{removeFile(el.lastModified)}}><RiDeleteBinLine /></Button>
                   </li>
                 </>
               ))}

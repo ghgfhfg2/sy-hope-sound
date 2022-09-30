@@ -62,7 +62,6 @@ export default function ManagerListPop({
         removeManager(el.id)
       }
     })
-    console.log(e)
     setCheckedItems(e);
   };
   const handleCheck = (e) => {
