@@ -22,7 +22,12 @@ import {
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai";
 import { db } from "src/firebase";
 import { ref, set, get, onValue, off } from "firebase/database";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { format, getYear, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
@@ -33,6 +38,16 @@ import ComRadio from "@component/ComRadio";
 import ManagerListPop from "@component/board/ManagerListPop";
 import UploadBox from "@component/UploadBox";
 import useGetUser from "@component/hooks/getUserDb";
+import { numberToKorean } from "@component/CommonFunc";
+
+const BoardWrite = styled(CommonForm)`
+  .row_box {
+    .price {
+      margin-left: 5px;
+      color: #858585;
+    }
+  }
+`;
 
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
@@ -45,6 +60,8 @@ export default function Write() {
   const userAll = useSelector((state) => state.user.allUser);
   const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
+  const incomeRef = useRef();
+  const spendRef = useRef();
   const {
     setValue,
     watch,
@@ -54,23 +71,29 @@ export default function Write() {
   } = useForm();
 
   const watchRadio = watch("type");
+  const watchPrice = watch(["income", "spend"]);
 
   const [editorState, setEditorState] = useState();
   const handleEditor = (value) => {
     setEditorState(value);
   };
 
-  const onSubmit = (values) => {
-    console.log(values)
-    const uid = shortid.generate()
-    uploadList.forEach(el=>{
-      const storageRef = sRef(storage, `board/image/${uid}/${shortid.generate()}`);
-      uploadBytes(storageRef, el).then((snapshot) => {
-        console.log(snapshot);
-      });
-    })
-    return;
+  const onSubmit = async (values) => {
+    const uid = shortid.generate();
     const CurDate = new Date();
+    let imgUrl;
+    const imgPromise = uploadList.map(async (el) => {
+      const storageRef = sRef(
+        storage,
+        `board/list/${format(CurDate, "yyyyMMdd")}${uid}/${shortid.generate()}`
+      );
+      const url = await uploadBytes(storageRef, el).then((snapshot) => {
+        const downloadUrl = getDownloadURL(snapshot.ref);
+        return downloadUrl;
+      });
+      return url;
+    });
+    imgUrl = await Promise.all(imgPromise);
     if (!checkManagerList) {
       toast({
         description: "결재자를 선택해주세요",
@@ -81,27 +104,30 @@ export default function Write() {
       return;
     }
     return new Promise((resolve) => {
-      let manager = managerList.map((el) => {
+      let managerArr = checkManagerList.map((el) => {
         let mng = {
           name: el.name,
-          uid: el.uid,
+          uid: el.id,
         };
         return mng;
       });
 
       let obj = {
         ...values,
+        dateMonth: format(CurDate, "yyyyMM"),
+        imgUrl: imgUrl || "",
+        writeOption: writeOption || "",
         editor: editorState,
         timestamp: CurDate.getTime(),
         writer_uid: userInfo.uid,
-        manager: manager,
+        manager: managerArr,
         state: "ing",
-        nextManager: manager[0],
+        nextManager: managerArr[0],
       };
 
       const listRef = ref(
         db,
-        `board/list/${format(CurDate, "yyyyMM")}/${uid}`
+        `board/list/${format(CurDate, "yyyyMMdd")}${uid}`
       );
       set(listRef, {
         ...obj,
@@ -115,7 +141,7 @@ export default function Write() {
           });
         })
         .then(() => {
-          router.push("/board/list");
+          router.push("/board/wait");
           resolve();
         });
     });
@@ -141,22 +167,36 @@ export default function Write() {
     };
   }, []);
 
-  
-  const [writeOption, setWriteOption] = useState()
+  const [writeOption, setWriteOption] = useState();
   useEffect(() => {
-    if(watchRadio){
-      const currentType = typeCon.find(el=>el.uid === watchRadio)
+    if (watchRadio) {
+      const currentType = typeCon.find((el) => el.uid === watchRadio);
       let option = {
-        date: currentType.date,
-        price: currentType.price
-      }
+        date: currentType.date || false,
+        price: currentType.price || false,
+      };
       setWriteOption({
-        ...option
-      })
+        ...option,
+      });
     }
-  }, [watchRadio])
-  
+  }, [watchRadio]);
 
+  useEffect(() => {
+    if (writeOption?.price) {
+      const income = watchPrice[0];
+      const spend = watchPrice[1];
+      if (income > 10000000000) {
+        setValue("income", 10000000000);
+      }
+      if (spend > 10000000000) {
+        setValue("spend", 10000000000);
+      }
+      const formatIncome = numberToKorean(income);
+      const formatSpend = numberToKorean(spend);
+      incomeRef.current.innerText = formatIncome ? `${formatIncome}원` : null;
+      spendRef.current.innerText = formatSpend ? `${formatSpend}원` : null;
+    }
+  }, [writeOption, watchPrice]);
 
   // 담당자 편집
   const [managerList, setManagerList] = useState();
@@ -264,11 +304,11 @@ export default function Write() {
   };
   const removeFile = (uid) => {
     let newFileList = uploadList;
-    newFileList = newFileList.filter(el=>{
-      return el.lastModified !== uid
-    })
+    newFileList = newFileList.filter((el) => {
+      return el.lastModified !== uid;
+    });
     setUploadList(newFileList);
-  }
+  };
 
   return (
     <>
@@ -280,7 +320,7 @@ export default function Write() {
           isManagerPop={isManagerPop}
         />
       )}
-      <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
+      <BoardWrite style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
         <Flex>
           <Flex width="100%" flexDirection="column" gap={5}>
             <FormControl isInvalid={errors.subject}>
@@ -323,7 +363,7 @@ export default function Write() {
                 {errors.type && errors.type.message}
               </FormErrorMessage>
             </FormControl>
-            {writeOption?.date && 
+            {writeOption?.date && (
               <>
                 <FormControl>
                   <div className="row_box">
@@ -340,13 +380,13 @@ export default function Write() {
                   </div>
                 </FormControl>
               </>
-            }
-            {writeOption?.price && 
+            )}
+            {writeOption?.price && (
               <>
                 <FormControl>
                   <div className="row_box">
                     <FormLabel className="label" htmlFor="income">
-                    소득금액
+                      소득금액
                     </FormLabel>
                     <Input
                       id="income"
@@ -354,12 +394,13 @@ export default function Write() {
                       className="xs"
                       {...register("income")}
                     />
+                    <div className="price" ref={incomeRef}></div>
                   </div>
                 </FormControl>
                 <FormControl>
                   <div className="row_box">
                     <FormLabel className="label" htmlFor="spend">
-                    지출금액
+                      지출금액
                     </FormLabel>
                     <Input
                       id="spend"
@@ -367,11 +408,12 @@ export default function Write() {
                       className="xs"
                       {...register("spend")}
                     />
+                    <div className="price" ref={spendRef}></div>
                   </div>
                 </FormControl>
               </>
-            }
-            
+            )}
+
             {watchRadio && (
               <>
                 <div onClick={onEditor}>
@@ -408,9 +450,13 @@ export default function Write() {
                     {errors.manager && errors.manager.message}
                   </FormErrorMessage>
                 </FormControl>
-                <UploadBox onAddUpload={onAddUpload} uploadList={uploadList} removeFile={removeFile} />
+                <UploadBox
+                  onAddUpload={onAddUpload}
+                  uploadList={uploadList}
+                  removeFile={removeFile}
+                />
               </>
-            )}            
+            )}
 
             <Flex mt={4} width="100%" justifyContent="center">
               <Button
@@ -426,7 +472,7 @@ export default function Write() {
             </Flex>
           </Flex>
         </Flex>
-      </CommonForm>
+      </BoardWrite>
     </>
   );
 }

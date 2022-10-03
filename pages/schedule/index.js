@@ -28,7 +28,7 @@ import {
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import styled from "styled-components";
 
-const ScheduleCalendar = styled.div`
+export const ScheduleCalendar = styled.div`
   .header {
     height: 50px;
     margin-bottom: 20px;
@@ -79,7 +79,7 @@ const ScheduleCalendar = styled.div`
       justify-content: flex-start;
       align-items: flex-start;
       padding: 15px;
-      overflow:auto;
+      overflow: auto;
     }
     .disabled {
       background: #f1f1f1;
@@ -97,30 +97,43 @@ const ScheduleCalendar = styled.div`
     .valid:hover {
       background: #f9f9f9;
     }
-    .dayoff_list{
-      display:flex;
-      flex-wrap:wrap;
-      li{
-        padding:5px;font-size:11px;
-        color:#fff;margin:2px;
-        border-radius:3px;       
+    .dayoff_list {
+      display: flex;
+      flex-wrap: wrap;
+      li {
+        padding: 5px;
+        font-size: 11px;
+        color: #fff;
+        margin: 2px;
+        border-radius: 3px;
       }
     }
   }
-  .type_info{
-    display:flex;
-    margin-bottom:15px;
-    li{margin-right:4px;width:70px;
-      text-align:center;color:#fff;font-size:12px;
-      padding:5px;border-radius:4px;
+  .type_info {
+    display: flex;
+    margin-bottom: 15px;
+    li {
+      margin-right: 4px;
+      width: 70px;
+      text-align: center;
+      color: #fff;
+      font-size: 12px;
+      padding: 5px;
+      border-radius: 4px;
     }
   }
-  .all_off{background:#319795}
-  .am_off{background:#3182CE}
-  .pm_off{background:#DD6B20}
+  .all_off {
+    background: #319795;
+  }
+  .am_off {
+    background: #3182ce;
+  }
+  .pm_off {
+    background: #dd6b20;
+  }
 `;
 
-const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
+export const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
   const prevM = format(subMonths(currentMonth, 1), "M");
   const nextM = format(addMonths(currentMonth, 1), "M");
   return (
@@ -206,11 +219,17 @@ const RenderCells = ({
                   <>
                     <li
                       className={
-                        el.offType === '연차' ? 'all_off' 
-                        : el.offType === '오전반차' ? 'am_off'
-                        : el.offType === '오후반차' ? 'pm_off' : ''
+                        el.offType === "연차"
+                          ? "all_off"
+                          : el.offType === "오전반차"
+                          ? "am_off"
+                          : el.offType === "오후반차"
+                          ? "pm_off"
+                          : ""
                       }
-                    >{el.userName}</li>
+                    >
+                      {el.userName}
+                    </li>
                   </>
                 ))}
             </ul>
@@ -267,8 +286,6 @@ function Schedule() {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
   const onDateClick = (day) => {
-    console.log(day);
-    console.log(getDay(day));
     return;
     setSelectedDate(day);
   };

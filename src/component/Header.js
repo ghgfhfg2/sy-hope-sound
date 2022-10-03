@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
 import { getAuth, signOut } from "firebase/auth";
+import { Image } from "@chakra-ui/react";
 
 const HeaderTop = styled.div`
   width: 100%;
@@ -15,9 +16,9 @@ const HeaderTop = styled.div`
   padding-right: 1rem;
   height: 60px;
   display: flex;
-  position:sticky;
-  top:0;
-  z-index:10;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   justify-content: space-between;
   .left {
     display: flex;
@@ -94,7 +95,7 @@ function Header({ logoImg }) {
           <div className="logo_box">
             <h1 className="logo">
               <Link href="/">
-                <img src={logoImg} />
+                <Image alt="" src={logoImg} />
               </Link>
             </h1>
           </div>
@@ -111,7 +112,10 @@ function Header({ logoImg }) {
               <Link href="/schedule">일정관리</Link>
             </li>
             <li className={router.route.includes("/board/") && "on"}>
-              <Link href="/board/list">결재리스트</Link>
+              <Link href="/board/wait">결재리스트</Link>
+            </li>
+            <li className={router.route.includes("/stats/") && "on"}>
+              <Link href="/stats/price">통계</Link>
             </li>
           </ul>
         </div>

@@ -27,12 +27,14 @@ const FileList = styled.div`
     li {
       margin-top: 10px;
       .thumb {
-        width: 50px;height:50px;
+        width: 50px;
+        height: 50px;
         display: flex;
         justify-content: center;
-        img{
-          width:50p;height:50px;
-          object-fit: contain; 
+        img {
+          width: 50p;
+          height: 50px;
+          object-fit: contain;
         }
       }
       display: flex;
@@ -56,8 +58,6 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
     }, 100);
   }, [uploadList]);
 
-  
-
   return (
     <div className="row_box">
       <FormLabel className="label" htmlFor="upload">
@@ -66,9 +66,10 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
       <Box>
         <FileList>
           <input type="file" id="upload" onChange={onAddUpload} />
-          <Button className="btn_add" colorScheme="teal" variant='outline' >
+          <Button className="btn_add" colorScheme="teal" variant="outline">
             <FormLabel className="label" htmlFor="upload">
-              <FiPlus style={{paddingTop:"2px",marginRight:"3px"}} />추가
+              <FiPlus style={{ paddingTop: "2px", marginRight: "3px" }} />
+              추가
             </FormLabel>
           </Button>
           <ul className="file_list">
@@ -80,7 +81,15 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
                       {el.thumb && <img src={el.thumb} />}
                     </div>
                     <div className="name">{el.name}</div>
-                    <Button colorScheme="red" ml={2} onClick={()=>{removeFile(el.lastModified)}}><RiDeleteBinLine /></Button>
+                    <Button
+                      colorScheme="red"
+                      ml={2}
+                      onClick={() => {
+                        removeFile(el.lastModified);
+                      }}
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
                   </li>
                 </>
               ))}

@@ -22,6 +22,7 @@ import { MdOutlineImageNotSupported } from "react-icons/md";
 import { FiSearch } from "react-icons/fi";
 import AdminSelectPop from "@component/insa/AdminSelectPop";
 import ManagerSelectPop from "@component/insa/ManagerSelectPop";
+import { updateAllUser } from "@redux/actions/user_action";
 import styled from "styled-components";
 import shortid from "shortid";
 import { db } from "src/firebase";
@@ -149,6 +150,7 @@ export const CommonForm = styled.form`
 export default function Setting() {
   const toast = useToast();
   useGetUser();
+  const dispatch = useDispatch();
   const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
   const [isAdminPop, setIsAdminPop] = useState(false);
@@ -196,8 +198,31 @@ export default function Setting() {
   const closeAdminPop = () => {
     setIsAdminPop(false);
   };
-  const onSelectUser = (uid, name, rank) => {
-    setValue("admin", `${name}(${rank})-${uid}`);
+  const onSelectAdmin = (checkedItems) => {
+    const newUserAll = userAll.map((el) => {
+      let userRef = ref(db, `user/${el.uid}`);
+      if (checkedItems.includes(el.uid)) {
+        let newAuth = el.authority ? el.authority.split(" ") : [];
+        if (!newAuth.includes("admin")) {
+          newAuth.push("admin");
+        }
+        newAuth = newAuth.join(" ");
+        el.authority = newAuth;
+        update(userRef, {
+          authority: newAuth,
+        });
+      } else if (el.authority) {
+        let newAuth = el.authority.split(" ");
+        newAuth = newAuth.filter((el) => el !== "admin");
+        newAuth = newAuth.join(" ");
+        el.authority = newAuth;
+        update(userRef, {
+          authority: newAuth,
+        });
+      }
+      return el;
+    });
+    dispatch(updateAllUser(newUserAll));
     closeAdminPop();
   };
 
@@ -208,18 +233,22 @@ export default function Setting() {
     setIsManagerPop(false);
   };
   const onSelectManager = (checkedItems) => {
-    userAll.forEach((el) => {
+    const newUserAll = userAll.map((el) => {
       let userRef = ref(db, `user/${el.uid}`);
       if (checkedItems.includes(el.uid)) {
+        el.manager = 1;
         update(userRef, {
           manager: 1,
         });
       } else {
+        el.manager = 0;
         update(userRef, {
           manager: 0,
         });
       }
+      return el;
     });
+    dispatch(updateAllUser(newUserAll));
     closeManagerPop();
   };
 
@@ -482,18 +511,26 @@ export default function Setting() {
                   <FormLabel className="label" htmlFor="admin">
                     관리자
                   </FormLabel>
-                  <Input
-                    id="admin"
-                    readOnly
-                    className="input sm"
-                    placeholder="기본 관리자"
-                    defaultValue={settingState.admin}
-                    {...register("admin")}
-                  />
-                  <Button onClick={onAdminPop} colorScheme="teal" ml={2}>
-                    찾기
-                    <FiSearch style={{ marginLeft: "5px" }} />
-                  </Button>
+                  <Box size="lg">
+                    <Button onClick={onAdminPop} colorScheme="teal">
+                      편집
+                      <BsListCheck style={{ marginLeft: "5px" }} />
+                    </Button>
+                    <ul className="manager_list">
+                      {userAll &&
+                        userAll.map((el) => {
+                          if (el.authority?.includes("admin")) {
+                            return (
+                              <li>
+                                {el.name}
+                                {el.rank && `(${el.rank})`}
+                                {el.part && `- ${el.part}`}
+                              </li>
+                            );
+                          }
+                        })}
+                    </ul>
+                  </Box>
                 </div>
               </FormControl>
               <FormControl isInvalid={errors.manager} className="row_section">
@@ -683,7 +720,7 @@ export default function Setting() {
         <AdminSelectPop
           userData={userAll}
           closeAdminPop={closeAdminPop}
-          onSelectUser={onSelectUser}
+          onSelectAdmin={onSelectAdmin}
         />
       )}
       {isManagerPop && userAll && (

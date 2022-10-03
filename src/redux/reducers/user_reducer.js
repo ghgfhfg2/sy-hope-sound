@@ -34,7 +34,10 @@ const user = (state = initState, action) => {
         if (el.uid === action.payload.uid) {
           for (const key in el) {
             if (action.payload[key] && el[key] !== action.payload[key]) {
-              el[key] = action.payload[key];
+              el[key] = {
+                ...el[key],
+                ...action.payload[key],
+              };
             }
           }
         }

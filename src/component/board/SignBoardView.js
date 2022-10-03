@@ -15,12 +15,14 @@ import {
   Box,
   useRadioGroup,
   useToast,
+  Image,
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
 import {
   ref,
   set,
+  get,
   update,
   onValue,
   off,
@@ -28,19 +30,86 @@ import {
   orderByChild,
   remove,
 } from "firebase/database";
+import {
+  getStorage,
+  listAll,
+  ref as sRef,
+  deleteObject,
+} from "firebase/storage";
 import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
-import Editor from "@component/board/Editor";
+import dynamic from "next/dynamic";
+const Editor = dynamic(() => import("@component/board/Editor"), {
+  ssr: false,
+});
 import Link from "next/link";
+import { comma } from "@component/CommonFunc";
+
+const BoardView = styled(CommonForm)`
+  .img_list {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+    .img {
+      display: flex;
+      align-items: center;
+      max-width: 100px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      &::after {
+        content: "+";
+        font-size: 30px;
+        font-weight: bold;
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: all 0.2s;
+      }
+      &:hover::after {
+        opacity: 1;
+      }
+      img {
+        max-width: 100%;
+      }
+      &.on {
+        max-width: 100%;
+        &:hover::after {
+          opacity: 0;
+        }
+      }
+    }
+  }
+  .spend {
+    color: #c53030;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .income {
+    color: #2b6cb0;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+`;
 
 export default function SignBoardView() {
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
-  const queryPath = `${router.query.date}/${router.query.id}`;
+  const storage = getStorage();
+  const queryPath = `${router.query.id}`;
 
   const {
     setValue,
@@ -59,7 +128,7 @@ export default function SignBoardView() {
   useEffect(() => {
     const listRef = query(ref(db, `board/list/${queryPath}`));
     onValue(listRef, (data) => {
-      if(data.val()){
+      if (data.val()) {
         if (data.val().subject) {
           setValue("subject", data.val().subject);
         }
@@ -130,23 +199,33 @@ export default function SignBoardView() {
       cancelManager: initTypeCon.manager[curIdx],
       state: initTypeCon.manager[curIdx + 1] ? "ing" : "finish",
     })
-    .then(()=>{
-      toast({
-        description: "결재 되었습니다.",
-        status: 'success',
-        duration: 1000,
-        isClosable: false,
+      .then(() => {
+        if (!initTypeCon.manager[curIdx + 1] && initTypeCon.writeOption.price) {
+          update(ref(db, `stats/price/${queryPath}`), {
+            date: initTypeCon.date,
+            dateMonth: initTypeCon.dateMonth,
+            subject: initTypeCon.subject,
+            income: Number(initTypeCon.income),
+            spend: Number(initTypeCon.spend),
+          });
+        }
       })
-      setInsertHtml(newEditor);
-      setEditorState(newEditor);
-      setIsSignLoading(false);
-    })
-
+      .then(() => {
+        toast({
+          description: "결재 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        setInsertHtml(newEditor);
+        setEditorState(newEditor);
+        setIsSignLoading(false);
+      });
   };
 
   //결재취소
   const onSignCancel = () => {
-    const idx = initTypeCon.manager.findIndex(el=>el.uid === userInfo.uid)
+    const idx = initTypeCon.manager.findIndex((el) => el.uid === userInfo.uid);
     let newEditor = initTypeCon.editor;
     let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
     let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
@@ -162,35 +241,60 @@ export default function SignBoardView() {
       cancelManager: idx > 0 ? initTypeCon.manager[idx] : "",
       state: "ing",
     })
-    .then(()=>{
-      toast({
-        description: "결재가 취소되었습니다.",
-        status: 'success',
-        duration: 1000,
-        isClosable: false,
+      .then(() => {
+        if (initTypeCon.writeOption.price) {
+          get(ref(db, `stats/price/${queryPath}`)).then((data) => {
+            if (data.val()) {
+              remove(ref(db, `stats/price/${queryPath}`));
+            }
+          });
+        }
       })
-      setInsertHtml(newEditor);
-      setEditorState(newEditor);
-    })
-
-  }
+      .then(() => {
+        toast({
+          description: "결재가 취소되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        setInsertHtml(newEditor);
+        setEditorState(newEditor);
+      });
+  };
 
   //글 삭제
   const onRemove = () => {
-    remove(ref(db,`board/list/${queryPath}`))
-    .then(()=>{
+    const removeRef = ref(db, `board/list/${queryPath}`);
+    const removeSref = sRef(storage, `board/list/${queryPath}`);
+    listAll(removeSref).then((data) => {
+      data.items.map((img) => {
+        deleteObject(img);
+      });
+    });
+    remove(removeRef).then(() => {
       toast({
         description: "삭제 되었습니다.",
-        status: 'success',
+        status: "success",
         duration: 1000,
         isClosable: false,
-      })
-      router.push('/board/list')
-    })
-  }
+      });
+      router.push("/board/wait");
+    });
+  };
+
+  const imgRef = useRef([]);
+  //이미지 확대
+  const onImage = (idx) => {
+    const target = imgRef.current[idx];
+    const onCheck = target.classList.value.indexOf("on");
+    imgRef.current.map((el) => {
+      el.classList.remove("on");
+    });
+    onCheck === -1 && target.classList.add("on");
+  };
 
   return (
-    <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
+    <BoardView style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
       <Flex>
         <Flex width="100%" flexDirection="column" gap={5}>
           <FormControl isInvalid={errors.title}>
@@ -211,6 +315,47 @@ export default function SignBoardView() {
               {errors.subject && errors.subject.message}
             </FormErrorMessage>
           </FormControl>
+          {initTypeCon?.income && (
+            <>
+              <FormControl>
+                <div className="row_box">
+                  <FormLabel className="label">소득금액</FormLabel>
+                  {initTypeCon.income}
+                </div>
+              </FormControl>
+            </>
+          )}
+          {initTypeCon?.spend && (
+            <>
+              <FormControl>
+                <div className="row_box">
+                  <FormLabel className="label">지출금액</FormLabel>
+                  <span className="spend">{`${comma(
+                    initTypeCon.spend
+                  )}원`}</span>
+                </div>
+              </FormControl>
+            </>
+          )}
+          {initTypeCon && initTypeCon.writeOption?.date && (
+            <>
+              <FormControl>
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="date">
+                    날짜
+                  </FormLabel>
+                  <Input
+                    id="date"
+                    type="date"
+                    readOnly
+                    className="xs"
+                    defaultValue={initTypeCon.date}
+                    {...register("date")}
+                  />
+                </div>
+              </FormControl>
+            </>
+          )}
           {initTypeCon && initTypeCon.editor ? (
             <>
               <Editor
@@ -224,6 +369,28 @@ export default function SignBoardView() {
             <Editor handleEditor={handleEditor} />
           )}
 
+          {initTypeCon?.imgUrl && (
+            <>
+              <FormControl>
+                <div className="row_box">
+                  <FormLabel className="label">첨부 이미지</FormLabel>
+                  <div className="img_list">
+                    {initTypeCon?.imgUrl.map((el, idx) => (
+                      <>
+                        <div
+                          className="img"
+                          onClick={() => onImage(idx)}
+                          ref={(el) => (imgRef.current[idx] = el)}
+                        >
+                          <Image key={idx} alt="" src={el} />
+                        </div>
+                      </>
+                    ))}
+                  </div>
+                </div>
+              </FormControl>
+            </>
+          )}
           <Flex mt={4} width="100%" justifyContent="center">
             {/* <Button
               width="150px"
@@ -258,26 +425,33 @@ export default function SignBoardView() {
                 결재취소
               </Button>
             )}
-            {initTypeCon && !initTypeCon.cancelManager && initTypeCon.writer_uid === userInfo?.uid && 
-              <Button
-                width="150px"
-                size="lg"
-                ml={2}
-                colorScheme="red"
-                isLoading={isSignLoading}
-                onClick={onRemove}
-              >
-                삭제
+            {initTypeCon &&
+              !initTypeCon.cancelManager &&
+              initTypeCon.writer_uid === userInfo?.uid && (
+                <Button
+                  width="150px"
+                  size="lg"
+                  ml={2}
+                  colorScheme="red"
+                  isLoading={isSignLoading}
+                  onClick={onRemove}
+                >
+                  삭제
+                </Button>
+              )}
+            <Link href="/board/wait">
+              <Button width="150px" size="lg" colorScheme="teal" ml={2}>
+                대기목록
               </Button>
-            }
+            </Link>
             <Link href="/board/list">
               <Button width="150px" size="lg" colorScheme="teal" ml={2}>
-                목록
+                완료목록
               </Button>
             </Link>
           </Flex>
         </Flex>
       </Flex>
-    </CommonForm>
+    </BoardView>
   );
 }

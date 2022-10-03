@@ -14,9 +14,18 @@ import useGetUser from "@component/hooks/getUserDb";
 import styled from "styled-components";
 import { db } from "src/firebase";
 import { ref, update } from "firebase/database";
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { CommonForm } from "pages/insa/setting";
+import ProfileUpload from "@component/mypage/ProfileUpload";
+import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 
 export default function Mypage() {
+  const storage = getStorage();
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
   const getUserInfo = useGetUser();
@@ -24,7 +33,9 @@ export default function Mypage() {
   const rankList = getUserInfo[1]?.rankList;
 
   const [userData, setUserData] = useState();
+  const [initProfile, setInitProfile] = useState();
   useEffect(() => {
+    setInitProfile(userInfo.profile);
     if (partList && rankList && userInfo) {
       let user = {
         ...userInfo,
@@ -41,9 +52,32 @@ export default function Mypage() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
+    let url;
+    if (userInfo.profile) {
+      url = userInfo.profile;
+    }
+    if (uploadList.length > 0) {
+      url = uploadList;
+    } else {
+      url = "";
+    }
+    if (uploadList.length > 0) {
+      const getResizeProfile = await imageResize(uploadList[0], 300).then(
+        (img) => {
+          const resizeImg = dataURLtoFile(img, uploadList[0].name);
+          return resizeImg;
+        }
+      );
+      const storageRef = sRef(storage, `profile/${userInfo.uid}/profile_img`);
+      url = await uploadBytes(storageRef, getResizeProfile).then((snapshot) => {
+        const downloadUrl = getDownloadURL(snapshot.ref);
+        return downloadUrl;
+      });
+    }
     update(ref(db, `user/${userInfo.uid}`), {
       ...values,
+      profile: url || "",
     }).then(() => {
       toast({
         position: "top",
@@ -53,6 +87,41 @@ export default function Mypage() {
         isClosable: true,
       });
     });
+  };
+
+  //이미지 등록
+  const [uploadList, setUploadList] = useState([]);
+  const onAddUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 2097152) {
+      toast({
+        description: "첨부파일 최대용량은 2MB 입니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      e.target.value = null;
+      return;
+    } else {
+      const newList = [file];
+      setUploadList(newList);
+      e.target.value = null;
+    }
+  };
+  const removeFile = (uid) => {
+    let newFileList = uploadList;
+    newFileList = newFileList.filter((el) => {
+      return el.lastModified !== uid;
+    });
+    setInitProfile("");
+    setUploadList(newFileList);
+  };
+
+  const removeInitProfile = () => {
+    setInitProfile("");
   };
 
   return (
@@ -66,6 +135,20 @@ export default function Mypage() {
               alignItems="center"
               gap={2}
             >
+              <FormControl className="row_section">
+                <div className="row_box">
+                  <FormLabel htmlFor="upload" className="label">
+                    프로필
+                  </FormLabel>
+                  <ProfileUpload
+                    onAddUpload={onAddUpload}
+                    uploadList={uploadList}
+                    removeFile={removeFile}
+                    initImg={initProfile}
+                    removeInitProfile={removeInitProfile}
+                  />
+                </div>
+              </FormControl>
               <FormControl className="row_section">
                 <div className="row_box">
                   <FormLabel className="label">이름</FormLabel>

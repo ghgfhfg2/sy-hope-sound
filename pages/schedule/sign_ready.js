@@ -2,27 +2,39 @@ import BoardList, { BoardLi } from "@component/BoardList";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { db } from "src/firebase";
-import { ref, onValue, remove, get, off, update, query,orderByChild, equalTo } from "firebase/database";
 import {
-  Radio, RadioGroup, Stack
-} from "@chakra-ui/react";
+  ref,
+  onValue,
+  remove,
+  get,
+  off,
+  update,
+  query,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
+import { Radio, RadioGroup, Stack } from "@chakra-ui/react";
 import shortid from "shortid";
 import { format, setDate } from "date-fns";
 import styled from "styled-components";
 import ConfirmPop from "@component/schedule/ConfirmPop";
 import None from "@component/None";
-import RadioCard from "@component/RadioCard"
 
 const ReadyList = styled(BoardLi)`
   li {
-    &.header{
-      .subject{justify-content:center}
+    &.header {
+      .subject {
+        justify-content: center;
+      }
     }
     .name {
       max-width: 150px;
       flex: 1;
     }
-    .reason{flex:1;max-width:200px}
+    .reason {
+      flex: 1;
+      max-width: 200px;
+    }
     .subject {
       flex: 1;
       justify-content: flex-start;
@@ -36,30 +48,32 @@ const ReadyList = styled(BoardLi)`
 `;
 
 export default function SignReady() {
-  const userInfo = useSelector(state=>state.user.currentUser)
+  const userInfo = useSelector((state) => state.user.currentUser);
   const [readyList, setReadyList] = useState();
   useEffect(() => {
-      let listRef;
-      listRef = query(ref(db, `dayoff/temp`));
-      onValue(listRef, (data) => {
-        let listArr = [];
-        data.forEach((el) => {
-          let daySum = 0;
-          el.val().list.forEach(li=>{
-            daySum += li.day
-          })
-          let obj = {
-            ...el.val(),
-            uid:el.key,
-            daySum,
-          };
-          listArr.push(obj);
+    let listRef;
+    listRef = query(ref(db, `dayoff/temp`));
+    onValue(listRef, (data) => {
+      let listArr = [];
+      data.forEach((el) => {
+        let daySum = 0;
+        el.val().list.forEach((li) => {
+          daySum += li.day;
         });
-        listArr = listArr.filter(el=>{
-          return el.nextManager.id === userInfo?.uid || el.userUid === userInfo?.uid
-        })
-        setReadyList(listArr);
+        let obj = {
+          ...el.val(),
+          uid: el.key,
+          daySum,
+        };
+        listArr.push(obj);
       });
+      listArr = listArr.filter((el) => {
+        return (
+          el.nextManager.id === userInfo?.uid || el.userUid === userInfo?.uid
+        );
+      });
+      setReadyList(listArr);
+    });
     return () => {
       off(listRef);
     };
@@ -78,15 +92,15 @@ export default function SignReady() {
 
   return (
     <>
-      <BoardList>
-        <ReadyList>
-          <li className="header">
-            <span className="name">이름</span>
-            <span className="subject">제목</span>
-            <span className="reason">사유</span>
-            <span className="date">작성일</span>
-          </li>
-          {readyList && readyList.map((el) => (
+      <ReadyList>
+        <li className="header">
+          <span className="name">이름</span>
+          <span className="subject">제목</span>
+          <span className="reason">사유</span>
+          <span className="date">작성일</span>
+        </li>
+        {readyList &&
+          readyList.map((el) => (
             <li key={shortid()}>
               <span className="name">{el.userName}</span>
               <span className="subject">
@@ -100,11 +114,14 @@ export default function SignReady() {
               </span>
             </li>
           ))}
-          {readyList?.length === 0 && <None />}
-        </ReadyList>
-      </BoardList>
+        {readyList?.length === 0 && <None />}
+      </ReadyList>
       {listData && isConfirmPop && (
-        <ConfirmPop userInfo={userInfo} listData={listData} closePopup={closePopup} />
+        <ConfirmPop
+          userInfo={userInfo}
+          listData={listData}
+          closePopup={closePopup}
+        />
       )}
     </>
   );

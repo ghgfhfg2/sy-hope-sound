@@ -87,6 +87,42 @@ function LeftMunu({ userInfo }) {
     setDayoffReady(`결재요청(${dayoffCount})`);
   }, [dayoffCount]);
 
+  const [boardWait, setBoardWait] = useState(0);
+  const [waitCount, setWaitCount] = useState("결재대기");
+  const [reCount, setReCount] = useState(false);
+  useEffect(() => {
+    const listRef = query(
+      ref(db, `board/list`),
+      orderByChild("state"),
+      equalTo("ing")
+    );
+    onValue(listRef, (data) => {
+      let count = 0;
+      data.forEach((el) => {
+        if (
+          el.val().nextManager.uid === userInfo.uid ||
+          el.val().writer_uid === userInfo.uid
+        ) {
+          count++;
+        }
+      });
+      setBoardWait((pre) => {
+        if (pre === count) {
+          return pre;
+        } else {
+          setTimeout(() => {
+            setReCount(!reCount);
+          }, 100);
+          return count;
+        }
+      });
+    });
+    setWaitCount(`결재대기(${boardWait})`);
+    return () => {
+      off(listRef);
+    };
+  }, [userInfo, reCount]);
+
   return (
     <>
       <LeftMenu>
@@ -139,18 +175,23 @@ function LeftMunu({ userInfo }) {
         {router.includes("/board") && (
           <>
             <ul className="depth_1">
-              <li
-                className={
-                  router.includes("/board/list") ||
-                  router.includes("/board/view")
-                    ? "on"
-                    : ""
-                }
-              >
-                <Link href="/board/list">결재리스트</Link>
+              <li className={router.includes("/board/wait") ? "on" : ""}>
+                <Link href="/board/wait">{waitCount}</Link>
+              </li>
+              <li className={router.includes("/board/list") ? "on" : ""}>
+                <Link href="/board/list">결재완료</Link>
               </li>
               <li className={router === "/board/write" ? "on" : ""}>
                 <Link href="/board/write">글작성</Link>
+              </li>
+            </ul>
+          </>
+        )}
+        {router.includes("/stats") && (
+          <>
+            <ul className="depth_1">
+              <li className={router.includes("/stats/price") ? "on" : ""}>
+                <Link href="/stats/price">소득/지출</Link>
               </li>
             </ul>
           </>

@@ -22,10 +22,7 @@ import styled from "styled-components";
 import FinishPop from "@component/schedule/FinishPop";
 import None from "@component/None";
 import Link from "next/link";
-import ManagerListPop from "./ManagerListPop";
 import useGetUser from "@component/hooks/getUserDb";
-import { Input } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 
 const SignBoardLi = styled(BoardLi)`
   li {
@@ -49,33 +46,23 @@ const SignBoardLi = styled(BoardLi)`
   }
 `;
 
-export default function SignBoardList({ stateType }) {
+export default function SignBoardList() {
   useGetUser();
-  const router = useRouter();
   const userInfo = useSelector((state) => state.user.currentUser);
   const userAll = useSelector((state) => state.user.allUser);
   const [boardList, setBoardList] = useState();
-  const [searchDate, setSearchDate] = useState(new Date());
   useEffect(() => {
-    const formatDate = format(searchDate, "yyyyMM");
-    let listRef;
-    if (stateType === "ing") {
-      listRef = query(
-        ref(db, `board/list`),
-        orderByChild("state"),
-        equalTo(stateType)
-      );
-    } else {
-      listRef = query(
-        ref(db, `board/list`),
-        orderByChild("dateMonth"),
-        equalTo(formatDate)
-      );
-    }
+    const listRef = query(
+      ref(db, `board/list`),
+      orderByChild("state"),
+      equalTo("finish")
+    );
     onValue(listRef, (el) => {
       if (userInfo && userAll) {
         let listArr = [];
         for (const key in el.val()) {
+          console.log(el.val());
+          return;
           let mg_list = [];
           mg_list = el.val()[key].manager.map((el) => el.uid);
           let writer = userAll.find(
@@ -95,7 +82,6 @@ export default function SignBoardList({ stateType }) {
             listArr.push(obj);
           }
         }
-        listArr = listArr.filter((el) => el.state === stateType);
         listArr = listArr.sort((a, b) => {
           return b.timestamp - a.timestamp;
         });
@@ -105,7 +91,7 @@ export default function SignBoardList({ stateType }) {
     return () => {
       off(listRef);
     };
-  }, [userInfo, searchDate, userAll, stateType]);
+  }, [userInfo, userAll]);
 
   const [listData, setListData] = useState();
   const [isConfirmPop, setIsConfirmPop] = useState(false);
@@ -114,23 +100,8 @@ export default function SignBoardList({ stateType }) {
     setIsConfirmPop(false);
   };
 
-  const handleMonth = (e) => {
-    const date = new Date(e.target.value);
-    setSearchDate(date);
-  };
-
   return (
     <>
-      {stateType === "finish" && (
-        <Input
-          type="month"
-          width="160px"
-          mb={5}
-          onChange={handleMonth}
-          value={format(searchDate, "yyyy-MM")}
-          max={format(new Date(), "yyyy-MM")}
-        />
-      )}
       <SignBoardLi>
         <li className="header">
           <span className="state">상태</span>
@@ -148,7 +119,7 @@ export default function SignBoardList({ stateType }) {
                   ? "결재완료"
                   : ""}
               </span>
-              <Link href={`/board/view?id=${el.uid}`}>
+              <Link href={`/board/view?id=${el.uid}&date=${el.date}`}>
                 <span className="subject link">{el.subject}</span>
               </Link>
               <span className="date">{el?.writer.name}</span>

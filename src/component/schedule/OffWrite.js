@@ -307,6 +307,14 @@ export default function OffWrite({ userInfo }) {
                   {errors.manager && errors.manager.message}
                 </FormErrorMessage>
               </FormControl>
+
+              <div className="row_box">
+                <FormLabel className="label" htmlFor="reason">
+                  남은연차
+                </FormLabel>
+                {userInfo?.dayoff}개
+              </div>
+
               <div className="row_box">
                 <FormLabel className="label" htmlFor="type"></FormLabel>
                 <Box className="lg">
