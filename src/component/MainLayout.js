@@ -10,8 +10,6 @@ export default function MainLayout({ children, logoImg }) {
     <>
       <div className="wrapper">
         <Header logoImg={logoUrl} />
-        <div className="container">
-          <div className="content_box">
             {children ? (
               <main>{children}</main>
             ) : (
@@ -19,8 +17,6 @@ export default function MainLayout({ children, logoImg }) {
                 <Loading />
               </Flex>
             )}
-          </div>
-        </div>
         <footer className="footer">footer</footer>
       </div>
     </>
