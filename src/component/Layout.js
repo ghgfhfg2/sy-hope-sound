@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import Header from "./Header";
 import LeftMenu from "./LeftMenu";
 import Loading from "./Loading";
+import Footer from "./Footer";
 
 function Layout({ children }) {
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -24,7 +25,7 @@ function Layout({ children }) {
             )}
           </div>
         </div>
-        <footer className="footer">footer</footer>
+        <Footer />
       </div>
     </>
   );

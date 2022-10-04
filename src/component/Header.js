@@ -18,7 +18,7 @@ const HeaderTop = styled.div`
   display: flex;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
   justify-content: space-between;
   .left {
     display: flex;
@@ -73,7 +73,7 @@ const HeaderTop = styled.div`
   }
 `;
 
-function Header({logoImg}) {
+function Header({ logoImg }) {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.currentUser);
   const auth = getAuth();
@@ -88,8 +88,6 @@ function Header({logoImg}) {
         console.log(error);
       });
   };
-
-
 
   return (
     <>

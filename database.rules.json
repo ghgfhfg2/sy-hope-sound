@@ -1,6 +1,11 @@
 {
   "rules": {
-    ".read": "now < 1664895600000",  // 2022-10-5
-    ".write": "now < 1664895600000",  // 2022-10-5
+    "board": {
+      "list": {
+        ".indexOn": ["writer_uid", "dateMonth"]
+      }
+    },
+    ".read": "auth!=null",
+    ".write": "auth!=null"
   }
 }
