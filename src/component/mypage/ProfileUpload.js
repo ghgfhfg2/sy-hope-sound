@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Flex, FormLabel, Box, Image } from "@chakra-ui/react";
+import { Input, Button, Flex, FormLabel, Box, Image, Avatar } from "@chakra-ui/react";
 import { imageResize } from "@component/hooks/useImgResize";
 import styled from "styled-components";
 import { BiUpload } from "react-icons/bi";
@@ -29,15 +29,18 @@ const FileList = styled.div`
   .file_list {
     li {
       .thumb {
-        width: 80px;
-        height: 80px;
+        max-width: 80px;
+        max-height: 80px;
+        width:80px;height:80px;
+        background:#f1f1f1;
         display: flex;
+        overflow:hidden;
+        border-radius:50%;
         justify-content: center;
         align-items: center;
         img {
-          width: 80px;
-          height: 80px;
-          object-fit: contain;
+          max-width:200%;
+          object-fit: cover;
         }
       }
       display: flex;
@@ -58,7 +61,7 @@ export default function UploadBox({
     let newFileList = uploadList;
     if (uploadList) {
       uploadList.map((el, idx) => {
-        imageResize(el, 100).then((img) => {
+        imageResize(el, 200).then((img) => {
           newFileList[idx].thumb = typeof img === "string" ? img : "";
         });
       });
@@ -69,7 +72,38 @@ export default function UploadBox({
   }, [uploadList]);
 
   return (
-    <FileList>
+    <FileList>      
+      <ul className="file_list">
+        {fileList && fileList.length === 0 && initImg && (
+          <li>
+            <div className="thumb">
+              <Image alt="" src={initImg} />
+            </div>
+            <Button colorScheme="red" mr={2} onClick={removeInitProfile}>
+              <RiDeleteBinLine />
+            </Button>
+          </li>
+        )}
+        {fileList &&
+          fileList.map((el, idx) => (
+            <>
+              <li key={idx}>
+                <div className="thumb">
+                  {el.thumb && <Image alt="" src={el.thumb} />}
+                </div>
+                <Button
+                  colorScheme="red"
+                  mr={2}
+                  onClick={() => {
+                    removeFile(el.lastModified);
+                  }}
+                >
+                  <RiDeleteBinLine />
+                </Button>
+              </li>
+            </>
+          ))}
+      </ul>
       <input type="file" id="upload" onChange={onAddUpload} />
       <Button className="btn_add" colorScheme="teal" variant="outline">
         <FormLabel
@@ -87,37 +121,6 @@ export default function UploadBox({
           이미지 업로드
         </FormLabel>
       </Button>
-      <ul className="file_list">
-        {fileList && fileList.length === 0 && initImg && (
-          <li>
-            <div className="thumb">
-              <Image alt="" src={initImg} />
-            </div>
-            <Button colorScheme="red" ml={2} onClick={removeInitProfile}>
-              <RiDeleteBinLine />
-            </Button>
-          </li>
-        )}
-        {fileList &&
-          fileList.map((el, idx) => (
-            <>
-              <li key={idx}>
-                <div className="thumb">
-                  {el.thumb && <Image alt="" src={el.thumb} />}
-                </div>
-                <Button
-                  colorScheme="red"
-                  ml={2}
-                  onClick={() => {
-                    removeFile(el.lastModified);
-                  }}
-                >
-                  <RiDeleteBinLine />
-                </Button>
-              </li>
-            </>
-          ))}
-      </ul>
     </FileList>
   );
 }

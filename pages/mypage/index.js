@@ -35,7 +35,7 @@ export default function Mypage() {
   const [userData, setUserData] = useState();
   const [initProfile, setInitProfile] = useState();
   useEffect(() => {
-    setInitProfile(userInfo.profile);
+    setInitProfile(userInfo?.profile);
     if (partList && rankList && userInfo) {
       let user = {
         ...userInfo,

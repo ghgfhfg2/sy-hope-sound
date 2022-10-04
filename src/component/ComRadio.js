@@ -24,7 +24,7 @@ export default function ComRadio({...props}) {
                 required: `${props.label}은 필수항목 입니다.`,
               })}
             />
-            <label for={`${type[0]}_${idx}`}>{type[1]}</label>
+            <label htmlFor={`${type[0]}_${idx}`}>{type[1]}</label>
           </>
         )
       })

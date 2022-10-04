@@ -157,7 +157,7 @@ export default function UserList() {
               </li>
               {adminCheck && (
                 <>
-                  <li className="box dayoff"></li>
+                  <li className="box dayoff">남은연차</li>
                   <li className="box setting"></li>
                 </>
               )}

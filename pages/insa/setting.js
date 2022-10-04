@@ -14,7 +14,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import useGetUser from "@component/hooks/getUserDb";
-import useImgResize from "@component/hooks/useImgResize";
+import {imageResize} from "@component/hooks/useImgResize";
 import { AiOutlineDelete, AiOutlineEnter } from "react-icons/ai";
 import { HiOutlinePlus } from "react-icons/hi";
 import { BsPencilSquare, BsListCheck, BsUpload } from "react-icons/bs";
@@ -322,7 +322,7 @@ export default function Setting() {
 
   const logoCheck = async () => {
     const file = getValues("logo")[0];
-    const thumbnail = await useImgResize(file, 50);
+    const thumbnail = await imageResize(file, 50);
     const limit = 2097152;
     if (!file) {
       return;

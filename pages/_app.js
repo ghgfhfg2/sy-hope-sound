@@ -16,6 +16,7 @@ import { signOut } from "firebase/auth";
 import Layout from "@component/Layout";
 import Login from "@component/Login";
 import Loading from "@component/Loading";
+import {setLogo} from "@redux/actions/logo_action"
 
 function App({ Component, pageProps }) {
   const storage = getStorage();
@@ -62,6 +63,7 @@ function App({ Component, pageProps }) {
   useEffect(() => {
     getDownloadURL(sRef(storage, `company/logo`))
       .then((url) => {
+        dispatch(setLogo(url))
         setLogoImg(url);
       })
       .catch((error) => console.error(error));
@@ -106,7 +108,7 @@ function App({ Component, pageProps }) {
   const getLayout =
     Component.getLayout ||
     ((page) => {
-      return <Layout logoImg={logoImg}>{page}</Layout>;
+      return <Layout>{page}</Layout>;
     });
 
   return (

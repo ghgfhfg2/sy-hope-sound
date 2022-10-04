@@ -1,6 +1,7 @@
 import { HYDRATE } from "next-redux-wrapper";
 import user from "./user_reducer";
 import counter from "./counter_reducer";
+import logo from "./logo_reducer";
 import { combineReducers } from "redux";
 
 const rootReducer = combineReducers({
@@ -16,7 +17,7 @@ const rootReducer = combineReducers({
         return state;
     }
   },
-  user,counter
+  user,counter,logo
 });
 
 export default rootReducer;

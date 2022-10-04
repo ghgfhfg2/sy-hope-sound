@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -33,7 +34,9 @@ import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/insa/setting";
-import Editor from "@component/board/Editor";
+const Editor = dynamic(() => import("@component/board/Editor"), {
+  ssr: false,
+});
 import Link from "next/link";
 
 export default function TypeBoard() {

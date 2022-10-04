@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "@redux/actions/user_action";
 import { useRouter } from "next/router";
@@ -73,7 +73,7 @@ const HeaderTop = styled.div`
   }
 `;
 
-function Header({ logoImg }) {
+function Header({logoImg}) {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.currentUser);
   const auth = getAuth();
@@ -88,6 +88,9 @@ function Header({ logoImg }) {
         console.log(error);
       });
   };
+
+
+
   return (
     <>
       <HeaderTop>
