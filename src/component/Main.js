@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Image } from "@chakra-ui/react";
+import { Box, Button, Flex, Image, useToast } from "@chakra-ui/react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { MdImageSearch } from "react-icons/md";
 import { useSelector } from "react-redux";
 import {
@@ -28,10 +28,18 @@ import {
   orderByKey,
   endAt,
 } from "firebase/database";
+import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import styled from "styled-components";
 import { HiExternalLink } from "react-icons/hi";
+import { FaUser } from "react-icons/fa";
+import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -57,12 +65,19 @@ const MainWrapper = styled.div`
       top: 0;
     }
     .btn_bg_modify {
-      padding: 0 12px;
+      padding:0;
       opacity: 0;
       z-index: -1;
       position: absolute;
       right: 0;
       bottom: 20px;
+      input{width:0;height:0;position:absolute;opacity:0;z-index:-1}
+      label{
+        display:flex;
+        align-items:center;
+        height:100%;
+        padding: 0 12px;
+      }
     }
     .content_box {
       position: relative;
@@ -113,7 +128,10 @@ const MainWrapper = styled.div`
     overflow: hidden;
     background: #eee;
     z-index: 10;
-    box-shadow: 0 0 8px rgb(0 0 0 / 60%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    box-shadow: 0 0 8px rgb(0 0 0 / 50%);
   }
 
   h2.title {
@@ -236,9 +254,8 @@ const HitmapOver = styled.div`
 
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
-  const [headerImg, setHeaderImg] = useState(
-    "https://source.unsplash.com/1920x250/?colorfull,sky,nature,space"
-  );
+  const toast = useToast()
+  const [headerImg, setHeaderImg] = useState("https://source.unsplash.com/1920x250/?colorfull,sky,nature,space");
 
   const [curDate, setCurDate] = useState(new Date());
   const [startDate, setStartDate] = useState();
@@ -253,6 +270,9 @@ export default function Main() {
   const [boardList, setBoardList] = useState([]);
   const [boardType, setBoardType] = useState([]);
   useEffect(() => {
+
+    setHeaderImg(userInfo?.mainBgUrl)
+
     const dayoffRef = query(
       ref(db, `dayoff/list`),
       orderByKey(),
@@ -372,6 +392,43 @@ export default function Main() {
       setTooltipPos('')
     }
   }
+
+
+  //백그라운드 설정
+  const storage = getStorage();
+  const onMainBg = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return
+    if(file.type !== "image/gif" &&
+    file.type !== "image/png" &&
+    file.type !== "image/jpeg"){
+      toast({
+        description: "지원하지않는 형식 입니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      return
+    }
+    const resizeImg = await imageResize(file,2000).then(img=>{
+      return img
+    })
+    const newFile = dataURLtoFile(resizeImg,file.name)
+    const storageRef = sRef(
+      storage,
+      `user/background/maninBg`
+    );
+    const url = await uploadBytes(storageRef, newFile).then((snapshot) => {
+      const downloadUrl = getDownloadURL(snapshot.ref);
+      return downloadUrl;
+    });
+    update(ref(db,`user/${userInfo.uid}`),{
+      mainBgUrl:url
+    })
+    .then(()=>{
+      setHeaderImg(url)
+    })
+  }
   
 
 
@@ -385,21 +442,27 @@ export default function Main() {
         <div className="bg_balck"></div>
         <div className="content_box">
           <Button className="btn_bg_modify">
+            <input type="file" id="bg_input" onInput={onMainBg} accept="image/*" />
+            <label htmlFor="bg_input">
             <MdImageSearch style={{ fontSize: "20px" }} />
+            </label>
           </Button>
         </div>
       </header>
       <div className="content_box con">
         <div className="profile_box">
           <div className="profile_img">
-            {userInfo && userInfo.profile && (
+            {userInfo && userInfo.profile ? (
               <div
                 style={{
                   background: `url(${userInfo.profile}) no-repeat center center/cover`,
                   height: "100%",
                 }}
               />
-            )}
+            ) : (
+              <FaUser style={{fontSize:"95px",color:"#bbb"}} />
+            )
+          }
           </div>
           <h3>{userInfo && userInfo.name}</h3>
           <Button variant="outline" className="btn_modify" size="sm">
