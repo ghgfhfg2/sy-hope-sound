@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db } from "src/firebase";
 import {
   ref,
+  off,
   set,
   update,
   remove,
@@ -270,13 +271,17 @@ function Schedule() {
       data.forEach((el) => {
         for (const key in el.val()) {
           const value = el.val()[key];
-          const date = value.date.split("-")[2];
+          let date = value.date.split("-")[2];
+          date = Number(date);
+
           listObj[date] = listObj[date] ? [...listObj[date], value] : [value];
         }
-        setDayoffList(listObj);
       });
+      setDayoffList(listObj);
     });
-    return () => {};
+    return () => {
+      off(listRef)
+    };
   }, [currentMonth]);
 
   const prevMonth = () => {

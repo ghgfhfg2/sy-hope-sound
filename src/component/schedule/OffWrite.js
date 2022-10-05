@@ -312,7 +312,7 @@ export default function OffWrite({ userInfo }) {
                 <FormLabel className="label" htmlFor="reason">
                   남은연차
                 </FormLabel>
-                {userInfo?.dayoff}개
+                {userInfo?.dayoff ? `${userInfo.dayoff}개` : `0개`}
               </div>
 
               <div className="row_box">

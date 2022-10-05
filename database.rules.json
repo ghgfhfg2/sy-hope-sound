@@ -5,7 +5,7 @@
         ".indexOn": ["writer_uid", "dateMonth"]
       }
     },
-    ".read": "auth!=null",
+    ".read": "true",
     ".write": "auth!=null"
   }
 }

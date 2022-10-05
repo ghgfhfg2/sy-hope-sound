@@ -270,8 +270,9 @@ export default function Main() {
   const [boardList, setBoardList] = useState([]);
   const [boardType, setBoardType] = useState([]);
   useEffect(() => {
-
-    setHeaderImg(userInfo?.mainBgUrl)
+    if(userInfo?.mainBgUrl){
+      setHeaderImg(userInfo.mainBgUrl)
+    }
 
     const dayoffRef = query(
       ref(db, `dayoff/list`),
@@ -456,6 +457,7 @@ export default function Main() {
               <div
                 style={{
                   background: `url(${userInfo.profile}) no-repeat center center/cover`,
+                  width:"100%",
                   height: "100%",
                 }}
               />

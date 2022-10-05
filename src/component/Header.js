@@ -71,6 +71,10 @@ const HeaderTop = styled.div`
     align-items: center;
     height: 100%;
   }
+
+  @media screen and (max-width:768px){
+    .menu{display:none}
+  }
 `;
 
 function Header({ logoImg }) {
@@ -123,7 +127,7 @@ function Header({ logoImg }) {
           </ul>
         </div>
         <ul className="right">
-          {userInfo ? (
+          {userInfo && (
             <>
               <li className={router.route.indexOf("/mypage") > -1 && "on"}>
                 <Link href="/mypage">마이페이지</Link>
@@ -134,16 +138,7 @@ function Header({ logoImg }) {
                 </a>
               </li>
             </>
-          ) : (
-            <>
-              <li>
-                <Link href="/login">로그인</Link>
-              </li>
-              <li>
-                <Link href="/join">회원가입</Link>
-              </li>
-            </>
-          )}
+          ) }
         </ul>
       </HeaderTop>
     </>
