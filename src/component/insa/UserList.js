@@ -16,10 +16,10 @@ export const ListUl = styled.div`
   > ul {
     display: flex;
   }
-  .link{
-    cursor:pointer;
-    &:hover{
-      font-weight:bold
+  .link {
+    cursor: pointer;
+    &:hover {
+      font-weight: bold;
     }
   }
   .header {
@@ -77,38 +77,38 @@ export default function UserList() {
   const [userAllState, setUserAllState] = useState();
   const [managerList, setManagerList] = useState();
 
-  const [render, setRender] = useState(false)
+  const [render, setRender] = useState(false);
   const onRender = () => {
-    setRender(!render)
-  }
-  
+    setRender(!render);
+  };
+
   useEffect(() => {
     if (userAll) {
-      let userAllArr
-      userAllArr = userAll.map(el=>{
-        let user = userAll.find(li=>{
-          return el.manager_uid === li.uid
-        })
-        if(user){
-          el.manager_uid = user
+      let userAllArr;
+      userAllArr = userAll.map((el) => {
+        let user = userAll.find((li) => {
+          return el.manager_uid === li.uid;
+        });
+        if (user) {
+          el.manager_uid = user;
         }
-        return el
-      })
+        return el;
+      });
       setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);
       }
       setIsLoading(true);
 
-      let managerArr = []
-      userAll.map(el=>{
-        if(el.manager == '1'){
-          managerArr.push(el)
+      let managerArr = [];
+      userAll.map((el) => {
+        if (el.manager == "1") {
+          managerArr.push(el);
         }
-      })
-      setManagerList(managerArr)      
+      });
+      setManagerList(managerArr);
     }
-  }, [userAll, userInfo , render]);
+  }, [userAll, userInfo, render]);
 
   const [sortState, setSortState] = useState();
   const onSort = (type) => {
@@ -172,11 +172,11 @@ export default function UserList() {
                       <span className="box rank">{el.rank}</span>
                       <span className="box call">{el.call}</span>
                       <span className="box manager">
-                        {el.manager_uid && 
+                        {el.manager_uid && (
                           <>
                             {el.manager_uid.name} ({el.manager_uid.rank})
                           </>
-                        }
+                        )}
                       </span>
                       <span className="box email">{el.email}</span>
                       <span className="box date">
@@ -184,7 +184,7 @@ export default function UserList() {
                       </span>
                       {adminCheck && (
                         <>
-                          <span className="box email">
+                          <span className="box dayoff">
                             {el.dayoff ? `${el.dayoff}일` : ""}
                           </span>
                           <div className="box setting">

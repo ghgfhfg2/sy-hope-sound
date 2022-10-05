@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setDayoffCount,
-  updateDayoffCount,
-} from "@redux/actions/counter_action";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import styled from "styled-components";
@@ -57,9 +53,8 @@ const LeftMenu = styled.nav`
 function LeftMunu({ userInfo }) {
   const router = useRouter().route;
   const dispatch = useDispatch();
-  const dayoffCount = useSelector((state) => state.counter.dayoffCount);
-  const dayoffCheck = useSelector((state) => state.counter.dayoffCheck);
   const [dayoffReady, setDayoffReady] = useState("결재대기");
+  const [dayoffCountNum, setDayoffCountNum] = useState(0);
   useEffect(() => {
     let countRef;
     countRef = query(ref(db, `dayoff/temp`));
@@ -74,18 +69,13 @@ function LeftMunu({ userInfo }) {
             count++;
           }
         }
-        dispatch(setDayoffCount(count));
-        dispatch(updateDayoffCount(false));
+        setDayoffCountNum(count);
       });
     }
     return () => {
       off(countRef);
     };
-  }, [userInfo, dayoffCheck, router]);
-
-  useEffect(() => {
-    setDayoffReady(`결재요청(${dayoffCount})`);
-  }, [dayoffCount]);
+  }, [userInfo, router]);
 
   const [boardWait, setBoardWait] = useState(0);
   const [waitCount, setWaitCount] = useState("결재대기");
@@ -117,7 +107,7 @@ function LeftMunu({ userInfo }) {
         }
       });
     });
-    setWaitCount(`결재대기(${boardWait})`);
+    setWaitCount(`결재요청(${boardWait})`);
     return () => {
       off(listRef);
     };
@@ -164,7 +154,9 @@ function LeftMunu({ userInfo }) {
                 <Link href="/schedule/write">글작성</Link>
               </li>
               <li className={router === "/schedule/sign_ready" ? "on" : ""}>
-                <Link href="/schedule/sign_ready">{dayoffReady}</Link>
+                <Link href="/schedule/sign_ready">
+                  <a>결재대기({dayoffCountNum})</a>
+                </Link>
               </li>
               <li className={router === "/schedule/finish" ? "on" : ""}>
                 <Link href="/schedule/finish">결재완료</Link>

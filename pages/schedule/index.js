@@ -28,6 +28,9 @@ import {
 } from "date-fns";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import styled from "styled-components";
+import { el } from "date-fns/locale";
+import Loading from "../../src/component/Loading";
+import { Flex } from "@chakra-ui/react";
 
 export const ScheduleCalendar = styled.div`
   .header {
@@ -41,7 +44,6 @@ export const ScheduleCalendar = styled.div`
       padding: 0 15px;
       border-radius: 5px;
       border: 1px solid #2c7a7b;
-      transition: all 0.2s;
       &:hover {
         background: #2c7a7b;
         color: #fff;
@@ -66,7 +68,7 @@ export const ScheduleCalendar = styled.div`
     background: #2c7a7b;
     color: #fff;
     border-radius: 5px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 0.5rem;
     margin-bottom: 10px;
   }
@@ -99,8 +101,10 @@ export const ScheduleCalendar = styled.div`
       background: #f9f9f9;
     }
     .dayoff_list {
+      opacity: 0;
       display: flex;
       flex-wrap: wrap;
+      animation: fadeIn 0.2s 0.1s forwards;
       li {
         padding: 5px;
         font-size: 11px;
@@ -131,6 +135,12 @@ export const ScheduleCalendar = styled.div`
   }
   .pm_off {
     background: #dd6b20;
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
   }
 `;
 
@@ -215,24 +225,29 @@ const RenderCells = ({
           >
             {formattedDate}
             <ul className="dayoff_list">
-              {dayoffList?.[formattedDate] &&
-                dayoffList[formattedDate].map((el) => (
-                  <>
-                    <li
-                      className={
-                        el.offType === "연차"
-                          ? "all_off"
-                          : el.offType === "오전반차"
-                          ? "am_off"
-                          : el.offType === "오후반차"
-                          ? "pm_off"
-                          : ""
-                      }
-                    >
-                      {el.userName}
-                    </li>
-                  </>
-                ))}
+              {dayoffList &&
+                dayoffList[formattedDate] &&
+                dayoffList[formattedDate].map((el) => {
+                  if (isSameMonth(day, monthStart)) {
+                    return (
+                      <>
+                        <li
+                          className={
+                            el.offType === "연차"
+                              ? "all_off"
+                              : el.offType === "오전반차"
+                              ? "am_off"
+                              : el.offType === "오후반차"
+                              ? "pm_off"
+                              : ""
+                          }
+                        >
+                          {el.userName}
+                        </li>
+                      </>
+                    );
+                  }
+                })}
             </ul>
           </span>
         </div>
@@ -253,6 +268,8 @@ function Schedule() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [isMonthLoading, setIsMonthLoading] = useState(false);
+
   const [dayoffList, setDayoffList] = useState();
   useEffect(() => {
     const startDate = format(new Date(currentMonth), "yyyyMM") + "01";
@@ -270,7 +287,8 @@ function Schedule() {
       let listObj = {};
       data.forEach((el) => {
         for (const key in el.val()) {
-          const value = el.val()[key];
+          let value = el.val()[key];
+          value.month = value.date.split("-")[1];
           let date = value.date.split("-")[2];
           date = Number(date);
 
@@ -280,15 +298,23 @@ function Schedule() {
       setDayoffList(listObj);
     });
     return () => {
-      off(listRef)
+      off(listRef);
     };
   }, [currentMonth]);
 
   const prevMonth = () => {
+    setIsMonthLoading(true);
     setCurrentMonth(subMonths(currentMonth, 1));
+    setTimeout(() => {
+      setIsMonthLoading(false);
+    }, 100);
   };
   const nextMonth = () => {
+    setIsMonthLoading(true);
     setCurrentMonth(addMonths(currentMonth, 1));
+    setTimeout(() => {
+      setIsMonthLoading(false);
+    }, 100);
   };
   const onDateClick = (day) => {
     return;
@@ -307,12 +333,20 @@ function Schedule() {
         nextMonth={nextMonth}
       />
       <RenderDays />
-      <RenderCells
-        currentMonth={currentMonth}
-        selectedDate={selectedDate}
-        dayoffList={dayoffList}
-        onDateClick={onDateClick}
-      />
+      {!isMonthLoading ? (
+        <RenderCells
+          currentMonth={currentMonth}
+          selectedDate={selectedDate}
+          dayoffList={dayoffList}
+          onDateClick={onDateClick}
+        />
+      ) : (
+        <RenderCells
+          currentMonth={currentMonth}
+          selectedDate={selectedDate}
+          onDateClick={onDateClick}
+        />
+      )}
     </ScheduleCalendar>
   );
 }

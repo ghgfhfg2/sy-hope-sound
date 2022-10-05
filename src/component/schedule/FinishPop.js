@@ -2,7 +2,6 @@ import React from "react";
 import { Button, Flex } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
 import {
   ref,
@@ -85,7 +84,6 @@ export default function FinishPop({ listData, userInfo, closePopup }) {
             remove(ref(db, `dayoff/finish/${finishDate}/${listData.uid}`));
           })
           .then(() => {
-            dispatch(updateDayoffCount(true));
             closePopup();
             resolve();
           })

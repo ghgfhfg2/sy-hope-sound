@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Flex, Box, useToast } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateDayoffCount } from "@redux/actions/counter_action";
 import { db } from "src/firebase";
 import {
   ref,
@@ -167,7 +166,6 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                   duration: 1000,
                   isClosable: false,
                 });
-                dispatch(updateDayoffCount(true));
                 closePopup();
                 resolve();
               });
@@ -201,7 +199,6 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                       duration: 1000,
                       isClosable: false,
                     });
-                    dispatch(updateDayoffCount(true));
                     closePopup();
                     resolve();
                   })
@@ -229,7 +226,6 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
         isClosable: true,
       });
     });
-    dispatch(updateDayoffCount(true));
     closePopup();
     return;
   };

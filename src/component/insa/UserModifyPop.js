@@ -64,19 +64,15 @@ export default function UserModifyPop({
   closeUserModify,
   partList,
   rankList,
-  onRender
+  onRender,
 }) {
-
-  
   const dispatch = useDispatch();
-  
+
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm();
-    
-
 
   function onSubmit(values) {
     return new Promise((resolve) => {
