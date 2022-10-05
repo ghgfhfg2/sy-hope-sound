@@ -1,6 +1,8 @@
-import { Image } from "@chakra-ui/react";
-import React from "react";
+import { Flex, Image } from "@chakra-ui/react";
+import { off, onValue, ref } from "firebase/database";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { db } from "src/firebase";
 import styled from "styled-components";
 const FooterBox = styled.div`
   border-top: 1px solid #ddd;
@@ -9,17 +11,35 @@ const FooterBox = styled.div`
     max-width: 1400px;
     margin: 0 auto;
     .logo {
-      width: 100px;
+      width: 100px;margin-right:80px;
     }
+    .footer_con{color:#888}
   }
 `;
 
 export default function Footer() {
   const logoUrl = useSelector((state) => state.logo.url);
+  const [footerData, setFooterData] = useState();
+  useEffect(() => {
+    const footRef = ref(db, `admin/setting`);
+    onValue(footRef,data=>{
+      setFooterData(data.val())
+    })
+    return () => {
+      off(footRef)
+    }
+  }, [])
+  
+
   return (
     <FooterBox>
       <div className="content_box">
-        <div className="logo">{logoUrl && <Image alt="" src={logoUrl} />}</div>
+        <Flex>
+          <div className="logo">{logoUrl && <Image alt="" src={logoUrl} />}</div>
+          <div className="footer_con">
+            {footerData && footerData.adress}
+          </div>
+        </Flex>
       </div>
     </FooterBox>
   );

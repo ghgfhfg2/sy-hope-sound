@@ -222,6 +222,18 @@ const MainWrapper = styled.div`
   }
 `;
 
+
+const HitmapOver = styled.div`
+  position:absolute;
+  left:${(props) => `${props.pos.x}px` || 0};
+  top:${(props) => `${props.pos.y}px` || 0};
+  transform:translate(-100%,-100%);
+  border-radius:5px;
+  background:rgba(0,0,0,0.7);
+  color:#fff;
+  padding:5px 1rem;
+`
+
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const [headerImg, setHeaderImg] = useState(
@@ -290,8 +302,9 @@ export default function Main() {
             typeVal = 3;
           }
           let obj = {
-            date: el.date,
+            ...el,
             type: typeVal,
+            offType:el.offType,
           };
           return obj;
         });
@@ -321,6 +334,7 @@ export default function Main() {
           getBoardType.forEach((type) => {
             if (el.type === type.uid) {
               el.type = type.type;
+              el.typeName = type.title
             }
           });
           return el;
@@ -332,6 +346,34 @@ export default function Main() {
     };
     getMyList();
   }, [userInfo]);
+
+  const [currentDayoff, setCurrentDayoff] = useState();
+  const [currentBoard, setCurrentBoard] = useState();
+  const [tooltipPos, setTooltipPos] = useState();
+  const onCurrentDayoff = async (e) => {
+    setCurrentDayoff(e)
+  }
+  const onTooltip = (e,val,type) => {
+    if(val){
+      let pos = {
+        x:e.target.getBoundingClientRect().x,
+        y:window.pageYOffset + e.target.getBoundingClientRect().y
+      }
+      if(type === 'dayoff'){
+        setCurrentDayoff(val)
+      }
+      if(type === 'board'){
+        setCurrentBoard(val)
+      }
+      setTooltipPos(pos)
+    }else{
+      setCurrentDayoff('')
+      setCurrentBoard('')
+      setTooltipPos('')
+    }
+  }
+  
+
 
   return (
     <MainWrapper>
@@ -389,16 +431,17 @@ export default function Main() {
               }
               return `color-github-${value.type}`;
             }}
-            onClick={(value) =>
-              value && alert(`Clicked on value with count: ${value.type}`)
-            }
+            onMouseOver={(e,value)=>{
+              onTooltip(e,value,'dayoff')
+            }}
+            
             showWeekdayLabels={true}
           />
           <ul className="type_info">
             <li className="am_off">오전반차</li>
             <li className="pm_off">오후반차</li>
             <li className="all_off">연차</li>
-          </ul>
+          </ul>          
         </div>
         <div className="divide"></div>
         <Flex justifyContent="space-between" alignItems="center">
@@ -426,9 +469,9 @@ export default function Main() {
               }
               return `board_type_${value.type}`;
             }}
-            onClick={(value) =>
-              value && alert(`Clicked on value with count: ${value.type}`)
-            }
+            onMouseOver={(e,value)=>{
+              onTooltip(e,value,'board')
+            }}
             showWeekdayLabels={true}
           />
           <ul className="type_info">
@@ -443,6 +486,20 @@ export default function Main() {
           </ul>
         </div>
       </div>
+      {currentDayoff &&
+        <HitmapOver pos={tooltipPos} data={currentDayoff}>
+          <p>{currentDayoff.subject}</p>
+          <p>{currentDayoff.date}</p>
+          <p>{currentDayoff.offType}</p>
+        </HitmapOver>
+      }
+      {currentBoard &&
+        <HitmapOver pos={tooltipPos} data={currentBoard}>
+          <p>{currentBoard.subject}</p>
+          <p>{currentBoard.date}</p>
+          <p>{currentBoard.typeName}</p>
+        </HitmapOver>
+      }
     </MainWrapper>
   );
 }
