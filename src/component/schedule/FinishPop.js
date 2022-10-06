@@ -58,7 +58,7 @@ export default function FinishPop({ listData, userInfo, closePopup }) {
       runTransaction(
         ref(db, `user/${listData.userUid.trim()}/dayoff`),
         (pre) => {
-          return pre + listData.daySum;
+          return Number(pre) + Number(listData.daySum);
         }
       ).then(() => {
         update(ref(db, `dayoff/temp/${listData.uid}`), {

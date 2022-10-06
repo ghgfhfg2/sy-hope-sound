@@ -68,7 +68,7 @@ export default function ManagerListPop({
     const target = e.target;
     if(target.checked){
       setTimeout(()=>{
-        const input = document.querySelector(`input[data-uid=${target.value}]`)
+        const input = document.querySelector(`input[data-uid='${target.value}']`)
         const value = input.value;
         const id = input.id.split('_')[0];
         const name = input.id.split('_')[1];
@@ -86,12 +86,12 @@ export default function ManagerListPop({
             id,name,value:checkNum
           })
         }
-        setCheckManager(arr)      
-        document.querySelector(`input[data-uid=${target.value}]`).value = checkNum
+        setCheckManager(arr)    
+        input.value = checkNum
         setCheckNum(pre=>pre+1)
-      },10)
+      },50)
     }else{
-      document.querySelector(`input[data-uid=${target.value}]`).value = checkNum
+      document.querySelector(`input[data-uid='${target.value}']`).value = checkNum
     }
   }
 

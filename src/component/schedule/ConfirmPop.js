@@ -136,11 +136,12 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
     const checkIdx = listData.manager.findIndex(
       (el) => el.id === listData.nextManager.id
     );
-    const userRef = ref(db, `user/${listData.userUid.trim()}/dayoff`);
+    const userRef = ref(db, `user/${listData.userUid.trim()}`);
     const restDayoff = await get(userRef).then((data) => {
-      return data.val();
+      return data.val().dayoff;
     });
     const newDayoff = restDayoff - listData.daySum;
+
     if (newDayoff < 0) {
       toast({
         description: "휴가가 부족합니다.",
@@ -150,7 +151,8 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
       });
       return;
     } else {
-      update(userRef, { ...newDayoff })
+
+      update(userRef, {dayoff:newDayoff})
         .then(() => {
           //결재처리
           return new Promise((resolve) => {

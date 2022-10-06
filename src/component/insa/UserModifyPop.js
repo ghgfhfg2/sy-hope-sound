@@ -75,13 +75,14 @@ export default function UserModifyPop({
   } = useForm();
 
   function onSubmit(values) {
+
     return new Promise((resolve) => {
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
         call: values.call || "",
         part: values.part || "",
         rank: values.rank || "",
-        dayoff: values.dayoff || "",
+        dayoff: Number(values.dayoff) || "",
         manager_uid: values.manager_uid || "",
       })
         .then(() => {
@@ -160,17 +161,12 @@ export default function UserModifyPop({
               <FormControl isInvalid={errors.dayoff}>
                 <Input
                   type="number"
+                  step={0.5}
                   defaultValue={userData.dayoff}
                   placeholder="연차"
-                  {...register("dayoff", {
-                    pattern: /\d/i,
-                  })}
+                  {...register("dayoff")}
                 />
-                <FormErrorMessage>
-                  {errors.dayoff && errors.dayoff.type === "pattern" && (
-                    <>{`연차 숫자만 입력 할 수 있습니다.`}</>
-                  )}
-                </FormErrorMessage>
+
               </FormControl>
 
               <Flex

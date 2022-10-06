@@ -473,7 +473,7 @@ export default function Main() {
         </div>
         <Flex justifyContent="space-between" alignItems="center">
           <h2 className="title">연차내역</h2>
-          <Link href="/board/schedule">
+          <Link href="/schedule">
             <a className="link">
               <Flex alignItems="center">
                 more

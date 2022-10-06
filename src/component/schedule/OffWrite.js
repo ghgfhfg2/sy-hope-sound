@@ -56,10 +56,8 @@ export const DayOffList = styled.ul`
   }
 `;
 
-export default function OffWrite({ userInfo }) {
-  useGetUser();
+export default function OffWrite({ userInfo,userAll }) {
   const toast = useToast();
-  const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
   const {
     setValue,
