@@ -6,6 +6,8 @@ import styled from "styled-components";
 import Link from "next/link";
 import { getAuth, signOut } from "firebase/auth";
 import { Image } from "@chakra-ui/react";
+import { BiUser } from "react-icons/bi";
+import { TbLogout } from "react-icons/tb";
 
 const HeaderTop = styled.div`
   width: 100%;
@@ -68,12 +70,18 @@ const HeaderTop = styled.div`
   }
   .right {
     display: flex;
+    margin-right: 1rem;
     align-items: center;
     height: 100%;
+    li a {
+      padding: 0.5rem;
+    }
   }
 
-  @media screen and (max-width:768px){
-    .menu{display:none}
+  @media screen and (max-width: 768px) {
+    .menu {
+      display: none;
+    }
   }
 `;
 
@@ -119,26 +127,30 @@ function Header({ logoImg }) {
             <li className={router.route.includes("/board/") && "on"}>
               <Link href="/board/wait">결재리스트</Link>
             </li>
-            {userInfo && userInfo.authority?.includes("admin") &&
-            <li className={router.route.includes("/stats/") && "on"}>
-              <Link href="/stats/price">통계</Link>
-            </li>
-            }
+            {userInfo && userInfo.authority?.includes("admin") && (
+              <li className={router.route.includes("/stats/") && "on"}>
+                <Link href="/stats/price">통계</Link>
+              </li>
+            )}
           </ul>
         </div>
         <ul className="right">
           {userInfo && (
             <>
               <li className={router.route.indexOf("/mypage") > -1 && "on"}>
-                <Link href="/mypage">마이페이지</Link>
+                <Link href="/mypage">
+                  <a>
+                    <BiUser style={{ fontSize: "1.2rem" }} />
+                  </a>
+                </Link>
               </li>
               <li>
                 <a href="#" onClick={onLogout}>
-                  로그아웃
+                  <TbLogout style={{ fontSize: "1.2rem" }} />
                 </a>
               </li>
             </>
-          ) }
+          )}
         </ul>
       </HeaderTop>
     </>

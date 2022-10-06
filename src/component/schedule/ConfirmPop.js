@@ -151,8 +151,7 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
       });
       return;
     } else {
-
-      update(userRef, {dayoff:newDayoff})
+      update(userRef, { dayoff: newDayoff })
         .then(() => {
           //결재처리
           return new Promise((resolve) => {

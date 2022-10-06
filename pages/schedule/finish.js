@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import styled from "styled-components";
 import FinishPop from "@component/schedule/FinishPop";
 import None from "@component/None";
+import { Input } from "@chakra-ui/react";
 
 const FinishList = styled(BoardLi)`
   li {
@@ -41,13 +42,13 @@ const FinishList = styled(BoardLi)`
 
 export default function Finish() {
   const userInfo = useSelector((state) => state.user.currentUser);
-  const [selectDate, setSelectDate] = useState(new Date());
+  const [searchDate, setSearchDate] = useState(new Date());
   const [finishList, setFinishList] = useState();
   useEffect(() => {
     const listRef = query(
       ref(db, `dayoff/finish`),
       orderByKey(),
-      equalTo(format(selectDate, "yyyyMM"))
+      equalTo(format(searchDate, "yyyyMM"))
     );
     onValue(listRef, (data) => {
       let listArr = [];
@@ -69,7 +70,7 @@ export default function Finish() {
     return () => {
       off(listRef);
     };
-  }, [userInfo]);
+  }, [userInfo, searchDate]);
 
   const [listData, setListData] = useState();
   const [isConfirmPop, setIsConfirmPop] = useState(false);
@@ -82,8 +83,21 @@ export default function Finish() {
     setIsConfirmPop(false);
   };
 
+  const handleMonth = (e) => {
+    const date = new Date(e.target.value);
+    setSearchDate(date);
+  };
+
   return (
     <>
+      <Input
+        type="month"
+        width="160px"
+        mb={5}
+        onChange={handleMonth}
+        value={format(searchDate, "yyyy-MM")}
+        max={format(new Date(), "yyyy-MM")}
+      />
       <BoardList>
         <FinishList>
           <li className="header">

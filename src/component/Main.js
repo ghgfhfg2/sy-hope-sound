@@ -65,17 +65,23 @@ const MainWrapper = styled.div`
       top: 0;
     }
     .btn_bg_modify {
-      padding:0;
+      padding: 0;
       opacity: 0;
       z-index: -1;
       position: absolute;
       right: 0;
       bottom: 20px;
-      input{width:0;height:0;position:absolute;opacity:0;z-index:-1}
-      label{
-        display:flex;
-        align-items:center;
-        height:100%;
+      input {
+        width: 0;
+        height: 0;
+        position: absolute;
+        opacity: 0;
+        z-index: -1;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        height: 100%;
         padding: 0 12px;
       }
     }
@@ -128,15 +134,19 @@ const MainWrapper = styled.div`
     overflow: hidden;
     background: #eee;
     z-index: 10;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     box-shadow: 0 0 8px rgb(0 0 0 / 50%);
   }
 
   h2.title {
     font-size: 1rem;
     font-weight: 600;
+    .rest_dayoff {
+      font-size: 13px;
+      font-weight: 400;
+    }
   }
 
   .divide {
@@ -238,24 +248,30 @@ const MainWrapper = styled.div`
       fill: #d69e2e;
     }
   }
+
+  .sun-editor-editable table td,
+  .sun-editor-editable table th {
+    padding: 10px 1rem;
+  }
 `;
 
-
 const HitmapOver = styled.div`
-  position:absolute;
-  left:${(props) => `${props.pos.x}px` || 0};
-  top:${(props) => `${props.pos.y}px` || 0};
-  transform:translate(-100%,-100%);
-  border-radius:5px;
-  background:rgba(0,0,0,0.7);
-  color:#fff;
-  padding:5px 1rem;
-`
+  position: absolute;
+  left: ${(props) => `${props.pos.x}px` || 0};
+  top: ${(props) => `${props.pos.y}px` || 0};
+  transform: translate(-100%, -100%);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px 1rem;
+`;
 
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
-  const toast = useToast()
-  const [headerImg, setHeaderImg] = useState("https://source.unsplash.com/1920x250/?colorfull,sky,nature,space");
+  const toast = useToast();
+  const [headerImg, setHeaderImg] = useState(
+    "https://source.unsplash.com/1920x250/?colorfull,sky,nature,space"
+  );
 
   const [curDate, setCurDate] = useState(new Date());
   const [startDate, setStartDate] = useState();
@@ -270,8 +286,8 @@ export default function Main() {
   const [boardList, setBoardList] = useState([]);
   const [boardType, setBoardType] = useState([]);
   useEffect(() => {
-    if(userInfo?.mainBgUrl){
-      setHeaderImg(userInfo.mainBgUrl)
+    if (userInfo?.mainBgUrl) {
+      setHeaderImg(userInfo.mainBgUrl);
     }
 
     const dayoffRef = query(
@@ -325,7 +341,7 @@ export default function Main() {
           let obj = {
             ...el,
             type: typeVal,
-            offType:el.offType,
+            offType: el.offType,
           };
           return obj;
         });
@@ -355,7 +371,7 @@ export default function Main() {
           getBoardType.forEach((type) => {
             if (el.type === type.uid) {
               el.type = type.type;
-              el.typeName = type.title
+              el.typeName = type.title;
             }
           });
           return el;
@@ -372,66 +388,61 @@ export default function Main() {
   const [currentBoard, setCurrentBoard] = useState();
   const [tooltipPos, setTooltipPos] = useState();
   const onCurrentDayoff = async (e) => {
-    setCurrentDayoff(e)
-  }
-  const onTooltip = (e,val,type) => {
-    if(val){
+    setCurrentDayoff(e);
+  };
+  const onTooltip = (e, val, type) => {
+    if (val) {
       let pos = {
-        x:e.target.getBoundingClientRect().x,
-        y:window.pageYOffset + e.target.getBoundingClientRect().y
+        x: e.target.getBoundingClientRect().x,
+        y: window.pageYOffset + e.target.getBoundingClientRect().y,
+      };
+      if (type === "dayoff") {
+        setCurrentDayoff(val);
       }
-      if(type === 'dayoff'){
-        setCurrentDayoff(val)
+      if (type === "board") {
+        setCurrentBoard(val);
       }
-      if(type === 'board'){
-        setCurrentBoard(val)
-      }
-      setTooltipPos(pos)
-    }else{
-      setCurrentDayoff('')
-      setCurrentBoard('')
-      setTooltipPos('')
+      setTooltipPos(pos);
+    } else {
+      setCurrentDayoff("");
+      setCurrentBoard("");
+      setTooltipPos("");
     }
-  }
-
+  };
 
   //백그라운드 설정
   const storage = getStorage();
   const onMainBg = async (e) => {
     const file = e.target.files[0];
-    if(!file) return
-    if(file.type !== "image/gif" &&
-    file.type !== "image/png" &&
-    file.type !== "image/jpeg"){
+    if (!file) return;
+    if (
+      file.type !== "image/gif" &&
+      file.type !== "image/png" &&
+      file.type !== "image/jpeg"
+    ) {
       toast({
         description: "지원하지않는 형식 입니다.",
         status: "error",
         duration: 1000,
         isClosable: false,
       });
-      return
+      return;
     }
-    const resizeImg = await imageResize(file,2000).then(img=>{
-      return img
-    })
-    const newFile = dataURLtoFile(resizeImg,file.name)
-    const storageRef = sRef(
-      storage,
-      `user/background/maninBg`
-    );
+    const resizeImg = await imageResize(file, 2000).then((img) => {
+      return img;
+    });
+    const newFile = dataURLtoFile(resizeImg, file.name);
+    const storageRef = sRef(storage, `user/background/maninBg`);
     const url = await uploadBytes(storageRef, newFile).then((snapshot) => {
       const downloadUrl = getDownloadURL(snapshot.ref);
       return downloadUrl;
     });
-    update(ref(db,`user/${userInfo.uid}`),{
-      mainBgUrl:url
-    })
-    .then(()=>{
-      setHeaderImg(url)
-    })
-  }
-  
-
+    update(ref(db, `user/${userInfo.uid}`), {
+      mainBgUrl: url,
+    }).then(() => {
+      setHeaderImg(url);
+    });
+  };
 
   return (
     <MainWrapper>
@@ -443,9 +454,14 @@ export default function Main() {
         <div className="bg_balck"></div>
         <div className="content_box">
           <Button className="btn_bg_modify">
-            <input type="file" id="bg_input" onInput={onMainBg} accept="image/*" />
+            <input
+              type="file"
+              id="bg_input"
+              onInput={onMainBg}
+              accept="image/*"
+            />
             <label htmlFor="bg_input">
-            <MdImageSearch style={{ fontSize: "20px" }} />
+              <MdImageSearch style={{ fontSize: "20px" }} />
             </label>
           </Button>
         </div>
@@ -457,14 +473,13 @@ export default function Main() {
               <div
                 style={{
                   background: `url(${userInfo.profile}) no-repeat center center/cover`,
-                  width:"100%",
+                  width: "100%",
                   height: "100%",
                 }}
               />
             ) : (
-              <FaUser style={{fontSize:"95px",color:"#bbb"}} />
-            )
-          }
+              <FaUser style={{ fontSize: "95px", color: "#bbb" }} />
+            )}
           </div>
           <h3>{userInfo && userInfo.name}</h3>
           <Button variant="outline" className="btn_modify" size="sm">
@@ -472,7 +487,12 @@ export default function Main() {
           </Button>
         </div>
         <Flex justifyContent="space-between" alignItems="center">
-          <h2 className="title">연차내역</h2>
+          <h2 className="title">
+            연차내역{" "}
+            <span className="rest_dayoff">
+              (남은연차 : {userInfo?.dayoff ? `${userInfo.dayoff} 개` : "0 개"})
+            </span>
+          </h2>
           <Link href="/schedule">
             <a className="link">
               <Flex alignItems="center">
@@ -496,17 +516,16 @@ export default function Main() {
               }
               return `color-github-${value.type}`;
             }}
-            onMouseOver={(e,value)=>{
-              onTooltip(e,value,'dayoff')
+            onMouseOver={(e, value) => {
+              onTooltip(e, value, "dayoff");
             }}
-            
             showWeekdayLabels={true}
           />
           <ul className="type_info">
             <li className="am_off">오전반차</li>
             <li className="pm_off">오후반차</li>
             <li className="all_off">연차</li>
-          </ul>          
+          </ul>
         </div>
         <div className="divide"></div>
         <Flex justifyContent="space-between" alignItems="center">
@@ -534,8 +553,8 @@ export default function Main() {
               }
               return `board_type_${value.type}`;
             }}
-            onMouseOver={(e,value)=>{
-              onTooltip(e,value,'board')
+            onMouseOver={(e, value) => {
+              onTooltip(e, value, "board");
             }}
             showWeekdayLabels={true}
           />
@@ -551,20 +570,20 @@ export default function Main() {
           </ul>
         </div>
       </div>
-      {currentDayoff &&
+      {currentDayoff && (
         <HitmapOver pos={tooltipPos} data={currentDayoff}>
           <p>{currentDayoff.subject}</p>
           <p>{currentDayoff.date}</p>
           <p>{currentDayoff.offType}</p>
         </HitmapOver>
-      }
-      {currentBoard &&
+      )}
+      {currentBoard && (
         <HitmapOver pos={tooltipPos} data={currentBoard}>
           <p>{currentBoard.subject}</p>
           <p>{currentBoard.date}</p>
           <p>{currentBoard.typeName}</p>
         </HitmapOver>
-      }
+      )}
     </MainWrapper>
   );
 }
