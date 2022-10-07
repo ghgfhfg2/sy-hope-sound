@@ -13,7 +13,6 @@ const HeaderTop = styled.div`
   width: 100%;
   background: #fff;
   box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
-  color: #fff;
   font-size: 12px;
   padding-right: 1rem;
   height: 60px;
@@ -138,6 +137,7 @@ function Header({ logoImg }) {
           {userInfo && (
             <>
               <li className={router.route.indexOf("/mypage") > -1 && "on"}>
+                <span style={{marginRight:"10px"}}>{userInfo.name} 님 환영합니다.</span>
                 <Link href="/mypage">
                   <a>
                     <BiUser style={{ fontSize: "1.2rem" }} />

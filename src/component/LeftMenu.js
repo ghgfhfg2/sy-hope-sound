@@ -89,6 +89,7 @@ function LeftMunu({ userInfo }) {
     onValue(listRef, (data) => {
       let count = 0;
       data.forEach((el) => {
+        console.log(el.val().writer_uid,userInfo.uid)
         if (
           el.val().nextManager.uid === userInfo.uid ||
           el.val().writer_uid === userInfo.uid
@@ -96,16 +97,17 @@ function LeftMunu({ userInfo }) {
           count++;
         }
       });
-      setBoardWait((pre) => {
-        if (pre === count) {
-          return pre;
-        } else {
-          setTimeout(() => {
-            setReCount(!reCount);
-          }, 100);
-          return count;
-        }
-      });
+      setBoardWait(count)
+      // setBoardWait((pre) => {
+      //   if (pre === count) {
+      //     return pre;
+      //   } else {
+      //     setTimeout(() => {
+      //       setReCount(!reCount);
+      //     }, 100);
+      //     return count;
+      //   }
+      // });
     });
     setWaitCount(`결재요청(${boardWait})`);
     return () => {

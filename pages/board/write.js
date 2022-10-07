@@ -79,6 +79,16 @@ export default function Write() {
   };
 
   const onSubmit = async (values) => {
+    if(writeOption.price){
+      if(!values.income && !values.spend){
+        toast({
+          description: "소득 혹은 지출금액을 입력해 주세요.",
+          status: "error",
+          duration: 1000,
+          isClosable: false,
+        });
+      }
+    }
     const uid = shortid.generate();
     const CurDate = new Date();
     let imgUrl;
@@ -365,7 +375,7 @@ export default function Write() {
             </FormControl>
             {writeOption?.date && (
               <>
-                <FormControl>
+                <FormControl isInvalid={errors.date}>
                   <div className="row_box">
                     <FormLabel className="label" htmlFor="date">
                       날짜
@@ -375,9 +385,15 @@ export default function Write() {
                       type="date"
                       className="xs"
                       placeholder="날짜"
-                      {...register("date")}
+                      register={register}
+                      {...register("date", {
+                        required: "날짜는 필수항목 입니다.",
+                      })}
                     />
                   </div>
+                  <FormErrorMessage>
+                    {errors.date && errors.date.message}
+                  </FormErrorMessage>
                 </FormControl>
               </>
             )}
@@ -467,7 +483,6 @@ export default function Write() {
                 type="submit"
               >
                 제출
-                {isSubmitting}
               </Button>
             </Flex>
           </Flex>

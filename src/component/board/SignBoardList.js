@@ -81,9 +81,16 @@ export default function SignBoardList({ stateType }) {
           let writer = userAll.find(
             (user) => user.uid === el.val()[key].writer_uid
           );
-          if (
-            mg_list.includes(userInfo.uid) ||
+          let viewCheck;
+          if (stateType === "ing"){
+            viewCheck = el.val()[key].nextManager.uid === userInfo.uid ||
             el.val()[key].writer_uid === userInfo.uid
+          }else{
+            viewCheck = mg_list.includes(userInfo.uid) ||
+            el.val()[key].writer_uid === userInfo.uid
+          }
+          if (
+            viewCheck
           ) {
             let obj = {
               ...el.val()[key],

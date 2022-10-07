@@ -375,6 +375,8 @@ export default function Setting() {
   };
 
   const onSubmit = (values) => {
+    console.log(values)
+    return
     let newValues;
     return new Promise((resolve) => {
       uploadBytes(logoRef, values.logo[0]);
@@ -488,7 +490,7 @@ export default function Setting() {
                     readOnly
                     className="input sm"
                     placeholder="기본 관리자"
-                    defaultValue={settingState.admin}
+                    defaultValue={settingState?.admin}
                     {...register("admin")}
                   />
                   <Button onClick={onAdminPop} colorScheme="teal" ml={2}>
