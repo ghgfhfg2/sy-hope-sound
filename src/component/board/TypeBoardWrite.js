@@ -16,7 +16,7 @@ import {
   Box,
   useRadioGroup,
   useToast,
-  Checkbox
+  Checkbox,
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
@@ -33,7 +33,7 @@ import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
-import { CommonForm } from "pages/insa/setting";
+import { CommonForm } from "pages/setting";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
@@ -126,16 +126,17 @@ export default function TypeBoard() {
             {initTypeCon && initTypeCon.date ? (
               <>
                 <Checkbox
-                colorScheme="teal"
-                defaultChecked
-                {...register("date")}
-              >날짜입력</Checkbox>
+                  colorScheme="teal"
+                  defaultChecked
+                  {...register("date")}
+                >
+                  날짜입력
+                </Checkbox>
               </>
             ) : (
-              <Checkbox
-              colorScheme="teal"
-              {...register("date")}
-            >날짜입력</Checkbox>
+              <Checkbox colorScheme="teal" {...register("date")}>
+                날짜입력
+              </Checkbox>
             )}
             <FormErrorMessage>
               {errors.date && errors.date.message}
@@ -146,16 +147,17 @@ export default function TypeBoard() {
             {initTypeCon && initTypeCon.price ? (
               <>
                 <Checkbox
-                colorScheme="teal"
-                defaultChecked
-                {...register("price")}
-              >금액(지출/수입)</Checkbox>
+                  colorScheme="teal"
+                  defaultChecked
+                  {...register("price")}
+                >
+                  금액(지출/수입)
+                </Checkbox>
               </>
             ) : (
-              <Checkbox
-              colorScheme="teal"
-              {...register("price")}
-            >금액(지출/수입)</Checkbox>
+              <Checkbox colorScheme="teal" {...register("price")}>
+                금액(지출/수입)
+              </Checkbox>
             )}
             <FormErrorMessage>
               {errors.price && errors.price.message}

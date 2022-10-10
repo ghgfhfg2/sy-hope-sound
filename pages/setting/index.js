@@ -14,7 +14,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import useGetUser from "@component/hooks/getUserDb";
-import {imageResize} from "@component/hooks/useImgResize";
+import { imageResize } from "@component/hooks/useImgResize";
 import { AiOutlineDelete, AiOutlineEnter } from "react-icons/ai";
 import { HiOutlinePlus } from "react-icons/hi";
 import { BsPencilSquare, BsListCheck, BsUpload } from "react-icons/bs";
@@ -198,6 +198,18 @@ export default function Setting() {
   const closeAdminPop = () => {
     setIsAdminPop(false);
   };
+
+  const [selectAdmin, setSelectAdmin] = useState();
+
+  useEffect(() => {
+    if (userAll) {
+      let adminList = userAll.filter((el) => {
+        return el.authority?.includes("admin");
+      });
+      setSelectAdmin(adminList);
+    }
+  }, [userAll]);
+
   const onSelectAdmin = (checkedItems) => {
     const newUserAll = userAll.map((el) => {
       let userRef = ref(db, `user/${el.uid}`);
@@ -222,6 +234,7 @@ export default function Setting() {
       }
       return el;
     });
+    setSelectAdmin();
     dispatch(updateAllUser(newUserAll));
     closeAdminPop();
   };
@@ -408,7 +421,6 @@ export default function Setting() {
       uploadBytes(logoRef, values.logo[0]);
       newValues = {
         ...values,
-        admin: values.admin,
         part: partList,
         rank: rankList,
       };
@@ -517,18 +529,16 @@ export default function Setting() {
                       <BsListCheck style={{ marginLeft: "5px" }} />
                     </Button>
                     <ul className="manager_list">
-                      {userAll &&
-                        userAll.map((el) => {
-                          if (el.authority?.includes("admin")) {
-                            return (
-                              <li>
-                                {el.name}
-                                {el.rank && `(${el.rank})`}
-                                {el.part && `- ${el.part}`}
-                              </li>
-                            );
-                          }
-                        })}
+                      {selectAdmin &&
+                        selectAdmin.map((el) => (
+                          <>
+                            <li>
+                              {el.name}
+                              {el.rank && `(${el.rank})`}
+                              {el.part && `- ${el.part}`}
+                            </li>
+                          </>
+                        ))}
                     </ul>
                   </Box>
                 </div>

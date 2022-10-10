@@ -8,6 +8,7 @@ import {
   Button,
   Flex,
   useToast,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import useGetUser from "@component/hooks/getUserDb";
 
@@ -20,7 +21,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-import { CommonForm } from "pages/insa/setting";
+import { CommonForm } from "pages/setting";
 import ProfileUpload from "@component/mypage/ProfileUpload";
 import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 
@@ -186,16 +187,23 @@ export default function Mypage() {
               <FormControl isInvalid={errors.call} className="row_section">
                 <div className="row_box">
                   <FormLabel className="label" htmlFor="call">
-                    전화번호
+                    휴대폰번호
                   </FormLabel>
                   <Input
                     id="call"
                     type="number"
                     defaultValue={userData.call}
                     className="input xs"
-                    {...register("call")}
+                    {...register("call", {
+                      pattern: /^01([0|1|6|7|8|9]?)([0-9]{3,4})([0-9]{4})$/,
+                    })}
                   />
                 </div>
+                <FormErrorMessage>
+                  {errors.call && errors.call.type === "pattern" && (
+                    <>{`휴대폰번호 양식에 맞지 않습니다.`}</>
+                  )}
+                </FormErrorMessage>
               </FormControl>
               {/* submit */}
               <Flex

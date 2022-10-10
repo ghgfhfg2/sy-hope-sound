@@ -75,7 +75,6 @@ export default function UserModifyPop({
   } = useForm();
 
   function onSubmit(values) {
-
     return new Promise((resolve) => {
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
@@ -149,12 +148,12 @@ export default function UserModifyPop({
                   defaultValue={userData.call}
                   placeholder="전화번호"
                   {...register("call", {
-                    pattern: /\d/i,
+                    pattern: /^01([0|1|6|7|8|9]?)([0-9]{3,4})([0-9]{4})$/,
                   })}
                 />
                 <FormErrorMessage>
                   {errors.call && errors.call.type === "pattern" && (
-                    <>{`전화번호는 숫자만 입력 할 수 있습니다.`}</>
+                    <>{`휴대폰번호 양식에 맞지 않습니다.`}</>
                   )}
                 </FormErrorMessage>
               </FormControl>
@@ -166,7 +165,6 @@ export default function UserModifyPop({
                   placeholder="연차"
                   {...register("dayoff")}
                 />
-
               </FormControl>
 
               <Flex

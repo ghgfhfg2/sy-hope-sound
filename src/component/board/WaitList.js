@@ -55,14 +55,12 @@ export default function SignBoardList() {
     const listRef = query(
       ref(db, `board/list`),
       orderByChild("state"),
-      equalTo("finish")
+      equalTo("ing")
     );
     onValue(listRef, (el) => {
       if (userInfo && userAll) {
         let listArr = [];
         for (const key in el.val()) {
-          console.log(el.val());
-          return;
           let mg_list = [];
           mg_list = el.val()[key].manager.map((el) => el.uid);
           let writer = userAll.find(

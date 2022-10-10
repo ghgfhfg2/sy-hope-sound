@@ -32,7 +32,7 @@ import { format, getYear, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
-import { CommonForm } from "pages/insa/setting";
+import { CommonForm } from "pages/setting";
 // import Editor from "@component/board/Editor";
 import ComRadio from "@component/ComRadio";
 import ManagerListPop from "@component/board/ManagerListPop";
@@ -79,8 +79,8 @@ export default function Write() {
   };
 
   const onSubmit = async (values) => {
-    if(writeOption.price){
-      if(!values.income && !values.spend){
+    if (writeOption.price) {
+      if (!values.income && !values.spend) {
         toast({
           description: "소득 혹은 지출금액을 입력해 주세요.",
           status: "error",

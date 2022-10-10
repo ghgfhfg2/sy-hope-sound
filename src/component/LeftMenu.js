@@ -15,6 +15,8 @@ import {
   orderByChild,
   equalTo,
 } from "firebase/database";
+import { updateDayoffCount } from "@redux/actions/counter_action";
+import { setBoardCount } from "@redux/actions/counter_action";
 
 const LeftMenu = styled.nav`
   width: 200px;
@@ -53,8 +55,9 @@ const LeftMenu = styled.nav`
 function LeftMunu({ userInfo }) {
   const router = useRouter().route;
   const dispatch = useDispatch();
-  const [dayoffReady, setDayoffReady] = useState("결재대기");
-  const [dayoffCountNum, setDayoffCountNum] = useState(0);
+  const dayoffCheckNum = useSelector((state) => state.counter.dayoffCount);
+  const boardCount = useSelector((state) => state.counter.boardCount);
+
   useEffect(() => {
     let countRef;
     countRef = query(ref(db, `dayoff/temp`));
@@ -62,58 +65,51 @@ function LeftMunu({ userInfo }) {
       onValue(countRef, (data) => {
         let count = 0;
         for (const key in data.val()) {
+          let mgList = data.val()[key].manager.map((mg) => mg.id);
           if (
-            data.val()[key].nextManager.id === userInfo.uid ||
-            data.val()[key].userUid === userInfo.uid
+            mgList.includes(userInfo?.uid) ||
+            data.val()[key].userUid === userInfo?.uid
           ) {
             count++;
           }
         }
-        setDayoffCountNum(count);
+        dispatch(updateDayoffCount(count));
       });
     }
     return () => {
       off(countRef);
     };
-  }, [userInfo, router]);
+  }, [userInfo]);
 
   const [boardWait, setBoardWait] = useState(0);
-  const [waitCount, setWaitCount] = useState("결재대기");
-  const [reCount, setReCount] = useState(false);
+
   useEffect(() => {
     const listRef = query(
       ref(db, `board/list`),
       orderByChild("state"),
       equalTo("ing")
     );
-    onValue(listRef, (data) => {
-      let count = 0;
-      data.forEach((el) => {
-        console.log(el.val().writer_uid,userInfo.uid)
-        if (
-          el.val().nextManager.uid === userInfo.uid ||
-          el.val().writer_uid === userInfo.uid
-        ) {
-          count++;
-        }
+    if (router.includes("/board")) {
+      onValue(listRef, (data) => {
+        let count = 0;
+        data.forEach((el) => {
+          let mg_list = [];
+          mg_list = el.val().manager.map((el) => el.uid);
+          if (
+            mg_list.includes(userInfo.uid) ||
+            el.val().writer_uid === userInfo.uid
+          ) {
+            count++;
+          }
+        });
+        setBoardWait(count);
+        dispatch(setBoardCount(count));
       });
-      setBoardWait(count)
-      // setBoardWait((pre) => {
-      //   if (pre === count) {
-      //     return pre;
-      //   } else {
-      //     setTimeout(() => {
-      //       setReCount(!reCount);
-      //     }, 100);
-      //     return count;
-      //   }
-      // });
-    });
-    setWaitCount(`결재요청(${boardWait})`);
+    }
     return () => {
       off(listRef);
     };
-  }, [userInfo, reCount]);
+  }, [userInfo, router]);
 
   return (
     <>
@@ -157,7 +153,7 @@ function LeftMunu({ userInfo }) {
               </li>
               <li className={router === "/schedule/sign_ready" ? "on" : ""}>
                 <Link href="/schedule/sign_ready">
-                  <a>결재대기({dayoffCountNum})</a>
+                  <a>결재요청({dayoffCheckNum})</a>
                 </Link>
               </li>
               <li className={router === "/schedule/finish" ? "on" : ""}>
@@ -170,7 +166,9 @@ function LeftMunu({ userInfo }) {
           <>
             <ul className="depth_1">
               <li className={router.includes("/board/wait") ? "on" : ""}>
-                <Link href="/board/wait">{waitCount}</Link>
+                <Link href="/board/wait">
+                  <a>결재요청({boardCount})</a>
+                </Link>
               </li>
               <li className={router.includes("/board/list") ? "on" : ""}>
                 <Link href="/board/list">결재완료</Link>
@@ -186,6 +184,18 @@ function LeftMunu({ userInfo }) {
             <ul className="depth_1">
               <li className={router.includes("/stats/price") ? "on" : ""}>
                 <Link href="/stats/price">소득/지출</Link>
+              </li>
+            </ul>
+          </>
+        )}
+        {router.includes("/mypage") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/mypage" ? "on" : ""}>
+                <Link href="/mypage">기본정보</Link>
+              </li>
+              <li className={router.includes("/mypage/dayoff") ? "on" : ""}>
+                <Link href="/mypage/dayoff">연차내역</Link>
               </li>
             </ul>
           </>

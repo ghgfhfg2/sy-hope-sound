@@ -92,7 +92,12 @@ export const ConfirmPopup = styled(CommonPopup)`
   }
 `;
 
-export default function ConfirmPop({ listData, userInfo, closePopup }) {
+export default function ConfirmPop({
+  listData,
+  userInfo,
+  closePopup,
+  onRender,
+}) {
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -171,8 +176,10 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                 resolve();
               });
             } else {
+              let restDayoff = newDayoff;
               listData.list.forEach((el) => {
                 let d = el.date.split("-").join("");
+                restDayoff -= el.day;
                 update(ref(db, `dayoff/list/${d}/${shortid.generate()}`), {
                   ...el,
                   uid: listData.uid,
@@ -181,6 +188,7 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                   manager: listData.manager,
                   reason: listData.reason,
                   subject: listData.subject,
+                  restDayoff,
                 })
                   .then(() => {
                     update(
@@ -200,6 +208,9 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
                       duration: 1000,
                       isClosable: false,
                     });
+                  })
+                  .then(() => {
+                    onRender();
                     closePopup();
                     resolve();
                   })
@@ -216,6 +227,23 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
           resolve();
         });
     }
+  };
+
+  const onCancel = () => {
+    const curIdx = listData.manager.findIndex((el) => el.id === userInfo.uid);
+    update(ref(db, `dayoff/temp/${listData.uid}`), {
+      ...listData,
+      nextManager: listData.cancelManager,
+      cancelManager: listData.manager[curIdx - 1] || "",
+    }).then(() => {
+      toast({
+        description: "결제취소 되었습니다.",
+        status: "success",
+        duration: 1000,
+        isClosable: true,
+      });
+      closePopup();
+    });
   };
 
   const onRemove = (uid) => {
@@ -265,6 +293,11 @@ export default function ConfirmPop({ listData, userInfo, closePopup }) {
               {listData.nextManager.id === userInfo?.uid && (
                 <Button onClick={onSubmit} colorScheme="teal">
                   결재
+                </Button>
+              )}
+              {listData.cancelManager.id === userInfo?.uid && (
+                <Button onClick={onCancel} colorScheme="teal">
+                  결재취소
                 </Button>
               )}
               {ownCheck && (

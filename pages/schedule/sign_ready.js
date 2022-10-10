@@ -1,6 +1,6 @@
 import BoardList, { BoardLi } from "@component/BoardList";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { db } from "src/firebase";
 import {
   ref,
@@ -19,6 +19,7 @@ import { format, setDate } from "date-fns";
 import styled from "styled-components";
 import ConfirmPop from "@component/schedule/ConfirmPop";
 import None from "@component/None";
+import { updateDayoffCount } from "@redux/actions/counter_action";
 
 const ReadyList = styled(BoardLi)`
   li {
@@ -48,8 +49,15 @@ const ReadyList = styled(BoardLi)`
 `;
 
 export default function SignReady() {
+  const dispatch = useDispatch();
+  const counterCheck = useSelector((state) => state.counter.dayoffCheck);
   const userInfo = useSelector((state) => state.user.currentUser);
   const [readyList, setReadyList] = useState();
+  const [render, setRender] = useState(false);
+  const onRender = () => {
+    setRender(!render);
+  };
+
   useEffect(() => {
     let listRef;
     listRef = query(ref(db, `dayoff/temp`));
@@ -68,16 +76,16 @@ export default function SignReady() {
         listArr.push(obj);
       });
       listArr = listArr.filter((el) => {
-        return (
-          el.nextManager.id === userInfo?.uid || el.userUid === userInfo?.uid
-        );
+        let mg_list = el.manager.map((mg) => mg.id);
+        return mg_list.includes(userInfo?.uid) || el.userUid === userInfo?.uid;
       });
       setReadyList(listArr);
+      dispatch(updateDayoffCount(listArr.length));
     });
     return () => {
       off(listRef);
     };
-  }, [userInfo]);
+  }, [userInfo, render]);
 
   const [listData, setListData] = useState();
   const [isConfirmPop, setIsConfirmPop] = useState(false);
@@ -121,6 +129,7 @@ export default function SignReady() {
           userInfo={userInfo}
           listData={listData}
           closePopup={closePopup}
+          onRender={onRender}
         />
       )}
     </>

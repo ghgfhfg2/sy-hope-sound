@@ -1,11 +1,13 @@
 import {
   SET_DAYOFF_COUNT,
-  UPDATE_DAYOFF_COUNT
+  UPDATE_DAYOFF_COUNT,
+  BOARD_COUNT,
 } from "../actions/types";
 
 const initState = {
-  dayoffCount:'',
-  dayoffCheck:false
+  dayoffCount: 0,
+  dayoffCheck: false,
+  boardCount: 0,
 };
 
 const counter = (state = initState, action) => {
@@ -18,7 +20,12 @@ const counter = (state = initState, action) => {
     case UPDATE_DAYOFF_COUNT:
       return {
         ...state,
-        dayoffCheck: action.payload,
+        dayoffCount: action.payload,
+      };
+    case BOARD_COUNT:
+      return {
+        ...state,
+        boardCount: action.payload,
       };
     default:
       return state;

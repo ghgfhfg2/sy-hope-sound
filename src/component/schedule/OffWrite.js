@@ -24,7 +24,7 @@ import RadioCard from "@component/RadioCard";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
-import { CommonForm } from "pages/insa/setting";
+import { CommonForm } from "pages/setting";
 import ManagerListPop from "@component/board/ManagerListPop";
 import useGetUser from "@component/hooks/getUserDb";
 
@@ -56,7 +56,7 @@ export const DayOffList = styled.ul`
   }
 `;
 
-export default function OffWrite({ userInfo,userAll }) {
+export default function OffWrite({ userInfo, userAll }) {
   const toast = useToast();
   const router = useRouter();
   const {

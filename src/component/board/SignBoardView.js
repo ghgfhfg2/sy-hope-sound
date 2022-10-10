@@ -40,7 +40,7 @@ import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import ko from "date-fns/locale/ko";
-import { CommonForm } from "pages/insa/setting";
+import { CommonForm } from "pages/setting";
 import dynamic from "next/dynamic";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
@@ -225,9 +225,8 @@ export default function SignBoardView() {
 
   //결재취소
   const onSignCancel = () => {
-
     const idx = initTypeCon.manager.findIndex((el) => el.uid === userInfo.uid);
-    console.log(initTypeCon.manager,idx)
+    console.log(initTypeCon.manager, idx);
     let newEditor = initTypeCon.editor;
     let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
     let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
@@ -240,7 +239,7 @@ export default function SignBoardView() {
     update(ref(db, `board/list/${queryPath}`), {
       editor: newEditor,
       nextManager: initTypeCon.manager[idx],
-      cancelManager: idx > 0 ? initTypeCon.manager[idx-1] : "",
+      cancelManager: idx > 0 ? initTypeCon.manager[idx - 1] : "",
       state: "ing",
     })
       .then(() => {

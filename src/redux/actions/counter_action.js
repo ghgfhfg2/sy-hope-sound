@@ -1,4 +1,4 @@
-import { SET_DAYOFF_COUNT, UPDATE_DAYOFF_COUNT } from "./types";
+import { SET_DAYOFF_COUNT, UPDATE_DAYOFF_COUNT, BOARD_COUNT } from "./types";
 
 export const setDayoffCount = (count) => {
   return {
@@ -10,5 +10,12 @@ export const updateDayoffCount = (chk) => {
   return {
     type: UPDATE_DAYOFF_COUNT,
     payload: chk,
+  };
+};
+
+export const setBoardCount = (num) => {
+  return {
+    type: BOARD_COUNT,
+    payload: num,
   };
 };
