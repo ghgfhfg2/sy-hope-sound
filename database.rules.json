@@ -5,6 +5,11 @@
         ".indexOn": ["writer_uid", "dateMonth"]
       }
     },
+    "dayoff": {
+      "list": {
+        ".indexOn": ["uid"]
+      }
+    },
     ".read": "true",
     ".write": "auth!=null"
   }

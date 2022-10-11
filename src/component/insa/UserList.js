@@ -9,6 +9,8 @@ import InsaSkeleton from "@component/insa/InsaSkeleton";
 import UserModifyPop from "@component/insa/UserModifyPop";
 import { format } from "date-fns";
 import { RiArrowUpDownFill } from "react-icons/ri";
+import { AiOutlineSetting } from "react-icons/ai";
+import UserDayoffPop from "./UserDayoffPop";
 
 export const ListUl = styled.div`
   display: flex;
@@ -38,6 +40,9 @@ export const ListUl = styled.div`
     .box {
       height: 50px;
       border-bottom: 1px solid #eaeaea;
+      &.dayoff{display:flex;justify-content: flex-end;
+        button{margin-left:10px}
+      }
     }
   }
   .box {
@@ -45,6 +50,7 @@ export const ListUl = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    &.dayoff{flex:0 0 90px}
   }
 `;
 
@@ -132,6 +138,23 @@ export default function UserList() {
     setUserAllState(userAll);
   };
 
+
+  //연차관리 
+  const [isDayoffPop, setIsDayoffPop] = useState(false)
+  const onDayoffPop = async (uid) => {
+    const dbRef = ref(db, `user/${uid}`);
+    const getUser = await get(dbRef);
+    let user = {
+      ...getUser.val(),
+    };
+    setUserData(user);
+    setIsDayoffPop(true)
+  }
+  const closeDayoffPop = () => {
+    setUserData('')
+    setIsDayoffPop(false)
+  }
+
   return (
     <>
       {isLoading ? (
@@ -186,6 +209,7 @@ export default function UserList() {
                         <>
                           <span className="box dayoff">
                             {el.dayoff ? `${el.dayoff}일` : ""}
+                            <Button size="sm" variant='outline' colorScheme="teal" onClick={()=>{onDayoffPop(el.uid)}}><AiOutlineSetting /></Button>
                           </span>
                           <div className="box setting">
                             <Button
@@ -213,6 +237,13 @@ export default function UserList() {
               onRender={onRender}
               closeUserModify={closeUserModify}
             />
+          )}
+          {userData && isDayoffPop && (
+            <UserDayoffPop
+              userData={userData}
+              onRender={onRender}
+              closeDayoffPop={closeDayoffPop}
+          />
           )}
         </>
       ) : (

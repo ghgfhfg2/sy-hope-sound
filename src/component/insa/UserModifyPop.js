@@ -157,7 +157,7 @@ export default function UserModifyPop({
                   )}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={errors.dayoff}>
+              {/* <FormControl isInvalid={errors.dayoff}>
                 <Input
                   type="number"
                   step={0.5}
@@ -165,7 +165,7 @@ export default function UserModifyPop({
                   placeholder="연차"
                   {...register("dayoff")}
                 />
-              </FormControl>
+              </FormControl> */}
 
               <Flex
                 mt={4}

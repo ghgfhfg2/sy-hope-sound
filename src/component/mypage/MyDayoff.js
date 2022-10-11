@@ -65,6 +65,7 @@ export default function MyDayoff() {
         arr.sort((a, b) => {
           return b.timestamp - a.timestamp;
         });
+        arr = arr.filter(el=>el.userUid === userInfo?.uid)
         setDayoffList(arr);
       });
     }

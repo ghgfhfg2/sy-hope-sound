@@ -202,22 +202,21 @@ export default function ConfirmPop({
                   })
                   .then(() => {
                     remove(ref(db, `dayoff/temp/${listData.uid}`));
-                    toast({
-                      description: "결재처리 되었습니다.",
-                      status: "success",
-                      duration: 1000,
-                      isClosable: false,
-                    });
-                  })
-                  .then(() => {
-                    onRender();
-                    closePopup();
-                    resolve();
                   })
                   .catch((error) => {
                     console.error(error);
+                    return;
                   });
               });
+              toast({
+                description: "결재처리 되었습니다.",
+                status: "success",
+                duration: 1000,
+                isClosable: false,
+              });
+              onRender();
+              closePopup();
+              resolve();
             }
           });
           //결재처리

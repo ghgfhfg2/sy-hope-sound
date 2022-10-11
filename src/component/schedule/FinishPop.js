@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { db } from "src/firebase";
 import {
   ref,
+  get,
   set,
   update,
   remove,
@@ -13,6 +14,7 @@ import {
   orderByChild,
   equalTo,
   runTransaction,
+  onValue,
 } from "firebase/database";
 import { ConfirmPopup } from "@component/schedule/ConfirmPop";
 import { DayOffList } from "@component/schedule/OffWrite";
@@ -53,6 +55,8 @@ export default function FinishPop({ listData, userInfo, closePopup }) {
   };
 
   function onSubmit() {
+
+     
     return new Promise((resolve) => {
       let finishDate = format(listData.timestamp, "yyyyMM");
       runTransaction(
@@ -68,16 +72,20 @@ export default function FinishPop({ listData, userInfo, closePopup }) {
         })
           .then(() => {
             listData.list.forEach((el) => {
-              let d = format(new Date(el.date), "yyyyMMdd");
-              remove(
+
+              let d = format(new Date(el.date), "yyyyMMdd");              
+              onValue(
                 query(
                   ref(db, `dayoff/list/${d}`),
-                  orderByValue("uid"),
+                  orderByChild("uid"),
                   equalTo(listData.uid)
-                )
-              ).catch((error) => {
-                console.error(error);
-              });
+                ),
+                data=>{
+                  for(const key in data.val()){
+                    remove(ref(db, `dayoff/list/${d}/${key}`))
+                  }
+                }
+              )
             });
           })
           .then(() => {
