@@ -82,6 +82,9 @@ export default function PriceStats() {
         income: incomeSum,
         spend: spendSum,
       });
+      arr.sort((a,b)=>{
+        return b.date.split('-')[2] - a.date.split('-')[2]
+      })
       setPriceList(arr);
     });
     return () => {};

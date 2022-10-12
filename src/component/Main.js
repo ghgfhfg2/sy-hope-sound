@@ -175,7 +175,7 @@ const MainWrapper = styled.div`
     bottom: 1rem;
     li {
       margin-right: 4px;
-      width: 70px;
+      width: 90px;
       text-align: center;
       color: #fff;
       font-size: 12px;

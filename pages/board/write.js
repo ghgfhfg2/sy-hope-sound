@@ -40,6 +40,7 @@ import UploadBox from "@component/UploadBox";
 import useGetUser from "@component/hooks/getUserDb";
 import { numberToKorean } from "@component/CommonFunc";
 
+
 const BoardWrite = styled(CommonForm)`
   .row_box {
     .price {
@@ -124,7 +125,7 @@ export default function Write() {
 
       let obj = {
         ...values,
-        dateMonth: format(CurDate, "yyyyMM"),
+        dateMonth: format(new Date(values.date), "yyyyMM"),
         imgUrl: imgUrl || "",
         writeOption: writeOption || "",
         editor: editorState,
@@ -188,6 +189,12 @@ export default function Write() {
       setWriteOption({
         ...option,
       });
+
+      if(currentType.manager){
+        setCheckManagerList(currentType.manager)
+      }else{
+        setCheckManagerList('')
+      }
     }
   }, [watchRadio]);
 
@@ -297,9 +304,9 @@ export default function Write() {
     if (!file) {
       return;
     }
-    if (file.size > 2097152) {
+    if (file.size > 4194304) {
       toast({
-        description: "첨부파일 최대용량은 2MB 입니다.",
+        description: "첨부파일 최대용량은 4MB 입니다.",
         status: "error",
         duration: 1000,
         isClosable: false,

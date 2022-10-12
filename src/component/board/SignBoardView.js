@@ -47,6 +47,11 @@ const Editor = dynamic(() => import("@component/board/Editor"), {
 });
 import Link from "next/link";
 import { comma } from "@component/CommonFunc";
+import { CommonPopup } from "@component/insa/UserModifyPop"
+
+const OpinionPopBox = styled(CommonPopup)`
+  .con_box{width:100%;max-width:700px}
+`
 
 const BoardView = styled(CommonForm)`
   .img_list {
@@ -114,6 +119,7 @@ export default function SignBoardView() {
   const {
     setValue,
     watch,
+    getValues,
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
@@ -175,8 +181,8 @@ export default function SignBoardView() {
   const [isSignLoading, setIsSignLoading] = useState(false);
   //결재
   const onSign = () => {
+    const opinion = getValues("opinion");
     setIsSignLoading(true);
-
     let newEditor = initTypeCon.editor;
     initTypeCon.manager.forEach((el, idx) => {
       if (el.uid === userInfo.uid) {
@@ -198,6 +204,7 @@ export default function SignBoardView() {
       nextManager: initTypeCon.manager[curIdx + 1] || "",
       cancelManager: initTypeCon.manager[curIdx],
       state: initTypeCon.manager[curIdx + 1] ? "ing" : "finish",
+      opinion
     })
       .then(() => {
         if (!initTypeCon.manager[curIdx + 1] && initTypeCon.writeOption.price) {
@@ -207,6 +214,7 @@ export default function SignBoardView() {
             subject: initTypeCon.subject,
             income: Number(initTypeCon.income),
             spend: Number(initTypeCon.spend),
+            opinion
           });
         }
       })
@@ -294,8 +302,130 @@ export default function SignBoardView() {
     onCheck === -1 && target.classList.add("on");
   };
 
+
+ 
+
+
+  const [isOpinionPop, setIsOpinionPop] = useState(false)
+  //결재의견 팝업
+  const OpinionPop = () => {
+    return (
+      <>
+        <OpinionPopBox>
+          <div className="con_box">
+            <Flex justifyContent="center" marginTop={3}>
+              <Flex
+                maxWidth={700}
+                width="100%"
+                flexDirection="column"
+                alignItems="center"
+                gap={2}
+              >
+                <FormControl isInvalid={errors.opinion}>
+                  <Input
+                    type="text"
+                    placeholder="결재의견"
+                    {...register("opinion")}
+                  />
+                </FormControl>
+                <Flex
+                  mt={4}
+                  width="100%"
+                  justifyContent="center"
+                >
+                  <Button
+                    mr={2}
+                    width="100%"
+                    maxWidth={150}
+                    variant="outline"
+                    colorScheme="teal"
+                    isLoading={isSubmitting}
+                    onClick={closeOpinionPop}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    width="100%"
+                    maxWidth={150}
+                    colorScheme="teal"
+                    isLoading={isSubmitting}
+                    onClick={onSign}
+                  >
+                    결재
+                  </Button>                  
+                </Flex>
+              </Flex>
+            </Flex>
+          </div>
+          <div className="bg" onClick={closeOpinionPop}></div>
+        </OpinionPopBox>
+      </>
+    )
+  }
+
+  const onOpinionPop = () => {
+    setIsOpinionPop(true)
+  }
+
+  const closeOpinionPop = () => {
+    setIsOpinionPop(false)
+  }
+
   return (
     <BoardView style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
+      {isOpinionPop && 
+        <OpinionPop />
+      }
+      <Flex mb={5} width="100%" justifyContent="center">
+        {initTypeCon?.nextManager.uid === userInfo?.uid && (
+          <Button
+            width="150px"
+            size="lg"
+            ml={2}
+            colorScheme="teal"
+            isLoading={isSignLoading}
+            onClick={onOpinionPop}
+          >
+            결재
+          </Button>
+        )}
+        {initTypeCon && initTypeCon.cancelManager?.uid === userInfo?.uid && (
+          <Button
+            width="150px"
+            size="lg"
+            ml={2}
+            colorScheme="red"
+            isLoading={isSignLoading}
+            onClick={onSignCancel}
+          >
+            결재취소
+          </Button>
+        )}
+        {initTypeCon &&
+          !initTypeCon.cancelManager &&
+          initTypeCon.writer_uid === userInfo?.uid && (
+            <Button
+              width="150px"
+              size="lg"
+              ml={2}
+              colorScheme="red"
+              isLoading={isSignLoading}
+              onClick={onRemove}
+            >
+              삭제
+            </Button>
+          )}
+        <Link href="/board/wait">
+          <Button width="150px" size="lg" colorScheme="teal" ml={2}>
+            대기목록
+          </Button>
+        </Link>
+        <Link href="/board/list">
+          <Button width="150px" size="lg" colorScheme="teal" ml={2}>
+            완료목록
+          </Button>
+        </Link>
+      </Flex>
       <Flex>
         <Flex width="100%" flexDirection="column" gap={5}>
           <FormControl isInvalid={errors.title}>
@@ -411,7 +541,7 @@ export default function SignBoardView() {
                 ml={2}
                 colorScheme="teal"
                 isLoading={isSignLoading}
-                onClick={onSign}
+                onClick={onOpinionPop}
               >
                 결재
               </Button>

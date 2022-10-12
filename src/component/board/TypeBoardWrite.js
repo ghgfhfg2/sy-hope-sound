@@ -38,10 +38,15 @@ const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
 import Link from "next/link";
+import ManagerListPop from "@component/board/ManagerListPop";
+import useGetUser from "@component/hooks/getUserDb";
+import { basicForm } from "@component/BasicForm";
 
 export default function TypeBoard() {
+  useGetUser();
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
+  const userAll = useSelector((state) => state.user.allUser);
   const router = useRouter();
   const {
     setValue,
@@ -53,7 +58,7 @@ export default function TypeBoard() {
 
   const watchRadio = watch("type");
   const watchTitle = watch("title");
-  const [editorState, setEditorState] = useState();
+  const [editorState, setEditorState] = useState(basicForm);
 
   const [initTypeCon, setInitTypeCon] = useState();
   useEffect(() => {
@@ -73,8 +78,8 @@ export default function TypeBoard() {
     setEditorState(value);
   };
   const onSubmit = (values) => {
-    let editCon = editorState || initTypeCon?.editor || "";
-
+    
+    let editCon = initTypeCon?.editor || editorState;
     return new Promise((resolve) => {
       let uid = router.query.id || shortid.generate();
       let obj = {
@@ -82,7 +87,7 @@ export default function TypeBoard() {
         editor: editCon,
         timestamp: new Date().getTime(),
         writer_uid: userInfo.uid,
-        manager: userInfo.manager_uid || "",
+        manager: checkManagerList || "",
         uid,
       };
       const typeRef = ref(db, `board/type_list/${uid}`);
@@ -101,7 +106,101 @@ export default function TypeBoard() {
     });
   };
 
+
+  // 담당자 편집
+  const [managerList, setManagerList] = useState();
+  const [checkManagerList, setCheckManagerList] = useState();
+  useEffect(() => {
+    if (userAll) {
+      let list = userAll.filter((el) => el.manager === 1);
+      setManagerList(list);
+    }
+  }, [userAll]);
+
+  const [isManagerPop, setIsManagerPop] = useState(false);
+  const onManagerPop = () => {
+    if (checkManagerList) {
+      toast({
+        description: "다시 선택하려면 선택취소를 해주세요.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+    } else {
+      setIsManagerPop(true);
+    }
+  };
+  const closeManagerPop = () => {
+    setIsManagerPop(false);
+  };
+  const onSelectManager = (checkedItems) => {
+    let newList = checkedItems.sort((a, b) => {
+      return a.value - b.value;
+    });
+    setCheckManagerList(newList);
+    onManager(newList);
+    closeManagerPop();
+  };
+  const [editorDisable, setEditorDisable] = useState(false);
+  const [insertHtml, setInsertHtml] = useState();
+
+  const onManager = (managerList) => {
+
+    const editor = initTypeCon?.editor || editorState;
+    let newEditor = clearManager(editor, managerList);
+    managerList.forEach((el, idx) => {
+      let pos = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+      newEditor = [
+        newEditor.slice(0, pos + 37),
+        el.name,
+        newEditor.slice(pos + 37),
+      ].join("");
+    });
+    setEditorDisable(true);
+    setInsertHtml(newEditor);
+    setEditorState(newEditor);
+  };
+  const offManager = () => {
+    let newEditor = clearManager(editorState, managerList);
+    setInsertHtml(newEditor);
+    setEditorState(newEditor);
+    setEditorDisable(false);
+    setCheckManagerList("");
+  };
+
+  const clearManager = (editorState, managerList) => {
+    let newEditor = editorState;
+    managerList.forEach((el, idx) => {
+      let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
+      let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
+      newEditor = [newEditor.slice(0, start + 37), newEditor.slice(end)].join(
+        ""
+      );
+    });
+    return newEditor;
+  };
+
+  const onEditor = () => {
+    if (editorDisable) {
+      toast({
+        description: "결재자 선택시 양식을 수정할 수 없습니다.",
+        status: "info",
+        duration: 1000,
+        isClosable: false,
+      });
+    }
+  };
+
   return (
+    <>
+    {isManagerPop && managerList && (
+        <ManagerListPop
+          userData={managerList}
+          closeManagerPop={closeManagerPop}
+          onSelectManager={onSelectManager}
+          isManagerPop={isManagerPop}
+        />
+      )}
     <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
       <Flex>
         <Flex width="100%" flexDirection="column" gap={5}>
@@ -162,17 +261,50 @@ export default function TypeBoard() {
             <FormErrorMessage>
               {errors.price && errors.price.message}
             </FormErrorMessage>
-          </FormControl>
+          </FormControl>          
+          <div onClick={onEditor}>
           {initTypeCon && initTypeCon.editor ? (
             <>
               <Editor
                 initTypeCon={initTypeCon.editor}
                 handleEditor={handleEditor}
+                disable={editorDisable}
+                insertHtml={insertHtml}
               />
             </>
           ) : (
-            <Editor handleEditor={handleEditor} />
+            <Editor 
+              handleEditor={handleEditor} 
+              disable={editorDisable}
+              insertHtml={insertHtml} 
+            />
           )}
+          </div>
+          <FormControl isInvalid={errors.manager}>
+            <div className="row_box">
+              <FormLabel className="label" htmlFor="manager">
+                결재자
+              </FormLabel>
+              <Input
+                type="text"
+                className="sm"
+                value={
+                  checkManagerList &&
+                  checkManagerList.map((el) => el.name)
+                }
+                readOnly
+              />
+              <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                결재자 선택
+              </Button>
+              <Button colorScheme="red" onClick={offManager} ml={2}>
+                선택취소
+              </Button>
+            </div>
+            <FormErrorMessage>
+              {errors.manager && errors.manager.message}
+            </FormErrorMessage>
+          </FormControl>
 
           <Flex mt={4} width="100%" justifyContent="center">
             <Button
@@ -193,5 +325,6 @@ export default function TypeBoard() {
         </Flex>
       </Flex>
     </CommonForm>
+    </>
   );
 }

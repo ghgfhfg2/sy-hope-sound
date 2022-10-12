@@ -124,7 +124,7 @@ function Header({ logoImg }) {
               <Link href="/schedule">일정관리</Link>
             </li>
             <li className={router.route.includes("/board/") && "on"}>
-              <Link href="/board/wait">결재리스트</Link>
+              <Link href="/board/wait">지출결의서</Link>
             </li>
             {userInfo && userInfo.authority?.includes("admin") && (
               <li className={router.route.includes("/stats/") && "on"}>

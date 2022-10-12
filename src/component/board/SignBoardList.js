@@ -26,26 +26,30 @@ import ManagerListPop from "./ManagerListPop";
 import useGetUser from "@component/hooks/getUserDb";
 import { Input } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { comma } from "../CommonFunc";
 
 const SignBoardLi = styled(BoardLi)`
   li {
     .name {
-      max-width: 150px;
+      max-width: 120px;
       flex: 1;
     }
     .subject {
       flex: 1;
     }
     .date {
-      max-width: 150px;
+      max-width: 120px;
       flex: 1;
     }
+    .type{width:150px}
   }
   .body {
     .subject {
       justify-content: flex-start;
       padding: 0 1rem;
     }
+    .income{color:#C53030;font-weight:600}
+    .spend{color:#2B6CB0;font-weight:600}
   }
 `;
 
@@ -56,6 +60,18 @@ export default function SignBoardList({ stateType }) {
   const userAll = useSelector((state) => state.user.allUser);
   const [boardList, setBoardList] = useState();
   const [searchDate, setSearchDate] = useState(new Date());
+
+  const [typeState, setTypeState] = useState()
+  useEffect(() => {
+    get(ref(db,`board/type_list`))
+    .then(data=>{
+      setTypeState(data.val())
+    })
+
+  }, [])
+  
+ 
+
   useEffect(() => {
     const formatDate = format(searchDate, "yyyyMM");
     let listRef;
@@ -97,14 +113,14 @@ export default function SignBoardList({ stateType }) {
               uid: key,
               writer,
               date: format(el.val()[key].timestamp, "yyyyMM"),
-              date_: format(el.val()[key].timestamp, "yyyy-MM-dd"),
+              date_: el.val()[key].date || '',
             };
             listArr.push(obj);
           }
         }
         listArr = listArr.filter((el) => el.state === stateType);
         listArr = listArr.sort((a, b) => {
-          return b.timestamp - a.timestamp;
+          return format(new Date(b.date_),"yyyyMMdd") - format(new Date(a.date_),"yyyyMMdd");
         });
         setBoardList(listArr);
       }
@@ -141,8 +157,12 @@ export default function SignBoardList({ stateType }) {
       <SignBoardLi>
         <li className="header">
           <span className="state">상태</span>
+          <span className="type">유형</span>
           <span className="subject">제목</span>
+          <span className="income">소득</span>
+          <span className="spend">지출</span>
           <span className="name">작성자</span>
+          <span className="date">결재일</span>
           <span className="date">작성일</span>
         </li>
         {boardList &&
@@ -155,11 +175,15 @@ export default function SignBoardList({ stateType }) {
                   ? "결재완료"
                   : ""}
               </span>
+              <span className="type">{typeState && typeState[el.type].title}</span>
               <Link href={`/board/view?id=${el.uid}`}>
                 <span className="subject link">{el.subject}</span>
               </Link>
-              <span className="date">{el?.writer.name}</span>
-              <span className="date">{el.date_}</span>
+              <span className="income">{comma(el.income)}</span>
+              <span className="spend">{comma(el.spend)}</span>
+              <span className="name">{el?.writer.name}</span>
+              <span className="date">{el?.date_}</span>
+              <span className="date">{format(new Date(el.timestamp),'yyyy-MM-dd')}</span>
             </li>
           ))}
         {boardList?.length === 0 && <None />}
