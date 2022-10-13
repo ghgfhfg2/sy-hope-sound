@@ -200,6 +200,18 @@ function LeftMunu({ userInfo }) {
             </ul>
           </>
         )}
+        {router.includes("/partners") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/partners" ? "on" : ""}>
+                <Link href="/partners">협력사 리스트</Link>
+              </li>
+              <li className={router === "/partners/regist" ? "on" : ""}>
+                <Link href="/partners/regist">협력사 등록</Link>
+              </li>
+            </ul>
+          </>
+        )}
       </LeftMenu>
     </>
   );

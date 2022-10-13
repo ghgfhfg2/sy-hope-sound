@@ -179,6 +179,7 @@ export default function Write() {
   }, []);
 
   const [writeOption, setWriteOption] = useState();
+  const [curType, setCurType] = useState()
   useEffect(() => {
     if (watchRadio) {
       const currentType = typeCon.find((el) => el.uid === watchRadio);
@@ -186,6 +187,7 @@ export default function Write() {
         date: currentType.date || false,
         price: currentType.price || false,
       };
+      setCurType(currentType)
       setWriteOption({
         ...option,
       });
@@ -462,12 +464,16 @@ export default function Write() {
                       }
                       readOnly
                     />
+                    {!curType?.manager &&
+                      <>
                     <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
                       결재자 선택
                     </Button>
                     <Button colorScheme="red" onClick={offManager} ml={2}>
                       선택취소
                     </Button>
+                    </>
+                    }
                   </div>
                   <FormErrorMessage>
                     {errors.manager && errors.manager.message}
