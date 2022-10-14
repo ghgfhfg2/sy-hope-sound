@@ -35,12 +35,17 @@ const ManagerSelect = styled(ListUl)`
 `;
 
 export default function ManagerListPop({
+  noNumber,
   userData,
   closeManagerPop,
   onSelectManager,
+  checkManagerList
 }) {
   const [initUser, setInitUser] = useState();
+
+  const [defaultManagerUid, setDefaultManagerUid] = useState()
   useEffect(() => {
+    setDefaultManagerUid(checkManagerList?.map(el=>el.id))
     let useRef = query(ref(db, `user`), orderByChild("manager"), equalTo(1));
     onValue(useRef, (data) => {
       let arr = [];
@@ -91,7 +96,9 @@ export default function ManagerListPop({
         setCheckNum(pre=>pre+1)
       },50)
     }else{
-      document.querySelector(`input[data-uid='${target.value}']`).value = checkNum
+      if(!noNumber){
+        document.querySelector(`input[data-uid='${target.value}']`).value = checkNum
+      }
     }
   }
 
@@ -137,6 +144,7 @@ export default function ManagerListPop({
             <CheckboxGroup
               onChange={onChageCheckItem}
               colorScheme="teal"
+              defaultValue={defaultManagerUid}
             >
               <ul className="body">
                 {userData &&

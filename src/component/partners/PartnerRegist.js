@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
@@ -19,17 +17,17 @@ import {
 } from "@chakra-ui/react";
 
 import { db } from "src/firebase";
-import { ref, set, get, onValue, off } from "firebase/database";
+import { ref, set } from "firebase/database";
 import { format, getYear, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import shortid from "shortid";
 import { CommonForm } from "pages/setting";
 import AddressPop from "../popup/AddressPop";
+import ManagerListPop from "../board/ManagerListPop";
+import { useSelector } from "react-redux";
 
 
-
-
-const BoardWrite = styled(CommonForm)`
+export const BoardWrite = styled(CommonForm)`
   .row_box {
     .price {
       margin-left: 5px;
@@ -39,7 +37,7 @@ const BoardWrite = styled(CommonForm)`
 `;
 
 export default function PartnerRegist() {
-
+  const userAll = useSelector((state) => state.user.allUser);
   const toast = useToast();
   const router = useRouter();
 
@@ -76,6 +74,33 @@ export default function PartnerRegist() {
   }
 
 
+
+  // 담당자 편집
+  const [managerList, setManagerList] = useState();
+  const [checkManagerList, setCheckManagerList] = useState();
+  useEffect(() => {
+    if (userAll) {
+      let list = userAll.filter((el) => el.manager === 1);
+      setManagerList(list);
+    }
+  }, [userAll]);
+
+  const [isManagerPop, setIsManagerPop] = useState(false);
+  const onManagerPop = () => {
+    setIsManagerPop(true);
+  };
+  const closeManagerPop = () => {
+    setIsManagerPop(false);
+  };
+  const onSelectManager = (checkedItems) => {
+    let newList = checkedItems.sort((a, b) => {
+      return a.value - b.value;
+    });
+    setCheckManagerList(newList);
+    closeManagerPop();
+  };  
+
+
   const onSubmit = async (values) => {
     const partnerRef = ref(db,`partners/list/${shortid.generate()}`)
     set(partnerRef,{
@@ -93,6 +118,17 @@ export default function PartnerRegist() {
   }
 
   return (
+    <>
+    {isManagerPop && managerList && (
+      <ManagerListPop
+        noNumber={true}
+        userData={managerList}
+        checkManagerList={checkManagerList}
+        closeManagerPop={closeManagerPop}
+        onSelectManager={onSelectManager}
+        isManagerPop={isManagerPop}
+      />
+    )}
     <BoardWrite style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
       <Flex>
         <Flex width="100%" flexDirection="column" gap={5}>
@@ -213,6 +249,29 @@ export default function PartnerRegist() {
             </FormErrorMessage>
           </FormControl>
 
+          <FormControl isInvalid={errors.manager}>
+            <div className="row_box">
+              <FormLabel className="label" htmlFor="manager">
+                담당자
+              </FormLabel>
+              <Input
+                type="text"
+                className="sm"
+                value={
+                  checkManagerList &&
+                  checkManagerList.map((el) => el.name)
+                }
+                readOnly
+              />
+              <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                담당자 선택
+              </Button>
+            </div>
+            <FormErrorMessage>
+              {errors.manager && errors.manager.message}
+            </FormErrorMessage>
+          </FormControl>
+
           <FormControl isInvalid={errors.etc}>
             <div className="row_box">
               <FormLabel className="label" htmlFor="etc">
@@ -244,5 +303,6 @@ export default function PartnerRegist() {
         </Flex>
       </Flex>
     </BoardWrite>
+    </>
   )
 }
