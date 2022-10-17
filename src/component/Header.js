@@ -126,11 +126,14 @@ function Header({ logoImg }) {
             <li className={router.route.includes("/board/") && "on"}>
               <Link href="/board/wait">지출결의서</Link>
             </li>
+            <li className={router.route.includes("/ragular") && "on"}>
+              <Link href="/ragular">정기결제</Link>
+            </li>
             {userInfo && userInfo.authority?.includes("admin") && (
               <li className={router.route.includes("/stats") && "on"}>
                 <Link href="/stats/price">통계</Link>
               </li>
-            )}
+            )}            
             <li className={router.route.includes("/partners") && "on"}>
               <Link href="/partners">협력사</Link>
             </li>

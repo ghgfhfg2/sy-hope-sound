@@ -12,6 +12,7 @@ import { CommonPopup } from "../insa/UserDayoffPop";
 import ManagerSelect from "@component/popup/ManagerSelect";
 import { CommonForm } from "pages/setting";
 import AddressPop from "../popup/AddressPop";
+import ManagerListPop from "../board/ManagerListPop";
 
 const PartnerModiPopup = styled(CommonPopup)`
 
@@ -54,10 +55,30 @@ export default function PartnersModifyPop({partnerData,managerList,closeModifyPo
     setOpenPostcode(false);
   }
 
+
+ // 담당자 편집
+ const [checkManagerList, setCheckManagerList] = useState(partnerData[0].manager);
+
+ const [isManagerPop, setIsManagerPop] = useState(false);
+ const onManagerPop = () => {
+   setIsManagerPop(true);
+ };
+ const closeManagerPop = () => {
+   setIsManagerPop(false);
+ };
+ const onSelectManager = (checkedItems) => {
+   let newList = checkedItems.sort((a, b) => {
+     return a.value - b.value;
+   });
+   setCheckManagerList(newList);
+   closeManagerPop();
+ };    
+
   const onSubmit = (values) => {
     const pRef = ref(db,`partners/list/${partnerData[1]}`)
     update(pRef,{
-      ...values
+      ...values,
+      manager: checkManagerList || ""
     })
     .then(()=>{
       toast({
@@ -71,6 +92,16 @@ export default function PartnersModifyPop({partnerData,managerList,closeModifyPo
   }
   return (
     <>
+    {isManagerPop && managerList && (
+      <ManagerListPop
+        noNumber={true}
+        userData={managerList}
+        checkManagerList={checkManagerList}
+        closeManagerPop={closeManagerPop}
+        onSelectManager={onSelectManager}
+        isManagerPop={isManagerPop}
+      />
+    )}
     <PartnerModiPopup>
       <div className="con_box">
       <CommonForm style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
@@ -195,6 +226,29 @@ export default function PartnersModifyPop({partnerData,managerList,closeModifyPo
               </div>
               <FormErrorMessage>
                 {errors.role && errors.role.message}
+              </FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.manager}>
+              <div className="row_box">
+                <FormLabel className="label" htmlFor="manager">
+                  담당자
+                </FormLabel>
+                <Input
+                  type="text"
+                  className="lg"
+                  value={
+                    checkManagerList &&
+                    checkManagerList.map((el) => el.name)
+                  }
+                  readOnly
+                />
+                <Button flexShrink="0" colorScheme="teal" onClick={onManagerPop} ml={2}>
+                  담당자 선택
+                </Button>
+              </div>
+              <FormErrorMessage>
+                {errors.manager && errors.manager.message}
               </FormErrorMessage>
             </FormControl>
 

@@ -14,6 +14,7 @@ import { MdOutlineEmail } from "react-icons/md";
 import { FiMapPin } from "react-icons/fi";
 import { BsCommand } from "react-icons/bs";
 import { GoNote } from "react-icons/go";
+import { GrUserManager } from "react-icons/gr";
 import { BiPhoneCall } from "react-icons/bi";
 import PartnersModifyPop from "./PartnersModifyPop";
 import ComConfirm from "../popup/Confirm";
@@ -39,8 +40,8 @@ const PartnersLi = styled.ul`
     }
   }
   @media screen and (min-width:1024px){
-    display:flex;
-    li{width:50%;margin-right:1rem}
+    display:flex;flex-wrap:wrap;
+    li{width: calc(50% - 0.5rem);margin-right:1rem}
     li:nth-child(2n+2){
       margin-right:0;
     }
@@ -69,7 +70,7 @@ export default function PartnerList() {
         if (el.manager == "1") {
           managerArr.push(el);
         }
-      });
+      });      
       setManagerList(managerArr);
     }
   }, [userAll]);
@@ -84,6 +85,12 @@ export default function PartnerList() {
         list[key].uid = key;
         arr.push(list[key])
       }
+      arr = arr.sort((a,b)=>{
+        if(a.name < b.name) return -1;
+        if(a.name > b.name) return 1;
+        if(a.name === b.name) return 0;
+        else return -1;
+      })
       setPartnerList(arr)
     })
   
@@ -143,6 +150,11 @@ export default function PartnerList() {
                 </div>
                 <div className="role">
                   {el.role && <><BsCommand />{el.role}</>}
+                </div>
+                <div className="manager">
+                  {el.manager && <><GrUserManager />{
+                    el.manager.map((el,idx)=><span key={idx}>{el.name}</span>)
+                  }</>}
                 </div>
                 <div className="etc">
                   {el.etc && <><GoNote />{el.etc}</>}

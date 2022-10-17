@@ -104,7 +104,9 @@ export default function PartnerRegist() {
   const onSubmit = async (values) => {
     const partnerRef = ref(db,`partners/list/${shortid.generate()}`)
     set(partnerRef,{
-      ...values
+      ...values,
+      timestamp: new Date().getTime(),
+      manager: checkManagerList || ""
     })
     .then(()=>{
       toast({

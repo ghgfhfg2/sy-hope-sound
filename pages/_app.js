@@ -7,21 +7,36 @@ import "../styles/scss-common.css";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import wrapper from "@redux/store/configureStore";
-import { ChakraProvider, Flex } from "@chakra-ui/react";
+import { Button, ChakraProvider, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { app, auth, db } from "src/firebase";
-import { ref, onValue, off, get } from "firebase/database";
+import { auth, db } from "src/firebase";
+import { ref, onValue, off, get, query, orderByChild, endBefore } from "firebase/database";
 import { getStorage, ref as sRef, getDownloadURL } from "firebase/storage";
 import { signOut } from "firebase/auth";
 import Layout from "@component/Layout";
 import Login from "@component/Login";
 import Loading from "@component/Loading";
 import {setLogo} from "@redux/actions/logo_action"
+import { format, getMonth, getDate } from "date-fns";
+import styled from "styled-components";
+import { AiOutlineAlert } from "react-icons/ai"
+import PaymentAlertPop from "@component/ragular/PaymentAlertPop";
+
+
+const BtnRegular = styled.button`
+  position:fixed;left:2rem;bottom:2rem;
+  background:#ED8936;color:#fff;
+  border-radius:50%;width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;box-shadow:0 0 6px rgba(0,0,0,0.3)
+`
 
 function App({ Component, pageProps }) {
   const storage = getStorage();
   const dispatch = useDispatch();
   const router = useRouter();
+  const userInfo = useSelector((state) => state.user.currentUser);
+  
   const path = router.pathname;
   const [authCheck, setAuthCheck] = useState(false);
   const [isLoading, setisLoading] = useState(true);
@@ -105,6 +120,36 @@ function App({ Component, pageProps }) {
       setisLoading(false);
     });
   }, []);
+
+
+  const [isPaymentPop, setIsPaymentPop] = useState(false)
+  const [regularList, setRegularList] = useState()
+  useEffect(() => {
+    if(userInfo?.authority.includes('admin')){
+      const curMonth = format(new Date(),"yyyyMM")
+      const pRef = query(ref(db,`regular/list`),orderByChild('lastPayment'),endBefore(curMonth))
+      onValue(pRef,data=>{
+        let arr = [];
+        const list = data.val();
+        for(const key in list){
+          list[key].uid = key
+          arr.push(list[key])
+        }
+        setRegularList(arr)
+      })
+
+    }
+  }, [userInfo,router])
+
+  const onPaymentPop = () => {
+    setIsPaymentPop(true)
+  }
+
+  const closePaymentPop = () => {
+    setIsPaymentPop(false)
+  }
+  
+
   const getLayout =
     Component.getLayout ||
     ((page) => {
@@ -123,7 +168,15 @@ function App({ Component, pageProps }) {
         ) : (
           <>
             {authCheck ? (
-              <>{getLayout(<Component {...pageProps} />)}</>
+              <>
+              {regularList && regularList.length > 0 &&
+                <BtnRegular onClick={onPaymentPop}><AiOutlineAlert /></BtnRegular>
+              }
+              {
+                isPaymentPop && <PaymentAlertPop regularList={regularList} closePop={closePaymentPop} />
+              }
+              {getLayout(<Component {...pageProps} />)}
+              </>
             ) : (
               <>
                 {isPublicPath ? (

@@ -14,6 +14,9 @@ import {
 import { CommonPopup } from "@component/insa/UserModifyPop";
 import { ListUl } from "@component/insa/UserList";
 import styled from "styled-components";
+const ManagerSelectPop = styled(CommonPopup)`
+  z-index:500;
+`
 const ManagerSelect = styled(ListUl)`
   width: 90vw;
   max-width: 500px;
@@ -102,7 +105,7 @@ export default function ManagerListPop({
     }
   }
 
-  const [checkManager, setCheckManager] = useState([])
+  const [checkManager, setCheckManager] = useState(checkManagerList || [])
   const onNumber = (e) => {
     const value = e.target.value;
     const id = e.target.id.split('_')[0];
@@ -130,7 +133,7 @@ export default function ManagerListPop({
   }
 
   return (
-    <CommonPopup>
+    <ManagerSelectPop>
       <div className="con_box">
         <ManagerSelect>
           <ul className="header">
@@ -183,6 +186,6 @@ export default function ManagerListPop({
         </Flex>
       </div>
       <div className="bg" onClick={closeManagerPop}></div>
-    </CommonPopup>
+    </ManagerSelectPop>
   );
 }

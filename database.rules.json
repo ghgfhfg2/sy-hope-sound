@@ -10,6 +10,11 @@
         ".indexOn": ["uid"]
       }
     },
+    "regular": {
+      "list": {
+        ".indexOn": ["lastPayment"]
+      }
+    },
     ".read": "true",
     ".write": "auth!=null"
   }
