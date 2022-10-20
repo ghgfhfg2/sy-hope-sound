@@ -23,6 +23,9 @@ export const BoardLi = styled.ul`
       margin-left: auto;
     }
   }
+  @media screen and (max-width: 1024px){
+    overflow:auto;
+  }
 `;
 export default function BoardList({ children }) {
   return <BoardLi>{children}</BoardLi>;

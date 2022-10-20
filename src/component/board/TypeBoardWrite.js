@@ -294,12 +294,14 @@ export default function TypeBoard() {
                 }
                 readOnly
               />
-              <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                결재자 선택
-              </Button>
-              <Button colorScheme="red" onClick={offManager} ml={2}>
-                선택취소
-              </Button>
+              <div className="manager_sel_btn_box">
+                <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                  결재자 선택
+                </Button>
+                <Button colorScheme="red" onClick={offManager} ml={2}>
+                  선택취소
+                </Button>
+              </div>
             </div>
             <FormErrorMessage>
               {errors.manager && errors.manager.message}

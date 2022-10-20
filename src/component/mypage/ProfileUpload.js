@@ -109,7 +109,7 @@ export default function UploadBox({
         <FormLabel
           className="label"
           htmlFor="upload"
-          style={{ width: "160px" }}
+          style={{ width: "160px",marginBottom:"0" }}
         >
           <BiUpload
             style={{

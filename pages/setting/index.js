@@ -55,10 +55,12 @@ export const CommonForm = styled.form`
   }
   .row_box {
     display: flex;
+    margin-bottom:10px;
     align-items: center;
     .label {
       width: 100px;
       margin: 0;
+      font-weight:bold;
       flex-shrink: 0;
     }
     .xs {
@@ -83,8 +85,7 @@ export const CommonForm = styled.form`
     }
   }
   .thumb {
-    max-width: 50px;
-    max-height: 50px;
+    max-height: 40px;
     margin-right: 15px;
   }
   .empty_thumb {
@@ -143,6 +144,38 @@ export const CommonForm = styled.form`
           width: 100%;
         }
       }
+    }
+  }
+  .logo_input_box{display:flex;flex-wrap:wrap;
+    img{margin: 0 10px 10px 0;}
+  }
+  @media screen and (max-width:1024px) {
+    .row_box {
+      display: flex;
+      flex-direction:column;
+      align-items: flex-start;
+      .label {
+        width: 100px;
+        margin: 0;
+        margin-bottom:10px;
+        flex-shrink: 0;
+      }
+      .xs {
+        width: 100%;
+      }
+      .sm {
+        width: 100%;
+      }
+      .md {
+        width: 100%;
+      }
+      .lg {
+        width: 100%;
+      }
+      .read_only {
+        background: #f1f1f1;
+      }   
+      .manager_sel_btn_box{margin-top:10px;justify-content:flex-end;display:flex;width:100%}
     }
   }
 `;
@@ -485,37 +518,39 @@ export default function Setting() {
                   <FormLabel className="label" htmlFor="logo">
                     회사로고
                   </FormLabel>
-                  <input
-                    id="logo"
-                    type="file"
-                    className="input_file sm"
-                    {...register("logo", {
-                      onChange: logoCheck,
-                    })}
-                  />
-                  {logoThumb ? (
-                    <img className="thumb" src={logoThumb} />
-                  ) : (
-                    <div className="empty_thumb">
-                      <MdOutlineImageNotSupported fontSize="18px" />
-                    </div>
-                  )}
-                  <Button colorScheme="teal" type="button" px={0}>
-                    <FormLabel className="btn_upload" htmlFor="logo">
-                      파일첨부
-                      <BsUpload style={{ marginLeft: "5px" }} />
-                    </FormLabel>
-                  </Button>
-                  <Button
-                    onClick={removeLogo}
-                    ml={2}
-                    colorScheme="teal"
-                    variant="outline"
-                    type="button"
-                  >
-                    삭제
-                    <AiOutlineDelete />
-                  </Button>
+                  <div className="logo_input_box">
+                    <input
+                      id="logo"
+                      type="file"
+                      className="input_file"
+                      {...register("logo", {
+                        onChange: logoCheck,
+                      })}
+                    />
+                    {logoThumb ? (
+                      <img className="thumb" src={logoThumb} />
+                    ) : (
+                      <div className="empty_thumb">
+                        <MdOutlineImageNotSupported fontSize="18px" />
+                      </div>
+                    )}
+                    <Button colorScheme="teal" type="button" px={0}>
+                      <FormLabel className="btn_upload" htmlFor="logo">
+                        파일첨부
+                        <BsUpload style={{ marginLeft: "5px" }} />
+                      </FormLabel>
+                    </Button>
+                    <Button
+                      onClick={removeLogo}
+                      ml={2}
+                      colorScheme="teal"
+                      variant="outline"
+                      type="button"
+                    >
+                      삭제
+                      <AiOutlineDelete />
+                    </Button>
+                  </div>
                 </div>
               </FormControl>
               <FormControl isInvalid={errors.admin} className="row_section">
@@ -576,19 +611,21 @@ export default function Setting() {
                     부서
                   </FormLabel>
                   <Box className="lg">
-                    <Input
-                      id="part"
-                      placeholder="추가할 부서명"
-                      className="input xs"
-                      {...register("part")}
-                    />
-                    <Button
-                      onClick={() => onAddPart("part", "part")}
-                      colorScheme="teal"
-                      ml={2}
-                    >
-                      <HiOutlinePlus fontSize="1.1rem" />
-                    </Button>
+                    <Flex>
+                      <Input
+                        id="part"
+                        placeholder="추가할 부서명"
+                        className="input xs"
+                        {...register("part")}
+                      />
+                      <Button
+                        onClick={() => onAddPart("part", "part")}
+                        colorScheme="teal"
+                        ml={2}
+                      >
+                        <HiOutlinePlus fontSize="1.1rem" />
+                      </Button>
+                    </Flex>
                     {partList.length > 0 && (
                       <ul className="part_list">
                         {partList.map((el) => (
@@ -642,19 +679,21 @@ export default function Setting() {
                     직급
                   </FormLabel>
                   <Box className="lg">
-                    <Input
-                      id="rank"
-                      placeholder="추가할 직급명"
-                      className="input xs"
-                      {...register("rank")}
-                    />
-                    <Button
-                      onClick={() => onAddPart("rank", "rank")}
-                      colorScheme="teal"
-                      ml={2}
-                    >
-                      <HiOutlinePlus fontSize="1.1rem" />
-                    </Button>
+                    <Flex>
+                      <Input
+                        id="rank"
+                        placeholder="추가할 직급명"
+                        className="input xs"
+                        {...register("rank")}
+                      />
+                      <Button
+                        onClick={() => onAddPart("rank", "rank")}
+                        colorScheme="teal"
+                        ml={2}
+                      >
+                        <HiOutlinePlus fontSize="1.1rem" />
+                      </Button>
+                    </Flex>
                     {rankList.length > 0 && (
                       <ul className="part_list">
                         {rankList.map((el) => (

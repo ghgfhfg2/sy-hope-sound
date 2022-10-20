@@ -55,7 +55,7 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
       });
     setTimeout(() => {
       setFileList(newFileList);
-    }, 100);
+    }, 200);
   }, [uploadList]);
 
   return (
@@ -67,7 +67,7 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
         <FileList>
           <input type="file" id="upload" onChange={onAddUpload} />
           <Button className="btn_add" colorScheme="teal" variant="outline">
-            <FormLabel className="label" htmlFor="upload">
+            <FormLabel className="label" htmlFor="upload" style={{marginBottom:"0"}}>
               <FiPlus style={{ paddingTop: "2px", marginRight: "3px" }} />
               추가
             </FormLabel>

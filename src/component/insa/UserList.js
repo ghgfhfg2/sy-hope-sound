@@ -13,6 +13,7 @@ import { AiOutlineSetting } from "react-icons/ai";
 import UserDayoffPop from "./UserDayoffPop";
 
 export const ListUl = styled.div`
+  position:relative;
   display: flex;
   flex-direction: column;
   > ul {
@@ -51,6 +52,10 @@ export const ListUl = styled.div`
     justify-content: center;
     align-items: center;
     &.dayoff{flex:0 0 90px}
+  }
+  @media screen and (max-width:1024px) {
+    overflow:auto;
+    padding-bottom:15px;
   }
 `;
 
@@ -160,7 +165,7 @@ export default function UserList() {
       {isLoading ? (
         <>
           <ListUl>
-            <ul className="header">
+            <ul className="header" style={{minWidth:"1000px"}}>
               <li className="box name">이름</li>
               <li className="box part">부서</li>
               <li className="box rank">직급</li>
@@ -185,7 +190,7 @@ export default function UserList() {
                 </>
               )}
             </ul>
-            <ul className="body">
+            <ul className="body" style={{minWidth:"1000px"}}>
               {userAllState &&
                 userAllState.map((el) => (
                   <>

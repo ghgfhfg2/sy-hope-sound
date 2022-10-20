@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "@redux/actions/user_action";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
 import { getAuth, signOut } from "firebase/auth";
-import { Image } from "@chakra-ui/react";
+import { Button, Image,Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure, } from "@chakra-ui/react";
 import { BiUser } from "react-icons/bi";
 import { TbLogout } from "react-icons/tb";
+import { AiOutlineMenu } from "react-icons/ai";
+import MobileMenu from "@component/MobileMenu"
 
 const HeaderTop = styled.div`
   width: 100%;
@@ -76,13 +85,40 @@ const HeaderTop = styled.div`
       padding: 0.5rem;
     }
   }
-
-  @media screen and (max-width: 768px) {
+  .btn_menu{display:none}
+  @media screen and (max-width: 1024px) {
+    padding-right:0;
+    .left{margin-left:1rem}
+    .logo_box{width:auto;
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%,-50%);
+    }
     .menu {
       display: none;
     }
+    .right{display:none}
+    .btn_menu{display:block;
+      border:0;background:none;
+    }
+
   }
+
 `;
+
+const LeftMenuBox = styled.div`
+  @media screen and (max-width: 1024px) {
+    padding: 0 1rem;
+    .right{
+      padding: 15px 0;
+      display:flex;
+      li{
+        display:flex;margin-right:20px;
+      }
+    }
+    .left_menu{display:flex}
+
+  }
+`
 
 function Header({ logoImg }) {
   const dispatch = useDispatch();
@@ -100,10 +136,59 @@ function Header({ logoImg }) {
       });
   };
 
+  const UserMenu = () => {
+    return(
+      <ul className="right">
+        <li className={router.route.indexOf("/mypage") > -1 && "on"}>
+          <span style={{marginRight:"10px"}}>{userInfo.name} 님 환영합니다.</span>
+          <Link href="/mypage">
+            <a>
+              <BiUser style={{ fontSize: "1.2rem" }} />
+            </a>
+          </Link>
+        </li>
+        <li>
+          <a href="#" onClick={onLogout}>
+            <TbLogout style={{ fontSize: "1.2rem" }} />
+          </a>
+        </li>
+      </ul>
+    )
+  }
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const btnRef = useRef()
+
+  useEffect(() => {
+    onClose()
+  }, [router])
+
   return (
-    <>
+    <>      
       <HeaderTop>
+        <Drawer
+          isOpen={isOpen}
+          placement='left'
+          onClose={onClose}
+          finalFocusRef={btnRef}
+        >
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerBody px={0}>
+              <LeftMenuBox>
+                {userInfo && (
+                  <UserMenu />
+                )}
+              </LeftMenuBox>
+              <MobileMenu router={router.route} userInfo={userInfo} onClose={onClose} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+        
         <div className="left">
+          <Button ref={btnRef} onClick={onOpen} className="btn_menu">
+            <AiOutlineMenu />
+          </Button>
           <div className="logo_box">
             <h1 className="logo">
               <Link href="/">
@@ -139,25 +224,9 @@ function Header({ logoImg }) {
             </li>
           </ul>
         </div>
-        <ul className="right">
-          {userInfo && (
-            <>
-              <li className={router.route.indexOf("/mypage") > -1 && "on"}>
-                <span style={{marginRight:"10px"}}>{userInfo.name} 님 환영합니다.</span>
-                <Link href="/mypage">
-                  <a>
-                    <BiUser style={{ fontSize: "1.2rem" }} />
-                  </a>
-                </Link>
-              </li>
-              <li>
-                <a href="#" onClick={onLogout}>
-                  <TbLogout style={{ fontSize: "1.2rem" }} />
-                </a>
-              </li>
-            </>
-          )}
-        </ul>
+        {userInfo && (
+          <UserMenu />
+        )}
       </HeaderTop>
     </>
   );

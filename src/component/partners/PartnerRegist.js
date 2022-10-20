@@ -265,9 +265,11 @@ export default function PartnerRegist() {
                 }
                 readOnly
               />
-              <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                담당자 선택
-              </Button>
+              <div className="manager_sel_btn_box">
+                <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                  담당자 선택
+                </Button>
+              </div>
             </div>
             <FormErrorMessage>
               {errors.manager && errors.manager.message}

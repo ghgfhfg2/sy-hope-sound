@@ -28,7 +28,7 @@ const PaymentPopup = styled(CommonPopup)`
   }
 `
 
-export default function PaymentRegistPop({closePop}) {
+export default function PaymentRegistPop({closePop, initValue}) {
   const incomeRef = useRef();
   const spendRef = useRef();
   const toast = useToast()
@@ -37,6 +37,7 @@ export default function PaymentRegistPop({closePop}) {
     setValue,
     watch,
     handleSubmit,
+    getValues,
     register,
     formState: { errors, isSubmitting },
   } = useForm();
@@ -74,6 +75,28 @@ export default function PaymentRegistPop({closePop}) {
     })
   }
 
+  const onModify = () => {
+    const pRef = ref(db,`regular/list/${initValue.uid}`)
+    let obj = {
+      date: getValues('date'),
+      income: getValues('income'),
+      spend: getValues('spend'),
+      subject: getValues('subject')
+    }
+    update(pRef,{
+      ...obj
+    })
+    .then(()=>{
+      toast({
+        description: "수정되었습니다.",
+        status: "success",
+        duration: 1000,
+        isClosable: false,
+      });
+      closePop()
+    })
+  }
+
   return (
     <>
       <PaymentPopup>
@@ -90,6 +113,7 @@ export default function PaymentRegistPop({closePop}) {
                 <FormControl isInvalid={errors.subject}>
                   <Input
                     type="text"
+                    defaultValue={initValue?.subject}
                     placeholder="제목"
                     {...register("subject", {
                       required: "제목은 필수항목 입니다.",
@@ -104,6 +128,7 @@ export default function PaymentRegistPop({closePop}) {
                     id="date"
                     type="date"
                     placeholder="날짜"
+                    defaultValue={initValue?.date}
                     register={register}
                     {...register("date", {
                       required: "날짜는 필수항목 입니다.",
@@ -118,6 +143,7 @@ export default function PaymentRegistPop({closePop}) {
                     <Input
                       id="income"
                       type="number"
+                      defaultValue={initValue?.income}
                       placeholder="소득금액"
                       {...register("income")}
                       />
@@ -129,29 +155,44 @@ export default function PaymentRegistPop({closePop}) {
                     <Input
                       id="spend"
                       type="number"
+                      defaultValue={initValue?.spend}
                       placeholder="지출금액"
                       {...register("spend")}
                     />
                     <div className="price" ref={spendRef}></div>
                   </div>
                 </FormControl>
-
                 <Flex
                   mt={4}
                   width="100%"
                   flexDirection="column"
                   justifyContent="center"
                 >
-                  <Button
-                    mb={2}
-                    width="100%"
-                    colorScheme="teal"
-                    isLoading={isSubmitting}
-                    type="submit"
-                  >
-                    등록
-                    {isSubmitting}
-                  </Button>
+                  {initValue ? (
+                    <>
+                      <Button
+                      mb={2}
+                      width="100%"
+                      colorScheme="teal"
+                      isLoading={isSubmitting}
+                      onClick={onModify}
+                      >
+                        수정
+                      </Button>
+                    </>
+                  ):(
+                    <>
+                      <Button
+                      mb={2}
+                      width="100%"
+                      colorScheme="teal"
+                      isLoading={isSubmitting}
+                      type="submit"
+                      >
+                        등록
+                      </Button>
+                    </>
+                  )}
                 </Flex>
               </Flex>
             </Flex>

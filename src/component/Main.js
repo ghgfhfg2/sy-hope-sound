@@ -139,6 +139,7 @@ const MainWrapper = styled.div`
     align-items: center;
     box-shadow: 0 0 8px rgb(0 0 0 / 50%);
   }
+  .none_img{ font-size: 95px; color: #bbb}
 
   h2.title {
     font-size: 1rem;
@@ -155,13 +156,21 @@ const MainWrapper = styled.div`
     margin: 2.5rem 0;
     background: #f1f1f1;
   }
-
+  
   .hitmap_box {
     border: 1px solid #ddd;
     padding: 1rem;
     border-radius: 5px;
     margin-top: 1rem;
     position: relative;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    width:100%;
+    overflow:hidden;
+    .react-calendar-heatmap{
+      min-width:900px;
+    }
     .react-calendar-heatmap text {
       font-size: 9px;
       fill: #555;
@@ -170,11 +179,10 @@ const MainWrapper = styled.div`
   .type_info {
     display: flex;
     justify-content: flex-end;
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
+    margin-top: -25px;
+    flex-wrap: wrap;
     li {
-      margin-right: 4px;
+      margin: 0 0 4px 4px;
       width: 90px;
       text-align: center;
       color: #fff;
@@ -204,7 +212,7 @@ const MainWrapper = styled.div`
     background: #3182ce;
   }
   .board_type_2 {
-    background: #718096;
+    background: #2F855A;
   }
   .board_type_3 {
     background: #00b5d8;
@@ -252,6 +260,25 @@ const MainWrapper = styled.div`
   .sun-editor-editable table td,
   .sun-editor-editable table th {
     padding: 10px 1rem;
+  }
+
+  @media screen and (max-width: 1024px){
+    header{height:150px}
+    .content_box.con{padding: 0 1rem 3rem 1rem;}
+    .profile_box{position:relative;display:flex;width:100%;top:0;
+      padding: 1rem 1rem 1rem 0;
+      margin-bottom:10px;
+      align-items:center;
+      h3{margin:0 1rem 0 0}
+      .btn_modify{margin-top:0;
+        margin-left:auto;
+      }
+    }
+    .profile_img{width:50px;height:50px;box-shadow:0 0 5px rgb(0 0 0 / 50%);margin-right:10px;}
+    .none_img{font-size:28px}
+    .type_info{
+      li{width:auto;padding:5px 10px}
+    }
   }
 `;
 
@@ -360,7 +387,7 @@ export default function Main() {
           list[key];
           if (list[key].writer_uid === userInfo?.uid) {
             let obj = {
-              date: format(new Date(list[key].timestamp), "yyyy-MM-dd"),
+              date: format(new Date(list[key].date), "yyyy-MM-dd"),
               type: list[key].type,
               subject: list[key].subject,
             };
@@ -409,6 +436,10 @@ export default function Main() {
       setTooltipPos("");
     }
   };
+
+  const onCurrentHitmap = (val) => {
+    return
+  }
 
   //백그라운드 설정
   const storage = getStorage();
@@ -478,7 +509,7 @@ export default function Main() {
                 }}
               />
             ) : (
-              <FaUser style={{ fontSize: "95px", color: "#bbb" }} />
+              <FaUser className="none_img" />
             )}
           </div>
           <h3>{userInfo && userInfo.name}</h3>
@@ -504,29 +535,30 @@ export default function Main() {
             </a>
           </Link>
         </Flex>
-        <div className="hitmap_box">
-          <CalendarHeatmap
-            gutterSize={2}
-            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-            values={dayOffList}
-            classForValue={(value) => {
-              if (!value) {
-                return "color-empty";
-              }
-              return `color-github-${value.type}`;
-            }}
-            onMouseOver={(e, value) => {
-              onTooltip(e, value, "dayoff");
-            }}
-            showWeekdayLabels={true}
-          />
-          <ul className="type_info">
-            <li className="am_off">오전반차</li>
-            <li className="pm_off">오후반차</li>
-            <li className="all_off">연차</li>
-          </ul>
-        </div>
+        
+          <div className="hitmap_box">
+            <CalendarHeatmap
+              gutterSize={2}
+              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+              values={dayOffList}
+              classForValue={(value) => {
+                if (!value) {
+                  return "color-empty";
+                }
+                return `color-github-${value.type}`;
+              }}
+              onMouseOver={(e, value) => {
+                onTooltip(e, value, "dayoff");
+              }}
+              showWeekdayLabels={true}
+            />
+            <ul className="type_info">
+              <li className="am_off">오전반차</li>
+              <li className="pm_off">오후반차</li>
+              <li className="all_off">연차</li>
+            </ul>
+          </div>
         <div className="divide"></div>
         <Flex justifyContent="space-between" alignItems="center">
           <h2 className="title">결재내역</h2>
@@ -541,34 +573,35 @@ export default function Main() {
             </a>
           </Link>
         </Flex>
-        <div className="hitmap_box">
-          <CalendarHeatmap
-            gutterSize={2}
-            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-            values={boardList}
-            classForValue={(value) => {
-              if (!value) {
-                return "color-empty";
-              }
-              return `board_type_${value.type}`;
-            }}
-            onMouseOver={(e, value) => {
-              onTooltip(e, value, "board");
-            }}
-            showWeekdayLabels={true}
-          />
-          <ul className="type_info">
-            {boardType &&
-              boardType.map((el, idx) => (
-                <>
-                  <li key={idx} className={`board_type_${idx}`}>
-                    {el.title}
-                  </li>
-                </>
-              ))}
-          </ul>
-        </div>
+          <div className="hitmap_box">
+            <CalendarHeatmap
+              gutterSize={2}
+              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+              values={boardList}
+              classForValue={(value) => {
+                if (!value) {
+                  return "color-empty";
+                }
+                return `board_type_${value.type}`;
+              }}
+              onMouseOver={(e, value) => {
+                onTooltip(e, value, "board");
+              }}
+              onClick={(value)=>onCurrentHitmap(value)}
+              showWeekdayLabels={true}
+            />
+            <ul className="type_info">
+              {boardType &&
+                boardType.map((el, idx) => (
+                  <>
+                    <li key={idx} className={`board_type_${idx}`}>
+                      {el.title}
+                    </li>
+                  </>
+                ))}
+            </ul>
+          </div>
       </div>
       {currentDayoff && (
         <HitmapOver pos={tooltipPos} data={currentDayoff}>

@@ -96,7 +96,7 @@ export default function Write() {
     const imgPromise = uploadList.map(async (el) => {
       const storageRef = sRef(
         storage,
-        `board/list/${format(CurDate, "yyyyMMdd")}${uid}/${shortid.generate()}`
+        `board/list/${format(new Date(values.date), "yyyyMMdd")}${uid}/${shortid.generate()}`
       );
       const url = await uploadBytes(storageRef, el).then((snapshot) => {
         const downloadUrl = getDownloadURL(snapshot.ref);
@@ -465,14 +465,14 @@ export default function Write() {
                       readOnly
                     />
                     {!curType?.manager &&
-                      <>
-                    <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                      결재자 선택
-                    </Button>
-                    <Button colorScheme="red" onClick={offManager} ml={2}>
-                      선택취소
-                    </Button>
-                    </>
+                    <div className="manager_sel_btn_box">
+                      <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                        결재자 선택
+                      </Button>
+                      <Button colorScheme="red" onClick={offManager} ml={2}>
+                        선택취소
+                      </Button>
+                    </div>
                     }
                   </div>
                   <FormErrorMessage>

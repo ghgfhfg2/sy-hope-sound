@@ -142,6 +142,15 @@ export const ScheduleCalendar = styled.div`
       opacity: 1;
     }
   }
+
+  @media screen and (max-width:1024px) {
+    .body{
+      .row{
+        flex-direction:column;
+        .disabled{display:none}
+      }
+    }
+  }
 `;
 
 export const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {

@@ -56,6 +56,18 @@ export const DayOffList = styled.ul`
   }
 `;
 
+const DayOffAdd = styled.div`
+  .radio_date_box{display:flex;
+    label{margin-right:7px}
+    .date_box{display:flex}
+  }
+  @media screen and (max-width:1024px){
+    .radio_date_box{flex-direction:column;
+      .date_box{margin-top:10px;}
+    }
+  }
+`
+
 export default function OffWrite({ userInfo, userAll }) {
   const toast = useToast();
   const router = useRouter();
@@ -297,9 +309,11 @@ export default function OffWrite({ userInfo, userAll }) {
                       required: "담당자는 필수항목 입니다.",
                     })}
                   />
+                  <div className="manager_sel_btn_box">
                   <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
                     결재자 선택
                   </Button>
+                  </div>
                 </div>
                 <FormErrorMessage>
                   {errors.manager && errors.manager.message}
@@ -315,8 +329,9 @@ export default function OffWrite({ userInfo, userAll }) {
 
               <div className="row_box">
                 <FormLabel className="label" htmlFor="type"></FormLabel>
-                <Box className="lg">
-                  <HStack {...group}>
+                <DayOffAdd className="lg" {...group}>
+                  <div className="radio_date_box">
+                    <Flex>
                     {options.map((value) => {
                       const radio = getRadioProps({ value });
                       return (
@@ -325,26 +340,29 @@ export default function OffWrite({ userInfo, userAll }) {
                         </RadioCard>
                       );
                     })}
-                    <Box>
-                      <DatePicker
-                        style={{ width: "100px" }}
-                        selected={selectDate}
-                        onChange={(date) => setSelectDate(date)}
-                        locale={ko}
-                        dateFormat="yyyy.MM.dd (eee)"
-                        showPopperArrow={false}
-                        customInput={<Input maxWidth="140px" />}
-                      />
-                    </Box>
-                    <Button
-                      colorScheme="teal"
-                      variant="outline"
-                      onClick={onAddDayoff}
-                    >
-                      <Box fontSize="14px">추가</Box>
-                      <AiOutlinePlus />
-                    </Button>
-                  </HStack>
+                    </Flex>
+                    <div className="date_box">
+                      <Box mr={2}>
+                        <DatePicker
+                          style={{ width: "100px" }}
+                          selected={selectDate}
+                          onChange={(date) => setSelectDate(date)}
+                          locale={ko}
+                          dateFormat="yyyy.MM.dd (eee)"
+                          showPopperArrow={false}
+                          customInput={<Input />}
+                        />
+                      </Box>
+                      <Button
+                        colorScheme="teal"
+                        variant="outline"
+                        onClick={onAddDayoff}
+                      >
+                        <Box fontSize="14px">추가</Box>
+                        <AiOutlinePlus />
+                      </Button>
+                    </div>
+                  </div>
                   {offList?.length > 0 && (
                     <DayOffList>
                       <li className="header">
@@ -379,7 +397,7 @@ export default function OffWrite({ userInfo, userAll }) {
                       </li>
                     </DayOffList>
                   )}
-                </Box>
+                </DayOffAdd>
               </div>
               <Flex mt={4} width="100%" justifyContent="center">
                 <Button

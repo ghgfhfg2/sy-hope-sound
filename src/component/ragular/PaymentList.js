@@ -21,9 +21,10 @@ import { format } from "date-fns";
 import styled from "styled-components";
 import None from "@component/None";
 import Link from "next/link";
-import { Button, Flex, Input } from "@chakra-ui/react";
+import { Button, Flex, Input, useToast } from "@chakra-ui/react";
 import { comma } from "../CommonFunc";
 import PaymentRegistPop from "./PaymentRegistPop";
+import ComConfirm from "../popup/Confirm";
 
 const PaymentLi = styled(BoardLi)`
   li {
@@ -41,17 +42,27 @@ const PaymentLi = styled(BoardLi)`
     .type{width:150px}
   }
   .body {
+    height:auto;
+    align-items:center;
+    padding: 0.7rem 0;
     .subject {
       justify-content: flex-start;
       padding: 0 1rem;
     }
     .income{color:#C53030;font-weight:600}
     .spend{color:#2B6CB0;font-weight:600}
+
+  }
+  @media screen and (max-width: 1024px){
+    overflow:auto;width:100%;
+    li{
+      min-width:650px;
+    }
   }
 `;
 
 export default function PaymentList() {
-
+  const toast = useToast();
   const [boardList, setBoardList] = useState([]);
 
   useEffect(() => {
@@ -60,6 +71,7 @@ export default function PaymentList() {
       let arr = [];
       const list = data.val();
       for(const key in list){
+        list[key].uid = key
         arr.push(list[key])
       }
       setBoardList(arr)
@@ -69,15 +81,31 @@ export default function PaymentList() {
       off(pRef)
     }
   }, [])
-  
-
 
   const [isPaymentPop, setIsPaymentPop] = useState(false);
-  const onPaymentPop = () => {
-    setIsPaymentPop(true)
+  const [isPaymentModiPop, setIsPaymentModiPop] = useState(false)
+  const [paymentData, setPaymentData] = useState()
+  const onPaymentPop = (uid) => {
+    const curData = boardList.filter(el=>el.uid === uid)
+    setPaymentData(curData[0])
+    setIsPaymentModiPop(true)
   }
   const closePaymentPop = () => {
     setIsPaymentPop(false)
+    setIsPaymentModiPop(false)
+  }
+
+  const onRemove = (uid) => {
+    const pRef = ref(db,`regular/list/${uid}`)
+    remove(pRef)
+    .then(()=>{
+      toast({
+        description: "삭제 되었습니다.",
+        status: "success",
+        duration: 1000,
+        isClosable: false,
+      })
+    })
   }
 
   return (
@@ -87,7 +115,9 @@ export default function PaymentList() {
         <span className="subject">제목</span>
         <span className="income">소득</span>
         <span className="spend">지출</span>
+        <span className="date">최근 결재</span>
         <span className="date">결재일</span>
+        <span></span>
       </li>
       {boardList &&
         boardList.map((el) => (
@@ -95,16 +125,34 @@ export default function PaymentList() {
             <span className="subject">{el.subject}</span>
             <span className="income">{comma(el.income)}</span>
             <span className="spend">{comma(el.spend)}</span>
+            <span className="date">{el.lastPayment}</span>
             <span className="date">{el?.date}</span>
+            <span>
+              <Flex flexDirection="column">
+                <Button mb={2} colorScheme="teal" variant="outline" onClick={()=>onPaymentPop(el.uid)}>수정</Button>
+                <ComConfirm 
+                  btnTxt="삭제"
+                  color="red" 
+                  desc="삭제 하시겠습니까?"
+                  closeTxt="취소"
+                  submitTxt="삭제"
+                  submit={onRemove}
+                  submitProps={el.uid}
+                />
+              </Flex>
+            </span>
           </li>
         ))}
       {boardList?.length === 0 && <None />}
     </PaymentLi>
-    <Flex mt={5} justifyContent="flex-end">
+    <Flex mt={5} justifyContent="flex-end">      
       <Button colorScheme="teal" onClick={onPaymentPop}>등록</Button>
     </Flex>
     {isPaymentPop &&
       <PaymentRegistPop closePop={closePaymentPop} />
+    }
+    {isPaymentModiPop && paymentData && 
+      <PaymentRegistPop initValue={paymentData} closePop={closePaymentPop} />
     }
     </>
   )

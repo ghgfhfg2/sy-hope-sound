@@ -51,6 +51,9 @@ const SignBoardLi = styled(BoardLi)`
     .income{color:#C53030;font-weight:600}
     .spend{color:#2B6CB0;font-weight:600}
   }
+  @media screen and (max-width:1024px) {
+    li{min-width:1000px}
+  }
 `;
 
 export default function SignBoardList({ stateType }) {

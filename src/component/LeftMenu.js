@@ -50,6 +50,10 @@ const LeftMenu = styled.nav`
       }
     }
   }
+
+  @media screen and (max-width:1024px) {
+    display:none;
+  }
 `;
 
 function LeftMunu({ userInfo }) {

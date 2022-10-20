@@ -10,10 +10,13 @@ const FooterBox = styled.div`
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    .logo {
-      width: 100px;margin-right:80px;
-    }
-    .footer_con{color:#888}
+  }
+  .logo {
+    width: 100px;margin-right:80px;opacity:0.5
+  }
+  .footer_con{color:#888}
+  @media screen and (max-width: 1024px){
+    .logo{margin-right:2rem;width: 70px;}
   }
 `;
 
