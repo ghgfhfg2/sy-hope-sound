@@ -15,9 +15,10 @@ import {
   orderByKey,
   equalTo,
   orderByChild,
+  orderByValue,
 } from "firebase/database";
 import shortid from "shortid";
-import { format } from "date-fns";
+import { format, addMonths, subYears } from "date-fns";
 import styled from "styled-components";
 import None from "@component/None";
 import Link from "next/link";
@@ -25,6 +26,7 @@ import { Button, Flex, Input, useToast } from "@chakra-ui/react";
 import { comma } from "../CommonFunc";
 import PaymentRegistPop from "./PaymentRegistPop";
 import ComConfirm from "../popup/Confirm";
+import PaymentLogPop from "./PaymentLogPop";
 
 const PaymentLi = styled(BoardLi)`
   li {
@@ -97,8 +99,10 @@ export default function PaymentList() {
 
   const onRemove = (uid) => {
     const pRef = ref(db,`regular/list/${uid}`)
+    const lRef = ref(db,`regular/log/${uid}`)
     remove(pRef)
     .then(()=>{
+      remove(lRef)
       toast({
         description: "삭제 되었습니다.",
         status: "success",
@@ -106,6 +110,27 @@ export default function PaymentList() {
         isClosable: false,
       })
     })
+  }
+
+
+  //로그팝업
+  const [logData, setLogData] = useState()
+  const [isLogPop, setisLogPop] = useState(false)
+  const onLogPop = (uid) => {
+    const starDate = format(subYears(new Date(),1),'yyyyMM')
+    const lRef = query(ref(db,`regular/log/${uid}`),orderByValue('dateMonth'),startAt(starDate))
+    onValue(lRef,data=>{
+      const list = data.val();
+      let arr = [];
+      for(const key in list){
+        arr.push(list[key])
+      }
+      setLogData(arr)
+    })
+    setisLogPop(true);
+  }
+  const closeLogPop = () => {
+    setisLogPop(false)
   }
 
   return (
@@ -122,7 +147,7 @@ export default function PaymentList() {
       {boardList &&
         boardList.map((el) => (
           <li className="body" key={shortid()}>
-            <span className="subject">{el.subject}</span>
+            <span className="subject link" onClick={()=>onLogPop(el.uid)}>{el.subject}</span>
             <span className="income">{comma(el.income)}</span>
             <span className="spend">{comma(el.spend)}</span>
             <span className="date">{el.lastPayment}</span>
@@ -153,6 +178,9 @@ export default function PaymentList() {
     }
     {isPaymentModiPop && paymentData && 
       <PaymentRegistPop initValue={paymentData} closePop={closePaymentPop} />
+    }
+    {isLogPop && logData && 
+      <PaymentLogPop logData={logData} closePop={closeLogPop} />
     }
     </>
   )

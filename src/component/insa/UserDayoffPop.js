@@ -44,7 +44,7 @@ export const CommonPopup = styled.div`
     top: 0;
     background: rgba(0, 0, 0, 0.25);
   }
-  .con_box {
+  .con_box {    
     border-radius: 10px;
     background: #fff;
     height:90vh;

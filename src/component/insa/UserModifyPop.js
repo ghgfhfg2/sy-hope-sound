@@ -43,6 +43,10 @@ export const CommonPopup = styled.div`
     background: rgba(0, 0, 0, 0.25);
   }
   .con_box {
+    h2.title{
+      font-size:18px;font-weight:600;text-align:center;
+      margin-bottom:10px;
+    }
     border-radius: 10px;
     background: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);

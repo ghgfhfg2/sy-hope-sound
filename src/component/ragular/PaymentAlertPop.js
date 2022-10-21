@@ -20,10 +20,7 @@ import shortid from "shortid";
 import { BoardLi } from "@component/BoardList";
 import { format } from "date-fns";
 const PaymentPopup = styled(CommonPopup)`
-  h2.title{
-    font-size:18px;font-weight:600;text-align:center;
-    margin-bottom:10px;
-  }
+  
   li{
     display:flex;justify-content:space-between;align-items:center;
   }
@@ -40,10 +37,17 @@ export default function PaymentAlertPop({closePop,regularList}) {
     }
     const uid = obj.uid;
     delete obj.uid;
+    const logRef = ref(db,`regular/log/${uid}/${format(new Date(),"yyyyMMdd")}${shortid.generate()}`);
+    set(logRef,{
+      ...obj
+    })
     update(ref(db,`regular/list/${uid}`),{
       lastPayment:obj.dateMonth
     })
     .then(()=>{
+      set(logRef,{
+        ...obj
+      })
       set(pRef,{
         ...obj
       })
