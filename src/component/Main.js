@@ -40,6 +40,7 @@ import styled from "styled-components";
 import { HiExternalLink } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
 import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
+import { ListUl } from "./insa/UserList";
 const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -293,6 +294,11 @@ const HitmapOver = styled.div`
   padding: 5px 1rem;
 `;
 
+const HitmapDetail = styled(ListUl)`
+  margin-top:1rem;padding:1rem;
+  
+`
+
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
@@ -384,14 +390,29 @@ export default function Main() {
         let arr = [];
         const list = data.val();
         for (const key in list) {
-          list[key];
           if (list[key].writer_uid === userInfo?.uid) {
-            let obj = {
-              date: format(new Date(list[key].date), "yyyy-MM-dd"),
-              type: list[key].type,
-              subject: list[key].subject,
-            };
-            arr.push(obj);
+            getBoardType.forEach((type) => {
+              if (list[key].type === type.uid) {
+                list[key].type = type.type;
+                list[key].typeName = type.title;
+              }
+            });
+            let sameDate = arr.findIndex(el=>el.date === format(new Date(list[key].date), "yyyy-MM-dd"));
+            if(sameDate > -1){
+              arr[sameDate].list.push({
+                type: list[key].type,
+                subject: list[key].subject
+              })
+            }else{
+              let obj = {
+                date: format(new Date(list[key].date), "yyyy-MM-dd"),
+                list: [
+                  {type: list[key].type,
+                  subject: list[key].subject}
+                ]
+              };
+              arr.push(obj);
+            }
           }
         }
         arr = arr.map((el) => {
@@ -437,7 +458,13 @@ export default function Main() {
     }
   };
 
-  const onCurrentHitmap = (val) => {
+  const [hitmapListData, setHitmapListData] = useState()
+  const onCurrentHitmap = (val) => {    
+    if(val){
+      setHitmapListData(val)
+    }else{
+      setHitmapListData('')
+    }
     return
   }
 
@@ -558,7 +585,7 @@ export default function Main() {
               <li className="pm_off">오후반차</li>
               <li className="all_off">연차</li>
             </ul>
-          </div>
+          </div>          
         <div className="divide"></div>
         <Flex justifyContent="space-between" alignItems="center">
           <h2 className="title">결재내역</h2>
@@ -582,8 +609,9 @@ export default function Main() {
               classForValue={(value) => {
                 if (!value) {
                   return "color-empty";
+                }else{
+                  return `board_type_${value.list[0].type} link`;
                 }
-                return `board_type_${value.type}`;
               }}
               onMouseOver={(e, value) => {
                 onTooltip(e, value, "board");
@@ -602,6 +630,20 @@ export default function Main() {
                 ))}
             </ul>
           </div>
+          {hitmapListData && 
+          <HitmapDetail>
+            <ul className="header">
+              <li className="box">제목</li>
+            </ul>
+            <ul className="body">
+              {hitmapListData.list.map((el,idx)=>(
+                <li>
+                  <span className="box">{el.subject}</span>
+                </li>
+              ))}
+            </ul>
+          </HitmapDetail>
+          }
       </div>
       {currentDayoff && (
         <HitmapOver pos={tooltipPos} data={currentDayoff}>
@@ -612,9 +654,12 @@ export default function Main() {
       )}
       {currentBoard && (
         <HitmapOver pos={tooltipPos} data={currentBoard}>
-          <p>{currentBoard.subject}</p>
+          <p>{currentBoard.list[0].subject}
+          {currentBoard.list.length > 1 && ` 외 ${currentBoard.list.length - 1} 건`}
+          </p>
           <p>{currentBoard.date}</p>
-          <p>{currentBoard.typeName}</p>
+          <p>{currentBoard.list[0].typeName}</p>
+          
         </HitmapOver>
       )}
     </MainWrapper>

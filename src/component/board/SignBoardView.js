@@ -178,6 +178,9 @@ export default function SignBoardView() {
     });
   };
 
+
+  
+
   const [isSignLoading, setIsSignLoading] = useState(false);
   //결재
   const onSign = () => {
@@ -228,13 +231,13 @@ export default function SignBoardView() {
         setInsertHtml(newEditor);
         setEditorState(newEditor);
         setIsSignLoading(false);
+        closeOpinionPop();
       });
   };
 
   //결재취소
   const onSignCancel = () => {
     const idx = initTypeCon.manager.findIndex((el) => el.uid === userInfo.uid);
-    console.log(initTypeCon.manager, idx);
     let newEditor = initTypeCon.editor;
     let start = newEditor.indexOf(`<!-- add_start_${idx + 1} -->`);
     let end = newEditor.indexOf(`<!-- add_end_${idx + 1} -->`);
@@ -302,11 +305,8 @@ export default function SignBoardView() {
     onCheck === -1 && target.classList.add("on");
   };
 
-
- 
-
-
   const [isOpinionPop, setIsOpinionPop] = useState(false)
+
   //결재의견 팝업
   const OpinionPop = () => {
     return (
@@ -339,7 +339,7 @@ export default function SignBoardView() {
                     maxWidth={150}
                     variant="outline"
                     colorScheme="teal"
-                    isLoading={isSubmitting}
+                    isLoading={isSignLoading}
                     onClick={closeOpinionPop}
                   >
                     취소
@@ -348,7 +348,7 @@ export default function SignBoardView() {
                     width="100%"
                     maxWidth={150}
                     colorScheme="teal"
-                    isLoading={isSubmitting}
+                    isLoading={isSignLoading}
                     onClick={onSign}
                   >
                     결재
@@ -383,7 +383,6 @@ export default function SignBoardView() {
             size="lg"
             ml={2}
             colorScheme="teal"
-            isLoading={isSignLoading}
             onClick={onOpinionPop}
           >
             결재
@@ -540,7 +539,6 @@ export default function SignBoardView() {
                 size="lg"
                 ml={2}
                 colorScheme="teal"
-                isLoading={isSignLoading}
                 onClick={onOpinionPop}
               >
                 결재
