@@ -12,6 +12,7 @@ import {
   Button,
   Flex,
   useToast,
+  Tooltip,
 } from "@chakra-ui/react";
 import useGetUser from "@component/hooks/getUserDb";
 import { imageResize } from "@component/hooks/useImgResize";
@@ -46,6 +47,9 @@ import {
   getMetadata,
   deleteObject,
 } from "firebase/storage";
+
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { RiDragDropLine } from "react-icons/ri";
 
 export const CommonForm = styled.form`
   .row_section {
@@ -114,13 +118,16 @@ export const CommonForm = styled.form`
     margin: 0;
   }
   .part_list {
-    display: flex;
-    margin: 10px 0;
-    flex-wrap: wrap;
+    overflow:auto;
+    &>div{
+      display: flex;
+      margin: 10px 0;
+    }
     li {
-      padding: 7px 12px;
+      padding: 7px 55px 7px 12px;
       border: 1px solid #2c7a7b;
       border-radius: 4px;
+      background:#fff;
       margin-right: 5px;
       margin-bottom: 5px;
       position: relative;
@@ -129,6 +136,7 @@ export const CommonForm = styled.form`
       }
       .modify_box {
         position: absolute;
+        z-index:10;
         left: 1px;
         top: 1px;
         width: calc(100% - 2px);
@@ -143,6 +151,10 @@ export const CommonForm = styled.form`
           height: 100%;
           width: 100%;
         }
+      }
+      .btn_box{display:inline-block;position:absolute;right:12px;}
+      &.is_dragging{
+        box-shadow:0 8px 15px rgba(0,0,0,0.2)
       }
     }
   }
@@ -206,6 +218,7 @@ export default function Setting() {
 
   const [logoThumb, setLogoThumb] = useState();
   useEffect(() => {
+
     getDownloadURL(logoRef)
       .then((res) => {
         setLogoThumb(res);
@@ -451,7 +464,9 @@ export default function Setting() {
   const onSubmit = (values) => {
     let newValues;
     return new Promise((resolve) => {
-      uploadBytes(logoRef, values.logo[0]);
+      if(values.logo[0]){
+        uploadBytes(logoRef, values.logo[0]);
+      }
       newValues = {
         ...values,
         part: partList,
@@ -474,6 +489,33 @@ export default function Setting() {
     });
   };
 
+  //dnd
+  const onDragEnd = ({ source, destination }) => {
+    const _items = JSON.parse(JSON.stringify(rankList));
+    const [targetItem] = _items.splice(source.index, 1);
+    _items.splice(destination.index, 0, targetItem);
+    setRankList(_items);
+  };
+
+  const onDragEndPart = ({ source, destination }) => {
+    const _items = JSON.parse(JSON.stringify(partList));
+    const [targetItem] = _items.splice(source.index, 1);
+    _items.splice(destination.index, 0, targetItem);
+    setPartList(_items);
+  };
+
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const animation = requestAnimationFrame(() => setEnabled(true));
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
+  }, []);
+
+  if (!enabled) {
+    return null;
+  }
   return (
     <>
       {settingState && (
@@ -607,9 +649,14 @@ export default function Setting() {
               </FormControl>
               <FormControl isInvalid={errors.part} className="row_section">
                 <div className="row_box">
-                  <FormLabel className="label" htmlFor="part">
-                    부서
-                  </FormLabel>
+                  <Tooltip hasArrow label='드래그 & 드랍으로 순서변경' bg='teal.500' color='#fff'>
+                    <FormLabel className="label" htmlFor="part">
+                      <Flex alignItems="center">
+                      부서
+                      <RiDragDropLine style={{marginLeft:"5px"}} />
+                    </Flex>
+                    </FormLabel>
+                  </Tooltip>
                   <Box className="lg">
                     <Flex>
                       <Input
@@ -626,58 +673,90 @@ export default function Setting() {
                         <HiOutlinePlus fontSize="1.1rem" />
                       </Button>
                     </Flex>
+
                     {partList.length > 0 && (
+                      <>
                       <ul className="part_list">
-                        {partList.map((el) => (
-                          <li key={el.uid}>
-                            {el.name}
-                            {el.state === 2 && (
-                              <>
-                                <div className="modify_box">
-                                  <input
-                                    type="text"
-                                    id={el.uid}
-                                    defaultValue={el.name}
-                                  ></input>
-                                  <button
-                                    onClick={() =>
-                                      onModiPartSubmit("part", el.uid)
-                                    }
-                                    type="button"
-                                  >
-                                    <AiOutlineEnter />
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                            <button
-                              onClick={() => {
-                                onModifyPart("part", el.uid);
-                              }}
-                              type="button"
-                            >
-                              <BsPencilSquare />
-                            </button>
-                            <button
-                              onClick={() => {
-                                onRemovePart("part", el.uid, el.name);
-                              }}
-                              type="button"
-                            >
-                              <AiOutlineDelete />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
+                      <DragDropContext onDragEnd={onDragEndPart}>
+                        <Droppable droppableId="droppable" direction="horizontal">
+                          {(provided) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                              {partList.map((el, index) => (
+                                <Draggable key={el.uid} draggableId={el.uid} index={index}>
+                                  {(provided,snapshot) => (
+                                    <li
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className={
+                                        snapshot.isDragging
+                                        ? 'is_dragging'
+                                        : ''
+                                      }
+                                    >
+                                      {el.name}
+                                      {el.state === 2 && (
+                                        <>
+                                          <div className="modify_box">
+                                            <input
+                                              type="text"
+                                              id={el.uid}
+                                              defaultValue={el.name}
+                                            ></input>
+                                            <button
+                                              onClick={() =>
+                                                onModiPartSubmit("part", el.uid)
+                                              }
+                                              type="button"
+                                            >
+                                              <AiOutlineEnter />
+                                            </button>
+                                          </div>
+                                        </>
+                                      )}
+                                      <div className="btn_box">
+                                        <button
+                                          onClick={() => {
+                                            onModifyPart("part", el.uid);
+                                          }}
+                                          type="button"
+                                        >
+                                          <BsPencilSquare />
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            onRemovePart("rank", el.uid, el.name);
+                                          }}
+                                          type="button"
+                                        >
+                                          <AiOutlineDelete />
+                                        </button>
+                                      </div>
+                                    </li>
+                                  )}
+                                </Draggable>
+                              ))}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                      </ul>                      
+                      </>
                     )}
+
                   </Box>
                 </div>
               </FormControl>
               <FormControl isInvalid={errors.rank} className="row_section">
                 <div className="row_box">
+                    <Tooltip hasArrow label='드래그& 드랍으로 순서변경' bg='teal.500' color='#fff'>
                   <FormLabel className="label" htmlFor="rank">
+                    <Flex alignItems="center">
                     직급
+                      <RiDragDropLine style={{marginLeft:"5px"}} />
+                    </Flex>
                   </FormLabel>
+                    </Tooltip>
                   <Box className="lg">
                     <Flex>
                       <Input
@@ -695,48 +774,73 @@ export default function Setting() {
                       </Button>
                     </Flex>
                     {rankList.length > 0 && (
+                      <>
                       <ul className="part_list">
-                        {rankList.map((el) => (
-                          <li key={el.uid}>
-                            {el.name}
-                            {el.state === 2 && (
-                              <>
-                                <div className="modify_box">
-                                  <input
-                                    type="text"
-                                    id={el.uid}
-                                    defaultValue={el.name}
-                                  ></input>
-                                  <button
-                                    onClick={() =>
-                                      onModiPartSubmit("rank", el.uid)
-                                    }
-                                    type="button"
-                                  >
-                                    <AiOutlineEnter />
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                            <button
-                              onClick={() => {
-                                onModifyPart("rank", el.uid);
-                              }}
-                              type="button"
-                            >
-                              <BsPencilSquare />
-                            </button>
-                            <button
-                              onClick={() => {
-                                onRemovePart("rank", el.uid, el.name);
-                              }}
-                              type="button"
-                            >
-                              <AiOutlineDelete />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
+                      <DragDropContext onDragEnd={onDragEnd}>
+                        <Droppable droppableId="droppable" direction="horizontal">
+                          {(provided) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                              {rankList.map((el, index) => (
+                                <Draggable key={el.uid} draggableId={el.uid} index={index}>
+                                  {(provided,snapshot) => (
+                                    <li
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className={
+                                        snapshot.isDragging
+                                        ? 'is_dragging'
+                                        : ''
+                                      }
+                                    >
+                                      {el.name}
+                                      {el.state === 2 && (
+                                        <>
+                                          <div className="modify_box">
+                                            <input
+                                              type="text"
+                                              id={el.uid}
+                                              defaultValue={el.name}
+                                            ></input>
+                                            <button
+                                              onClick={() =>
+                                                onModiPartSubmit("rank", el.uid)
+                                              }
+                                              type="button"
+                                            >
+                                              <AiOutlineEnter />
+                                            </button>
+                                          </div>
+                                        </>
+                                      )}
+                                      <div className="btn_box">
+                                        <button
+                                          onClick={() => {
+                                            onModifyPart("rank", el.uid);
+                                          }}
+                                          type="button"
+                                        >
+                                          <BsPencilSquare />
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            onRemovePart("rank", el.uid, el.name);
+                                          }}
+                                          type="button"
+                                        >
+                                          <AiOutlineDelete />
+                                        </button>
+                                      </div>
+                                    </li>
+                                  )}
+                                </Draggable>
+                              ))}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                      </ul>                      
+                      </>
                     )}
                   </Box>
                 </div>

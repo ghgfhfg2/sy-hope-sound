@@ -41,6 +41,7 @@ import { HiExternalLink } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
 import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 import { ListUl } from "./insa/UserList";
+import { MdOutlineDateRange } from "react-icons/md"
 const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -295,7 +296,38 @@ const HitmapOver = styled.div`
 `;
 
 const HitmapDetail = styled(ListUl)`
-  margin-top:1rem;padding:1rem;
+  padding:1rem;margin-top:10px;
+  border:1px solid #ddd;
+  border-radius:5px;
+  box{flex:0}
+  h3.title{
+    font-size:1rem;
+    margin-left:5px;
+    display:flex;align-items:center;
+    svg{margin-right:7px;}
+  }
+  .header{
+    height:auto;padding:1rem 0;
+    background:none;color:#333;
+    border-bottom:1px solid #ededed;
+    li{border-right:1px solid #ddd;
+      color:#888;
+      &:last-child{border:0}
+    }
+  }
+  .body{
+    margin-top:10px;
+    li{
+      border-bottom:1px solid #ededed;
+      
+      padding: 0.5rem 0;font-size:12px;
+      &:last-child{border:0;
+      }
+    }
+    .box{border:0;height:auto;border-right: 1px solid #ededed;
+      &:last-child{border:0}
+    }
+  }
   
 `
 
@@ -401,6 +433,8 @@ export default function Main() {
             if(sameDate > -1){
               arr[sameDate].list.push({
                 type: list[key].type,
+                typeName: list[key].typeName,
+                manager: list[key].manager,
                 subject: list[key].subject
               })
             }else{
@@ -408,6 +442,8 @@ export default function Main() {
                 date: format(new Date(list[key].date), "yyyy-MM-dd"),
                 list: [
                   {type: list[key].type,
+                    typeName: list[key].typeName,
+                    manager: list[key].manager,
                   subject: list[key].subject}
                 ]
               };
@@ -632,13 +668,27 @@ export default function Main() {
           </div>
           {hitmapListData && 
           <HitmapDetail>
+            <h3 className="title">
+              <MdOutlineDateRange />
+              {hitmapListData.date}
+            </h3>
             <ul className="header">
               <li className="box">제목</li>
+              <li className="box">유형</li>
+              <li className="box">결재자</li>
             </ul>
             <ul className="body">
               {hitmapListData.list.map((el,idx)=>(
                 <li>
                   <span className="box">{el.subject}</span>
+                  <span className="box">{el.typeName}</span>
+                  <span className="box">{el.manager.map((list,idx)=>{
+                    if(el.manager.length == idx+1) {
+                      return <>{list.name}</>
+                    }else{
+                      return <>{list.name}, </>
+                    }
+                  })}</span>
                 </li>
               ))}
             </ul>
