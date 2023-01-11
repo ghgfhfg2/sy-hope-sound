@@ -679,7 +679,7 @@ export default function Main() {
             </ul>
             <ul className="body">
               {hitmapListData.list.map((el,idx)=>(
-                <li>
+                <li key={idx}>
                   <span className="box">{el.subject}</span>
                   <span className="box">{el.typeName}</span>
                   <span className="box">{el.manager.map((list,idx)=>{

@@ -43,9 +43,11 @@ export const CommonPopup = styled.div`
     background: rgba(0, 0, 0, 0.25);
   }
   .con_box {
-    h2.title{
-      font-size:18px;font-weight:600;text-align:center;
-      margin-bottom:10px;
+    h2.title {
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
     }
     border-radius: 10px;
     background: #fff;
@@ -83,10 +85,12 @@ export default function UserModifyPop({
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
         call: values.call || "",
+        call2: values.call2 || "",
         part: values.part || "",
         rank: values.rank || "",
         dayoff: Number(values.dayoff) || "",
         manager_uid: values.manager_uid || "",
+        date: values.date || "",
       })
         .then(() => {
           values.part = values.part ? partList[values.part] : "";
@@ -161,15 +165,24 @@ export default function UserModifyPop({
                   )}
                 </FormErrorMessage>
               </FormControl>
-              {/* <FormControl isInvalid={errors.dayoff}>
+
+              <FormControl>
                 <Input
                   type="number"
-                  step={0.5}
-                  defaultValue={userData.dayoff}
-                  placeholder="연차"
-                  {...register("dayoff")}
+                  defaultValue={userData.call2}
+                  placeholder="전화번호2"
+                  {...register("call2")}
                 />
-              </FormControl> */}
+              </FormControl>
+
+              <FormControl isInvalid={errors.date}>
+                <Input
+                  type="date"
+                  defaultValue={userData.date.split(" ")[0]}
+                  placeholder="입사일"
+                  {...register("date")}
+                />
+              </FormControl>
 
               <Flex
                 mt={4}

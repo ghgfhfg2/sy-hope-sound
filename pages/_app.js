@@ -128,7 +128,7 @@ function App({ Component, pageProps }) {
   const [isPaymentPop, setIsPaymentPop] = useState(false)
   const [regularList, setRegularList] = useState()
   useEffect(() => {
-    if(userInfo?.authority.includes('admin')){
+    if(userInfo && userInfo.authority?.includes('admin')){
       const curMonth = format(new Date(),"yyyyMM")
       const pRef = query(ref(db,`regular/list`),orderByChild('lastPayment'),endBefore(curMonth))
       onValue(pRef,data=>{

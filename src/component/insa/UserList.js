@@ -170,6 +170,7 @@ export default function UserList() {
               <li className="box part">부서</li>
               <li className="box rank">직급</li>
               <li className="box call">전화번호</li>
+              <li className="box call">전화번호2</li>
               <li className="box manager">담당자</li>
               <li className="box email">이메일</li>
               <li className="box date">
@@ -199,6 +200,7 @@ export default function UserList() {
                       <span className="box part">{el.part}</span>
                       <span className="box rank">{el.rank}</span>
                       <span className="box call">{el.call}</span>
+                      <span className="box call">{el.call2}</span>
                       <span className="box manager">
                         {el.manager_uid && (
                           <>
