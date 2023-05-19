@@ -49,7 +49,7 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
     let newFileList = uploadList;
     uploadList &&
       uploadList.map((el, idx) => {
-        imageResize(el, 70).then((img) => {
+        imageResize(el, 500).then((img) => {
           newFileList[idx].thumb = typeof img === "string" ? img : "";
         });
       });
@@ -58,6 +58,22 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
     }, 200);
   }, [uploadList]);
 
+  const onImageZoom = (e) => {
+    const img = e.target;
+    if (img.style.width == "auto") {
+      img.style.width = "50px";
+      img.style.height = "50px";
+      img.closest(".thumb").style.width = "50px";
+      img.closest(".thumb").style.height = "50px";
+      img.closest(".thumb").style.maxHeight = "40px";
+    } else {
+      img.style.width = "auto";
+      img.style.height = "auto";
+      img.closest(".thumb").style.width = "auto";
+      img.closest(".thumb").style.height = "auto";
+      img.closest(".thumb").style.maxHeight = "inherit";
+    }
+  };
   return (
     <div className="row_box">
       <FormLabel className="label" htmlFor="upload">
@@ -67,7 +83,11 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
         <FileList>
           <input type="file" id="upload" onChange={onAddUpload} />
           <Button className="btn_add" colorScheme="teal" variant="outline">
-            <FormLabel className="label" htmlFor="upload" style={{marginBottom:"0"}}>
+            <FormLabel
+              className="label"
+              htmlFor="upload"
+              style={{ marginBottom: "0" }}
+            >
               <FiPlus style={{ paddingTop: "2px", marginRight: "3px" }} />
               추가
             </FormLabel>
@@ -77,7 +97,7 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
               fileList.map((el, idx) => (
                 <>
                   <li key={idx}>
-                    <div className="thumb">
+                    <div className="thumb" onClick={onImageZoom}>
                       {el.thumb && <img src={el.thumb} />}
                     </div>
                     <div className="name">{el.name}</div>

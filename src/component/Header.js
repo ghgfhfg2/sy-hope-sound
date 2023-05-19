@@ -5,18 +5,22 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Link from "next/link";
 import { getAuth, signOut } from "firebase/auth";
-import { Button, Image,Drawer,
+import {
+  Button,
+  Image,
+  Drawer,
   DrawerBody,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
-  useDisclosure, } from "@chakra-ui/react";
+  useDisclosure,
+} from "@chakra-ui/react";
 import { BiUser } from "react-icons/bi";
 import { TbLogout } from "react-icons/tb";
 import { AiOutlineMenu } from "react-icons/ai";
-import MobileMenu from "@component/MobileMenu"
+import MobileMenu from "@component/MobileMenu";
 
 const HeaderTop = styled.div`
   width: 100%;
@@ -85,40 +89,51 @@ const HeaderTop = styled.div`
       padding: 0.5rem;
     }
   }
-  .btn_menu{display:none}
+  .btn_menu {
+    display: none;
+  }
   @media screen and (max-width: 1024px) {
-    padding-right:0;
-    .left{margin-left:1rem}
-    .logo_box{width:auto;
-      position:absolute;left:50%;top:50%;
-      transform:translate(-50%,-50%);
+    padding-right: 0;
+    .left {
+      margin-left: 1rem;
+    }
+    .logo_box {
+      width: auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
     .menu {
       display: none;
     }
-    .right{display:none}
-    .btn_menu{display:block;
-      border:0;background:none;
+    .right {
+      display: none;
     }
-
+    .btn_menu {
+      display: block;
+      border: 0;
+      background: none;
+    }
   }
-
 `;
 
 const LeftMenuBox = styled.div`
   @media screen and (max-width: 1024px) {
     padding: 0 1rem;
-    .right{
+    .right {
       padding: 15px 0;
-      display:flex;
-      li{
-        display:flex;margin-right:20px;
+      display: flex;
+      li {
+        display: flex;
+        margin-right: 20px;
       }
     }
-    .left_menu{display:flex}
-
+    .left_menu {
+      display: flex;
+    }
   }
-`
+`;
 
 function Header({ logoImg }) {
   const dispatch = useDispatch();
@@ -137,10 +152,12 @@ function Header({ logoImg }) {
   };
 
   const UserMenu = () => {
-    return(
+    return (
       <ul className="right">
         <li className={router.route.indexOf("/mypage") > -1 && "on"}>
-          <span style={{marginRight:"10px"}}>{userInfo.name} 님 환영합니다.</span>
+          <span style={{ marginRight: "10px" }}>
+            {userInfo.name} 님 환영합니다.
+          </span>
           <Link href="/mypage">
             <a>
               <BiUser style={{ fontSize: "1.2rem" }} />
@@ -153,38 +170,38 @@ function Header({ logoImg }) {
           </a>
         </li>
       </ul>
-    )
-  }
+    );
+  };
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const btnRef = useRef()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef();
 
   useEffect(() => {
-    onClose()
-  }, [router])
+    onClose();
+  }, [router]);
 
   return (
-    <>      
+    <>
       <HeaderTop>
         <Drawer
           isOpen={isOpen}
-          placement='left'
+          placement="left"
           onClose={onClose}
           finalFocusRef={btnRef}
         >
           <DrawerOverlay />
           <DrawerContent>
             <DrawerBody px={0}>
-              <LeftMenuBox>
-                {userInfo && (
-                  <UserMenu />
-                )}
-              </LeftMenuBox>
-              <MobileMenu router={router.route} userInfo={userInfo} onClose={onClose} />
+              <LeftMenuBox>{userInfo && <UserMenu />}</LeftMenuBox>
+              <MobileMenu
+                router={router.route}
+                userInfo={userInfo}
+                onClose={onClose}
+              />
             </DrawerBody>
           </DrawerContent>
         </Drawer>
-        
+
         <div className="left">
           <Button ref={btnRef} onClick={onOpen} className="btn_menu">
             <AiOutlineMenu />
@@ -205,6 +222,9 @@ function Header({ logoImg }) {
             <li className={router.route.indexOf("/insa") > -1 && "on"}>
               <Link href="/insa">인사관리</Link>
             </li>
+            <li className={router.route.indexOf("/work") > -1 && "on"}>
+              <Link href="/work">프로젝트&유지보수</Link>
+            </li>
             <li className={router.route.indexOf("/schedule") > -1 && "on"}>
               <Link href="/schedule">일정관리</Link>
             </li>
@@ -218,15 +238,13 @@ function Header({ logoImg }) {
               <li className={router.route.includes("/stats") && "on"}>
                 <Link href="/stats/price">통계</Link>
               </li>
-            )}            
+            )}
             <li className={router.route.includes("/partners") && "on"}>
               <Link href="/partners">협력사</Link>
             </li>
           </ul>
         </div>
-        {userInfo && (
-          <UserMenu />
-        )}
+        {userInfo && <UserMenu />}
       </HeaderTop>
     </>
   );
