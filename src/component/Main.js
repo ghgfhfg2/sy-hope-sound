@@ -41,7 +41,8 @@ import { HiExternalLink } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
 import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 import { ListUl } from "./insa/UserList";
-import { MdOutlineDateRange } from "react-icons/md"
+import { MdOutlineDateRange } from "react-icons/md";
+import axios from "axios";
 const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -128,6 +129,11 @@ const MainWrapper = styled.div`
         padding: 0 1rem;
       }
     }
+    .attend_check {
+      display: flex;
+      margin-top: 15px;
+      gap: 10px;
+    }
   }
   .profile_img {
     width: 180px;
@@ -141,7 +147,10 @@ const MainWrapper = styled.div`
     align-items: center;
     box-shadow: 0 0 8px rgb(0 0 0 / 50%);
   }
-  .none_img{ font-size: 95px; color: #bbb}
+  .none_img {
+    font-size: 95px;
+    color: #bbb;
+  }
 
   h2.title {
     font-size: 1rem;
@@ -158,20 +167,20 @@ const MainWrapper = styled.div`
     margin: 2.5rem 0;
     background: #f1f1f1;
   }
-  
+
   .hitmap_box {
     border: 1px solid #ddd;
     padding: 1rem;
     border-radius: 5px;
     margin-top: 1rem;
     position: relative;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    width:100%;
-    overflow:hidden;
-    .react-calendar-heatmap{
-      min-width:900px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    overflow: hidden;
+    .react-calendar-heatmap {
+      min-width: 900px;
     }
     .react-calendar-heatmap text {
       font-size: 9px;
@@ -214,7 +223,7 @@ const MainWrapper = styled.div`
     background: #3182ce;
   }
   .board_type_2 {
-    background: #2F855A;
+    background: #2f855a;
   }
   .board_type_3 {
     background: #00b5d8;
@@ -264,22 +273,43 @@ const MainWrapper = styled.div`
     padding: 10px 1rem;
   }
 
-  @media screen and (max-width: 1024px){
-    header{height:150px}
-    .content_box.con{padding: 0 1rem 3rem 1rem;}
-    .profile_box{position:relative;display:flex;width:100%;top:0;
+  @media screen and (max-width: 1024px) {
+    header {
+      height: 150px;
+    }
+    .content_box.con {
+      padding: 0 1rem 3rem 1rem;
+    }
+    .profile_box {
+      position: relative;
+      display: flex;
+      width: 100%;
+      top: 0;
       padding: 1rem 1rem 1rem 0;
-      margin-bottom:10px;
-      align-items:center;
-      h3{margin:0 1rem 0 0}
-      .btn_modify{margin-top:0;
-        margin-left:auto;
+      margin-bottom: 10px;
+      align-items: center;
+      h3 {
+        margin: 0 1rem 0 0;
+      }
+      .btn_modify {
+        margin-top: 0;
+        margin-left: auto;
       }
     }
-    .profile_img{width:50px;height:50px;box-shadow:0 0 5px rgb(0 0 0 / 50%);margin-right:10px;}
-    .none_img{font-size:28px}
-    .type_info{
-      li{width:auto;padding:5px 10px}
+    .profile_img {
+      width: 50px;
+      height: 50px;
+      box-shadow: 0 0 5px rgb(0 0 0 / 50%);
+      margin-right: 10px;
+    }
+    .none_img {
+      font-size: 28px;
+    }
+    .type_info {
+      li {
+        width: auto;
+        padding: 5px 10px;
+      }
     }
   }
 `;
@@ -296,40 +326,57 @@ const HitmapOver = styled.div`
 `;
 
 const HitmapDetail = styled(ListUl)`
-  padding:1rem;margin-top:10px;
-  border:1px solid #ddd;
-  border-radius:5px;
-  box{flex:0}
-  h3.title{
-    font-size:1rem;
-    margin-left:5px;
-    display:flex;align-items:center;
-    svg{margin-right:7px;}
+  padding: 1rem;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box {
+    flex: 0;
   }
-  .header{
-    height:auto;padding:1rem 0;
-    background:none;color:#333;
-    border-bottom:1px solid #ededed;
-    li{border-right:1px solid #ddd;
-      color:#888;
-      &:last-child{border:0}
+  h3.title {
+    font-size: 1rem;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    svg {
+      margin-right: 7px;
     }
   }
-  .body{
-    margin-top:10px;
-    li{
-      border-bottom:1px solid #ededed;
-      
-      padding: 0.5rem 0;font-size:12px;
-      &:last-child{border:0;
+  .header {
+    height: auto;
+    padding: 1rem 0;
+    background: none;
+    color: #333;
+    border-bottom: 1px solid #ededed;
+    li {
+      border-right: 1px solid #ddd;
+      color: #888;
+      &:last-child {
+        border: 0;
       }
     }
-    .box{border:0;height:auto;border-right: 1px solid #ededed;
-      &:last-child{border:0}
+  }
+  .body {
+    margin-top: 10px;
+    li {
+      border-bottom: 1px solid #ededed;
+
+      padding: 0.5rem 0;
+      font-size: 12px;
+      &:last-child {
+        border: 0;
+      }
+    }
+    .box {
+      border: 0;
+      height: auto;
+      border-right: 1px solid #ededed;
+      &:last-child {
+        border: 0;
+      }
     }
   }
-  
-`
+`;
 
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -429,23 +476,27 @@ export default function Main() {
                 list[key].typeName = type.title;
               }
             });
-            let sameDate = arr.findIndex(el=>el.date === format(new Date(list[key].date), "yyyy-MM-dd"));
-            if(sameDate > -1){
+            let sameDate = arr.findIndex(
+              (el) => el.date === format(new Date(list[key].date), "yyyy-MM-dd")
+            );
+            if (sameDate > -1) {
               arr[sameDate].list.push({
                 type: list[key].type,
                 typeName: list[key].typeName,
                 manager: list[key].manager,
-                subject: list[key].subject
-              })
-            }else{
+                subject: list[key].subject,
+              });
+            } else {
               let obj = {
                 date: format(new Date(list[key].date), "yyyy-MM-dd"),
                 list: [
-                  {type: list[key].type,
+                  {
+                    type: list[key].type,
                     typeName: list[key].typeName,
                     manager: list[key].manager,
-                  subject: list[key].subject}
-                ]
+                    subject: list[key].subject,
+                  },
+                ],
               };
               arr.push(obj);
             }
@@ -494,15 +545,15 @@ export default function Main() {
     }
   };
 
-  const [hitmapListData, setHitmapListData] = useState()
-  const onCurrentHitmap = (val) => {    
-    if(val){
-      setHitmapListData(val)
-    }else{
-      setHitmapListData('')
+  const [hitmapListData, setHitmapListData] = useState();
+  const onCurrentHitmap = (val) => {
+    if (val) {
+      setHitmapListData(val);
+    } else {
+      setHitmapListData("");
     }
-    return
-  }
+    return;
+  };
 
   //백그라운드 설정
   const storage = getStorage();
@@ -536,6 +587,45 @@ export default function Main() {
     }).then(() => {
       setHeaderImg(url);
     });
+  };
+
+  //출퇴근 체크
+  const [attendList, setAttendList] = useState();
+  const onAttentCheck = (type) => {
+    const values = {
+      a: "add_attend_in",
+      mem_uid: userInfo.uid,
+      manager: userInfo.manager_uid,
+    };
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "add_attend_in",
+        type,
+        mem_uid: userInfo.uid,
+        manager: userInfo.manager_uid,
+      })
+      .then((res) => {
+        console.log(res);
+        getAttentList();
+      });
+  };
+  const onCheckOut = () => {};
+
+  useEffect(() => {
+    getAttentList();
+  }, [userInfo]);
+
+  const getAttentList = () => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_attend_list",
+        mem_uid: userInfo.uid,
+      })
+      .then((res) => {
+        if (res) {
+          setAttendList(res.data?.list);
+        }
+      });
   };
 
   return (
@@ -579,6 +669,27 @@ export default function Main() {
           <Button variant="outline" className="btn_modify" size="sm">
             <Link href="/mypage">정보 수정하기</Link>
           </Button>
+          <div className="attend_check">
+            <Button
+              colorScheme="teal"
+              variant="solid"
+              onClick={() => onAttentCheck(1)}
+            >
+              출근체크
+            </Button>
+            <Button onClick={() => onAttentCheck(2)}>퇴근체크</Button>
+          </div>
+          <ul>
+            {attendList &&
+              attendList.map((el) => (
+                <>
+                  <li>
+                    <span>{el.type == 1 ? "출근" : "퇴근"}</span>
+                    <span>{el.date_regis}</span>
+                  </li>
+                </>
+              ))}
+          </ul>
         </div>
         <Flex justifyContent="space-between" alignItems="center">
           <h2 className="title">
@@ -598,30 +709,30 @@ export default function Main() {
             </a>
           </Link>
         </Flex>
-        
-          <div className="hitmap_box">
-            <CalendarHeatmap
-              gutterSize={2}
-              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-              values={dayOffList}
-              classForValue={(value) => {
-                if (!value) {
-                  return "color-empty";
-                }
-                return `color-github-${value.type}`;
-              }}
-              onMouseOver={(e, value) => {
-                onTooltip(e, value, "dayoff");
-              }}
-              showWeekdayLabels={true}
-            />
-            <ul className="type_info">
-              <li className="am_off">오전반차</li>
-              <li className="pm_off">오후반차</li>
-              <li className="all_off">연차</li>
-            </ul>
-          </div>          
+
+        <div className="hitmap_box">
+          <CalendarHeatmap
+            gutterSize={2}
+            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+            values={dayOffList}
+            classForValue={(value) => {
+              if (!value) {
+                return "color-empty";
+              }
+              return `color-github-${value.type}`;
+            }}
+            onMouseOver={(e, value) => {
+              onTooltip(e, value, "dayoff");
+            }}
+            showWeekdayLabels={true}
+          />
+          <ul className="type_info">
+            <li className="am_off">오전반차</li>
+            <li className="pm_off">오후반차</li>
+            <li className="all_off">연차</li>
+          </ul>
+        </div>
         <div className="divide"></div>
         <Flex justifyContent="space-between" alignItems="center">
           <h2 className="title">결재내역</h2>
@@ -636,37 +747,37 @@ export default function Main() {
             </a>
           </Link>
         </Flex>
-          <div className="hitmap_box">
-            <CalendarHeatmap
-              gutterSize={2}
-              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-              values={boardList}
-              classForValue={(value) => {
-                if (!value) {
-                  return "color-empty";
-                }else{
-                  return `board_type_${value.list[0].type} link`;
-                }
-              }}
-              onMouseOver={(e, value) => {
-                onTooltip(e, value, "board");
-              }}
-              onClick={(value)=>onCurrentHitmap(value)}
-              showWeekdayLabels={true}
-            />
-            <ul className="type_info">
-              {boardType &&
-                boardType.map((el, idx) => (
-                  <>
-                    <li key={idx} className={`board_type_${idx}`}>
-                      {el.title}
-                    </li>
-                  </>
-                ))}
-            </ul>
-          </div>
-          {hitmapListData && 
+        <div className="hitmap_box">
+          <CalendarHeatmap
+            gutterSize={2}
+            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+            values={boardList}
+            classForValue={(value) => {
+              if (!value) {
+                return "color-empty";
+              } else {
+                return `board_type_${value.list[0].type} link`;
+              }
+            }}
+            onMouseOver={(e, value) => {
+              onTooltip(e, value, "board");
+            }}
+            onClick={(value) => onCurrentHitmap(value)}
+            showWeekdayLabels={true}
+          />
+          <ul className="type_info">
+            {boardType &&
+              boardType.map((el, idx) => (
+                <>
+                  <li key={idx} className={`board_type_${idx}`}>
+                    {el.title}
+                  </li>
+                </>
+              ))}
+          </ul>
+        </div>
+        {hitmapListData && (
           <HitmapDetail>
             <h3 className="title">
               <MdOutlineDateRange />
@@ -678,22 +789,24 @@ export default function Main() {
               <li className="box">결재자</li>
             </ul>
             <ul className="body">
-              {hitmapListData.list.map((el,idx)=>(
+              {hitmapListData.list.map((el, idx) => (
                 <li key={idx}>
                   <span className="box">{el.subject}</span>
                   <span className="box">{el.typeName}</span>
-                  <span className="box">{el.manager.map((list,idx)=>{
-                    if(el.manager.length == idx+1) {
-                      return <>{list.name}</>
-                    }else{
-                      return <>{list.name}, </>
-                    }
-                  })}</span>
+                  <span className="box">
+                    {el.manager.map((list, idx) => {
+                      if (el.manager.length == idx + 1) {
+                        return <>{list.name}</>;
+                      } else {
+                        return <>{list.name}, </>;
+                      }
+                    })}
+                  </span>
                 </li>
               ))}
             </ul>
           </HitmapDetail>
-          }
+        )}
       </div>
       {currentDayoff && (
         <HitmapOver pos={tooltipPos} data={currentDayoff}>
@@ -704,12 +817,13 @@ export default function Main() {
       )}
       {currentBoard && (
         <HitmapOver pos={tooltipPos} data={currentBoard}>
-          <p>{currentBoard.list[0].subject}
-          {currentBoard.list.length > 1 && ` 외 ${currentBoard.list.length - 1} 건`}
+          <p>
+            {currentBoard.list[0].subject}
+            {currentBoard.list.length > 1 &&
+              ` 외 ${currentBoard.list.length - 1} 건`}
           </p>
           <p>{currentBoard.date}</p>
           <p>{currentBoard.list[0].typeName}</p>
-          
         </HitmapOver>
       )}
     </MainWrapper>

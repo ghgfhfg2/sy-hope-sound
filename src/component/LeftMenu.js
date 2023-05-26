@@ -51,8 +51,8 @@ const LeftMenu = styled.nav`
     }
   }
 
-  @media screen and (max-width:1024px) {
-    display:none;
+  @media screen and (max-width: 1024px) {
+    display: none;
   }
 `;
 
@@ -142,6 +142,18 @@ function LeftMunu({ userInfo }) {
             <ul className="depth_1">
               <li className={router === "/insa" ? "on" : ""}>
                 <Link href="/insa/">직원정보</Link>
+              </li>
+            </ul>
+          </>
+        )}
+        {router.includes("/work") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/work" ? "on" : ""}>
+                <Link href="/work">목록</Link>
+              </li>
+              <li className={router === "/work/write" ? "on" : ""}>
+                <Link href="/work/write">등록</Link>
               </li>
             </ul>
           </>

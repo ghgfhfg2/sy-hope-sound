@@ -12,6 +12,7 @@ import { useToast } from "@chakra-ui/react";
 // });
 
 const EditorBox = styled.div`
+  width: 100%;
   .sun-editor-editable {
     .form_wrapper {
       display: flex;
@@ -113,12 +114,12 @@ const EditorBox = styled.div`
     }
   }
 
-  @media screen and (max-width:1024px) {
+  @media screen and (max-width: 1024px) {
     overflow: auto;
     width: 100%;
     max-width: calc(${(props) => props.winWidth}px - 2rem);
-    .scroll_box{
-      min-width:900px;
+    .scroll_box {
+      min-width: 900px;
     }
   }
 `;
@@ -137,17 +138,16 @@ export default function Editor({
     editor.current = sunEditor;
   };
 
-  const [windowWidth, setWindowWidth] = useState(window.outerWidth)
+  const [windowWidth, setWindowWidth] = useState(window.outerWidth);
   const setWidth = () => {
-    setWindowWidth(window.outerWidth)
-  }
+    setWindowWidth(window.outerWidth);
+  };
   useEffect(() => {
     window.addEventListener("resize", setWidth);
     return () => {
       window.removeEventListener("resize", setWidth);
     };
   }, []);
-  
 
   useEffect(() => {
     let selCon;
