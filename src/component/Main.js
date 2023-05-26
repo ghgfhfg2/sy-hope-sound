@@ -134,6 +134,14 @@ const MainWrapper = styled.div`
       margin-top: 15px;
       gap: 10px;
     }
+    .attend_list {
+      margin-top: 15px;
+      li {
+        margin-bottom: 3px;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
   }
   .profile_img {
     width: 180px;
@@ -679,7 +687,7 @@ export default function Main() {
             </Button>
             <Button onClick={() => onAttentCheck(2)}>퇴근체크</Button>
           </div>
-          <ul>
+          <ul className="attend_list">
             {attendList &&
               attendList.map((el) => (
                 <>
