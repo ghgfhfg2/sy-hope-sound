@@ -5,8 +5,10 @@ import styled from "styled-components";
 import axios from "axios";
 import useGetUser from "@component/hooks/getUserDb";
 import StepBox from "@component/work/StepBox";
+import { Button, Flex, useToast } from "@chakra-ui/react";
+import Link from "next/link";
 
-const WorkViewBox = styled.div`
+export const WorkViewBox = styled.div`
   dt {
     padding: 15px;
     border-bottom: 1px solid #ddd;
@@ -28,20 +30,31 @@ const WorkViewBox = styled.div`
 `;
 
 export default function WorkView() {
+  const toast = useToast();
+  const userInfo = useSelector((state) => state.user.currentUser);
   const router = useRouter();
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);
   const [viewData, setViewData] = useState();
+  const [render, setRender] = useState(true);
+
+  const [stateData, setStateData] = useState();
+
+  const stateText = [
+    { txt: "대기", state: 1 },
+    { txt: "접수", state: 2 },
+    { txt: "진행", state: 3 },
+    { txt: "테스트", state: 4 },
+    { txt: "완료", state: 5 },
+  ];
   useEffect(() => {
     const uid = router.query.uid;
-    console.log(uid);
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_work_view",
         uid,
       })
       .then((res) => {
-        console.log(res.data.work.writer);
         const writer = userAll?.find(
           (user) => res.data.work.writer === user.uid
         );
@@ -56,7 +69,50 @@ export default function WorkView() {
           manager,
         });
       });
-  }, [userAll]);
+
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_work_state",
+        ruid: router.query.uid,
+      })
+      .then((res) => {
+        let history = res.data?.history;
+        if (!history) return;
+        history = history.map((el) => {
+          el.stateTxt = stateText[el.state - 1].txt;
+          const writer = userAll?.find((user) => {
+            return el.writer === user.uid;
+          });
+          el.writer = writer;
+          return el;
+        });
+        setStateData(history);
+      });
+  }, [userAll, render]);
+
+  const onRender = () => {
+    setRender(!render);
+  };
+
+  const onWorkRemove = () => {
+    const agree = confirm("삭제 하시겠습니까?");
+    if (!agree) return;
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "remove_work_list",
+        uid: router.query.uid,
+      })
+      .then((res) => {
+        toast({
+          description: "삭제되었습니다..",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        router.push("/work");
+      });
+  };
+
   return (
     <>
       {viewData && (
@@ -65,7 +121,12 @@ export default function WorkView() {
             <dl>
               <dt>{viewData.title}</dt>
               <dd>
-                <StepBox step={2} />
+                <StepBox
+                  stateText={stateText}
+                  stateData={stateData}
+                  step={viewData.state}
+                  onRender={onRender}
+                />
               </dd>
               <dd>
                 <div className="box">
@@ -103,6 +164,30 @@ export default function WorkView() {
               </dd>
             </dl>
           </WorkViewBox>
+          <Flex mt={3}>
+            {viewData.writer == userInfo.uid && (
+              <>
+                <Button
+                  mr={1}
+                  colorScheme="red"
+                  onClick={() => onWorkRemove(viewData.uid)}
+                >
+                  삭제
+                </Button>
+                <Link
+                  href={{
+                    pathname: "/work/modify",
+                    query: { uid: viewData.uid },
+                  }}
+                >
+                  <Button mr={1}>수정</Button>
+                </Link>
+              </>
+            )}
+            <Link href="/work">
+              <Button colorScheme="teal">목록</Button>
+            </Link>
+          </Flex>
         </>
       )}
     </>

@@ -24,15 +24,48 @@ export function numberToKorean(number) {
   return resultString;
 }
 
+export const getFormatDate = (date) => {
+  let year = date.getFullYear();
+  let month = date.getMonth() + 1;
+  month = month >= 10 ? month : "0" + month;
+  let og_month = date.getMonth();
+  let day = date.getDate();
+  day = day >= 10 ? day : "0" + day;
+  let og_day = date.getDate();
+  let weeek = date.getDay();
+  let weekArr = ["일", "월", "화", "수", "목", "금", "토"];
+  let hour = date.getHours();
+  hour = hour >= 10 ? hour : "0" + hour;
+  let min = date.getMinutes();
+  min = min >= 10 ? min : "0" + min;
+  let sec = date.getSeconds();
+  let obj = {
+    year: year,
+    month: month,
+    day: day,
+    og_month: og_month,
+    og_day: og_day,
+    week: weekArr[weeek],
+    weekNum: weeek,
+    hour: hour,
+    min: min,
+    sec: sec,
+    full: year + "" + month + "" + day,
+    full_: year + "-" + month + "-" + day,
+  };
+
+  return obj;
+};
+
 export function comma(num) {
   let len, point, str;
   let minus = false;
-  if(num < 0){
-    minus = true
+  if (num < 0) {
+    minus = true;
   }
   num = num + "";
-  if(minus){
-    num = num.substr(1)
+  if (minus) {
+    num = num.substr(1);
   }
   point = num.length % 3;
   len = num.length;
@@ -43,8 +76,8 @@ export function comma(num) {
     str += num.substring(point, point + 3);
     point += 3;
   }
-  if(minus){
-    str = '-' + str
+  if (minus) {
+    str = "-" + str;
   }
   return str;
 }

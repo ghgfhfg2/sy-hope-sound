@@ -291,6 +291,8 @@ const MainWrapper = styled.div`
     .profile_box {
       position: relative;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       width: 100%;
       top: 0;
       padding: 1rem 1rem 1rem 0;
@@ -298,10 +300,6 @@ const MainWrapper = styled.div`
       align-items: center;
       h3 {
         margin: 0 1rem 0 0;
-      }
-      .btn_modify {
-        margin-top: 0;
-        margin-left: auto;
       }
     }
     .profile_img {
@@ -597,14 +595,50 @@ export default function Main() {
     });
   };
 
+  //모바일 체크
+  const Mobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  };
+
+  //아이피 체크
+  const getIpAdress = async () => {
+    if (Mobile()) {
+      alert("모바일에서는 체크 불가");
+      return;
+    }
+    const check = await axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_ip_adress",
+      })
+      .then((res) => {
+        const ip = res.data.ip;
+        const ipArr = res.data.array;
+
+        console.log(res.data);
+
+        if (ipArr.includes(ip)) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    if (check) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   //출퇴근 체크
   const [attendList, setAttendList] = useState();
-  const onAttentCheck = (type) => {
-    const values = {
-      a: "add_attend_in",
-      mem_uid: userInfo.uid,
-      manager: userInfo.manager_uid,
-    };
+  const onAttentCheck = async (type) => {
+    const ipCheck = await getIpAdress();
+    if (!ipCheck) {
+      alert("유효한 ip가 아닙니다.");
+      return;
+    }
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "add_attend_in",
@@ -613,24 +647,39 @@ export default function Main() {
         manager: userInfo.manager_uid,
       })
       .then((res) => {
-        console.log(res);
+        if (res.data.already) {
+          alert("출근 체크는 하루 한번 가능 합니다.");
+          return;
+        }
+        if (res.data.update) {
+          alert("퇴근 시간이 업데이트 되었습니다.");
+          getAttentList();
+          return;
+        }
+        if (type == "1") {
+          alert("출근 체크 되었습니다.");
+        }
+        if (type == "2") {
+          alert("퇴근 체크 되었습니다.");
+        }
         getAttentList();
       });
   };
-  const onCheckOut = () => {};
 
   useEffect(() => {
     getAttentList();
+    getIpAdress();
   }, [userInfo]);
 
   const getAttentList = () => {
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_attend_list",
-        mem_uid: userInfo.uid,
+        mem_uid: userInfo?.uid,
       })
       .then((res) => {
         if (res) {
+          console.log(res);
           setAttendList(res.data?.list);
         }
       });

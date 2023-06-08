@@ -143,6 +143,21 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/insa" ? "on" : ""}>
                 <Link href="/insa/">직원정보</Link>
               </li>
+              <li className={router === "/insa/attend" ? "on" : ""}>
+                <Link href="/insa/attend">근태정보</Link>
+              </li>
+            </ul>
+          </>
+        )}
+        {router.includes("/report") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/report" ? "on" : ""}>
+                <Link href="/report/">목록</Link>
+              </li>
+              <li className={router === "/report/write" ? "on" : ""}>
+                <Link href="/report/write">글 작성</Link>
+              </li>
             </ul>
           </>
         )}
@@ -152,8 +167,11 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/work" ? "on" : ""}>
                 <Link href="/work">목록</Link>
               </li>
+              <li className={router === "/work/cate" ? "on" : ""}>
+                <Link href="/work/cate">카테고리 관리</Link>
+              </li>
               <li className={router === "/work/write" ? "on" : ""}>
-                <Link href="/work/write">등록</Link>
+                <Link href="/work/write">글 등록</Link>
               </li>
             </ul>
           </>

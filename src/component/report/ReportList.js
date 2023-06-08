@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
-import { BoardLi } from "@component/BoardList";
+import { WorkBoardList } from "@component/work/WorkList";
 import { format } from "date-fns";
 import shortid from "shortid";
 import None from "@component/None";
@@ -11,39 +11,10 @@ import useGetUser from "@component/hooks/getUserDb";
 import { Pagenation } from "../Pagenation";
 import Link from "next/link";
 
-export const WorkBoardList = styled(BoardLi)`
-  li {
-    &.header {
-      .subject {
-        justify-content: center;
-      }
-    }
-    .name {
-      max-width: 150px;
-      flex: 1;
-    }
-    .manager {
-      flex: 1;
-      max-width: 200px;
-      span {
-        width: auto;
-      }
-    }
-    .subject {
-      flex: 1;
-      justify-content: flex-start;
-      padding: 0 1rem;
-    }
-    .date {
-      max-width: 150px;
-      flex: 1;
-    }
-  }
-`;
-
-export default function WorkList() {
+export default function ReportList() {
   const router = useRouter();
   useGetUser();
+  const userInfo = useSelector((state) => state.user.currentUser);
   const userAll = useSelector((state) => state.user.allUser);
   const [listData, setListData] = useState();
   const curPage = router.query["p"] || 1;
@@ -52,24 +23,20 @@ export default function WorkList() {
   const getWorkList = (page) => {
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
-        a: "get_work_list",
+        a: "get_report_list",
         page,
+        mem_uid: userInfo?.uid,
       })
       .then((res) => {
-        console.log(res);
         const total = res.data.total;
         setTotalPage(total);
         const list = res.data.list?.map((el) => {
           const findUser = userAll?.find((user) => el.writer === user.uid);
-          const managerArr = JSON.parse(el.manager);
-          const manager = [];
-          managerArr.forEach((el) => {
-            manager.push(userAll?.find((user) => el === user.uid));
-          });
+          const manager = userAll?.find((user) => el.manager === user.uid);
+          el.manager = manager?.name;
           return {
             ...findUser,
             ...el,
-            manager,
           };
         });
         setListData(list);
@@ -77,7 +44,6 @@ export default function WorkList() {
   };
 
   useEffect(() => {
-    console.log(curPage);
     getWorkList(curPage);
     return () => {};
   }, [userAll, curPage]);
@@ -99,7 +65,7 @@ export default function WorkList() {
               <span className="subject">
                 <Link
                   href={{
-                    pathname: "/work/view",
+                    pathname: "/report/view",
                     query: { uid: el.uid },
                   }}
                 >
@@ -107,22 +73,7 @@ export default function WorkList() {
                 </Link>
               </span>
               <span className="name">{el.name}</span>
-              <span className="manager">
-                {el.manager.map((mng, idx) => {
-                  let comma = "";
-                  if (idx != 0) {
-                    comma = ", ";
-                  }
-                  return (
-                    <>
-                      <span>
-                        {comma}
-                        {mng?.name}
-                      </span>
-                    </>
-                  );
-                })}
-              </span>
+              <span className="manager">{el.manager}</span>
               <span className="date">
                 {format(new Date(el.date_regis), "yyyy-MM-dd")}
               </span>

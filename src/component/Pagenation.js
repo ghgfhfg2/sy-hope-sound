@@ -19,6 +19,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         color: #888;
       }
       &.on a {
+        border-color: #2c7a7b;
         background: #2c7a7b;
         color: #fff;
       }
