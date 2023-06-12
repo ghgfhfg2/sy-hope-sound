@@ -104,7 +104,7 @@ export default function WorkView() {
       })
       .then((res) => {
         toast({
-          description: "삭제되었습니다..",
+          description: "삭제되었습니다.",
           status: "success",
           duration: 1000,
           isClosable: false,

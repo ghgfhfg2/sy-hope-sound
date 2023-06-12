@@ -37,8 +37,12 @@ export default function ManagerSelectPop({
   closeManagerPop,
   onSelectManager,
 }) {
+  const [userList, setUserList] = useState();
   const [initUser, setInitUser] = useState();
   useEffect(() => {
+    const filterUser = userData.filter((el) => !el.hidden);
+    setUserList(filterUser);
+
     let useRef = query(ref(db, `user`), orderByChild("manager"), equalTo(1));
     onValue(useRef, (data) => {
       let arr = [];
@@ -76,8 +80,8 @@ export default function ManagerSelectPop({
               colorScheme="teal"
             >
               <ul className="body">
-                {userData &&
-                  userData.map((el) => (
+                {userList &&
+                  userList.map((el) => (
                     <>
                       <li key={el.uid}>
                         <span className="box chk">

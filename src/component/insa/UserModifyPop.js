@@ -5,6 +5,9 @@ import {
   Select,
   Button,
   Flex,
+  Checkbox,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { db } from "src/firebase";
@@ -84,6 +87,7 @@ export default function UserModifyPop({
     return new Promise((resolve) => {
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
+        ...values,
         call: values.call || "",
         call2: values.call2 || "",
         part: values.part || "",
@@ -183,7 +187,13 @@ export default function UserModifyPop({
                   {...register("date")}
                 />
               </FormControl>
-
+              <FormControl mt={1} isInvalid={errors.date}>
+                <Stack spacing={4} pl={1} direction="row">
+                  <Checkbox colorScheme="teal" {...register("hidden")}>
+                    <Text fontSize="sm">숨김처리</Text>
+                  </Checkbox>
+                </Stack>
+              </FormControl>
               <Flex
                 mt={4}
                 width="100%"

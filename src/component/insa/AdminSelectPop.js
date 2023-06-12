@@ -37,8 +37,11 @@ export default function AdminSelectPop({
   closeAdminPop,
   onSelectAdmin,
 }) {
+  const [userList, setUserList] = useState();
   const [initUser, setInitUser] = useState();
   useEffect(() => {
+    const filterUser = userData.filter((el) => !el.hidden);
+    setUserList(filterUser);
     let useRef = query(ref(db, `user`));
     onValue(useRef, (data) => {
       let arr = [];
@@ -78,8 +81,8 @@ export default function AdminSelectPop({
               colorScheme="teal"
             >
               <ul className="body">
-                {userData &&
-                  userData.map((el) => (
+                {userList &&
+                  userList.map((el) => (
                     <>
                       <li key={el.uid}>
                         <span className="box chk">

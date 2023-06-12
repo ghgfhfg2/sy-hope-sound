@@ -38,7 +38,13 @@ export default function SelectManagerPop({
   onSelectManager,
   selectUser,
 }) {
+  const [userList, setUserList] = useState();
   const [checkedItems, setCheckedItems] = useState();
+
+  useEffect(() => {
+    const filterUser = userData.filter((el) => !el.hidden);
+    setUserList(filterUser);
+  }, []);
 
   const onChageCheckItem = (e) => {
     setCheckedItems(e);
@@ -60,8 +66,8 @@ export default function SelectManagerPop({
             colorScheme="teal"
           >
             <ul className="body">
-              {userData &&
-                userData.map((el) => (
+              {userList &&
+                userList.map((el) => (
                   <>
                     <li key={el.uid}>
                       <span className="box chk">

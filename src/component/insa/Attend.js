@@ -80,13 +80,14 @@ export default function Attend() {
           };
           return el;
         });
-        const userState = userAll.map((el) => {
+        let userState = userAll.map((el) => {
           const user = list.filter((user) => user.mem_uid == el.uid);
           el.state = 1;
           if (user.find((el) => el.type == "1")) el.state = 2;
           if (user.find((el) => el.type == "2")) el.state = 3;
           return el;
         });
+        userState = userState.filter((el) => !el.hidden);
         setUserStateList(userState);
         setAttendList(list);
       });
