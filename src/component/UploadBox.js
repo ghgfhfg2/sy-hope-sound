@@ -43,7 +43,13 @@ const FileList = styled.div`
   }
 `;
 
-export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
+export default function UploadBox({
+  onAddUpload,
+  uploadList,
+  removeFile,
+  initUpload,
+  removeInitFile,
+}) {
   const [fileList, setFileList] = useState();
   useEffect(() => {
     let newFileList = uploadList;
@@ -93,6 +99,28 @@ export default function UploadBox({ onAddUpload, uploadList, removeFile }) {
             </FormLabel>
           </Button>
           <ul className="file_list">
+            {initUpload &&
+              initUpload.map((el, idx) => (
+                <>
+                  <li key={idx}>
+                    <div className="thumb" onClick={onImageZoom}>
+                      <img
+                        src={`https://shop.editt.co.kr/_upload/_groupware/work/${el}`}
+                      />
+                    </div>
+                    <div className="name">{el}</div>
+                    <Button
+                      colorScheme="red"
+                      ml={2}
+                      onClick={() => {
+                        removeInitFile(el);
+                      }}
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
+                  </li>
+                </>
+              ))}
             {fileList &&
               fileList.map((el, idx) => (
                 <>

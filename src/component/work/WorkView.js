@@ -55,17 +55,20 @@ export default function WorkView() {
         uid,
       })
       .then((res) => {
-        const writer = userAll?.find(
-          (user) => res.data.work.writer === user.uid
-        );
-        const managerArr = JSON.parse(res.data.work.manager);
+        const resData = res.data.work;
+        resData.cate_1 = resData.cate_1 ? JSON.parse(resData.cate_1) : "";
+        resData.cate_2 = resData.cate_2 ? JSON.parse(resData.cate_2) : "";
+        resData.cate_3 = resData.cate_3 ? JSON.parse(resData.cate_3) : "";
+        const writer = userAll?.find((user) => resData.writer === user.uid);
+        const managerArr = JSON.parse(resData.manager);
         const manager = [];
         managerArr.forEach((el) => {
           manager.push(userAll?.find((user) => el === user.uid));
         });
+        resData.images = JSON.parse(resData.images);
         setViewData({
           ...writer,
-          ...res.data.work,
+          ...resData,
           manager,
         });
       });
@@ -130,6 +133,24 @@ export default function WorkView() {
               </dd>
               <dd>
                 <div className="box">
+                  <span className="tit">프로젝트 : </span>
+                  <span className="con">{viewData.cate_1.title}</span>
+                </div>
+                {viewData.cate_2.title && (
+                  <div className="box">
+                    <span className="tit">카테고리1 : </span>
+                    <span className="con">{viewData.cate_2.title}</span>
+                  </div>
+                )}
+                {viewData.cate_3.title && (
+                  <div className="box">
+                    <span className="tit">카테고리2 : </span>
+                    <span className="con">{viewData.cate_3.title}</span>
+                  </div>
+                )}
+              </dd>
+              <dd>
+                <div className="box">
                   <span className="tit">작성자 : </span>
                   <span className="con">{viewData.name}</span>
                 </div>
@@ -161,11 +182,21 @@ export default function WorkView() {
                 <div
                   dangerouslySetInnerHTML={{ __html: viewData.content }}
                 ></div>
+                <Flex flexDirection="column" alignItems="flex-start" gap={1}>
+                  {viewData.images &&
+                    viewData.images.map((el) => (
+                      <>
+                        <img
+                          src={`https://shop.editt.co.kr/_upload/_groupware/work/${el}`}
+                        />
+                      </>
+                    ))}
+                </Flex>
               </dd>
             </dl>
           </WorkViewBox>
           <Flex mt={3}>
-            {viewData.writer == userInfo.uid && (
+            {viewData.writer == userInfo?.uid && (
               <>
                 <Button
                   mr={1}

@@ -110,6 +110,7 @@ export default function StepBox({ stateData, step, onRender, stateText }) {
       comment: comment,
       ruid: router.query.uid,
     };
+
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         ...values,

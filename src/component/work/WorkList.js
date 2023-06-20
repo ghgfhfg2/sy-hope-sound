@@ -38,10 +38,26 @@ export const WorkBoardList = styled(BoardLi)`
       max-width: 150px;
       flex: 1;
     }
+    &.body {
+      .date {
+        color: #888;
+      }
+      .subject {
+        font-weight: 600;
+      }
+    }
   }
 `;
 
 export default function WorkList() {
+  const stateText = [
+    { txt: "대기", state: 1 },
+    { txt: "접수", state: 2 },
+    { txt: "진행", state: 3 },
+    { txt: "테스트", state: 4 },
+    { txt: "완료", state: 5 },
+  ];
+
   const router = useRouter();
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);
@@ -56,7 +72,6 @@ export default function WorkList() {
         page,
       })
       .then((res) => {
-        console.log(res);
         const total = res.data.total;
         setTotalPage(total);
         const list = res.data.list?.map((el) => {
@@ -66,6 +81,9 @@ export default function WorkList() {
           managerArr.forEach((el) => {
             manager.push(userAll?.find((user) => el === user.uid));
           });
+          el.cate_1 = JSON.parse(el.cate_1);
+          el.cate_2 = el.cate_2 ? JSON.parse(el.cate_2) : "";
+          el.cate_3 = el.cate_3 ? JSON.parse(el.cate_3) : "";
           return {
             ...findUser,
             ...el,
@@ -87,6 +105,10 @@ export default function WorkList() {
       <WorkBoardList>
         <li className="header">
           <span>번호</span>
+          <span>상태</span>
+          <span className="cate">프로젝트</span>
+          <span className="cate">카테고리1</span>
+          <span className="cate">카테고리2</span>
           <span className="subject">제목</span>
           <span className="name">작성자</span>
           <span className="manager">담당자</span>
@@ -94,8 +116,12 @@ export default function WorkList() {
         </li>
         {listData &&
           listData.map((el) => (
-            <li key={shortid()}>
+            <li className="body" key={shortid()}>
               <span>{el.uid}</span>
+              <span>{stateText[el.state - 1].txt}</span>
+              <span className="cate">{el.cate_1.title}</span>
+              <span className="cate">{el.cate_2.title}</span>
+              <span className="cate">{el.cate_3.title}</span>
               <span className="subject">
                 <Link
                   href={{

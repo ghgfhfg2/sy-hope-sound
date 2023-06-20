@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   FormErrorMessage,
   FormControl,
@@ -19,6 +20,7 @@ import styled from "styled-components";
 import PartSelect from "@component/popup/PartSelect";
 import RankSelect from "@component/popup/RankSelect";
 import ManagerSelect from "@component/popup/ManagerSelect";
+import axios from "axios";
 
 export const CommonPopup = styled.div`
   display: flex;
@@ -80,8 +82,30 @@ export default function UserModifyPop({
   const {
     handleSubmit,
     register,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm();
+
+  const watchClient = watch("partner");
+
+  const [projectList, setProjectList] = useState();
+  useEffect(() => {
+    if (!watchClient) {
+      setProjectList("");
+    } else {
+      axios
+        .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+          a: "get_cate_list",
+        })
+        .then((res) => {
+          console.log(res);
+          const cateList = res.data.cate.filter((el) => {
+            return el.depth.split("_").length == 1;
+          });
+          setProjectList(cateList);
+        });
+    }
+  }, [userData, watchClient]);
 
   function onSubmit(values) {
     return new Promise((resolve) => {
@@ -187,13 +211,36 @@ export default function UserModifyPop({
                   {...register("date")}
                 />
               </FormControl>
-              <FormControl mt={1} isInvalid={errors.date}>
+              <FormControl mt={1} isInvalid={errors.hidden}>
                 <Stack spacing={4} pl={1} direction="row">
                   <Checkbox colorScheme="teal" {...register("hidden")}>
-                    <Text fontSize="sm">숨김처리</Text>
+                    <Text fontSize="sm">근태숨김</Text>
                   </Checkbox>
                 </Stack>
               </FormControl>
+              <FormControl mt={1} isInvalid={errors.hidden}>
+                <Stack spacing={4} pl={1} direction="row">
+                  <Checkbox
+                    defaultChecked={userData.partner}
+                    colorScheme="teal"
+                    {...register("partner")}
+                  >
+                    <Text fontSize="sm">협력사</Text>
+                  </Checkbox>
+                </Stack>
+              </FormControl>
+              {watchClient && projectList && (
+                <Select {...register("project")}>
+                  <>
+                    {projectList.map((el) => (
+                      <>
+                        <option value={el.uid}>{el.title}</option>
+                      </>
+                    ))}
+                  </>
+                </Select>
+              )}
+
               <Flex
                 mt={4}
                 width="100%"

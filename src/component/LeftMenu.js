@@ -165,11 +165,16 @@ function LeftMunu({ userInfo }) {
           <>
             <ul className="depth_1">
               <li className={router === "/work" ? "on" : ""}>
-                <Link href="/work">목록</Link>
+                <Link href="/work">목록(리스트)</Link>
               </li>
-              <li className={router === "/work/cate" ? "on" : ""}>
-                <Link href="/work/cate">카테고리 관리</Link>
+              <li className={router === "/work/structure" ? "on" : ""}>
+                <Link href="/work/structure">목록(구조도)</Link>
               </li>
+              {userInfo && !userInfo.partner && (
+                <li className={router === "/work/cate" ? "on" : ""}>
+                  <Link href="/work/cate">카테고리 관리</Link>
+                </li>
+              )}
               <li className={router === "/work/write" ? "on" : ""}>
                 <Link href="/work/write">글 등록</Link>
               </li>

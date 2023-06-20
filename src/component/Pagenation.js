@@ -25,7 +25,6 @@ export const Pagenation = ({ total, current, viewPage }) => {
       }
     }
   `;
-  console.log(total);
   const lastPageNum = parseInt(total); //마지막 페이지 번호
   let startPage =
     Math.ceil(current / viewPage) == 1
@@ -39,10 +38,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
   for (let i = startPage; i <= lastPage; i++) {
     pageArr.push(i);
   }
-  console.log("current", current);
-  console.log("lastPageNum", lastPageNum);
-  console.log("startPage", startPage);
-  console.log("pageArr", pageArr);
+
   return (
     <PagenationBox>
       {current > 1 && (

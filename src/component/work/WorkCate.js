@@ -19,11 +19,18 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { BsListCheck } from "react-icons/bs";
-import { AiOutlinePlusSquare } from "react-icons/ai";
+import {
+  AiOutlineDelete,
+  AiOutlinePlusSquare,
+  AiOutlineSetting,
+} from "react-icons/ai";
+import { FiEdit } from "react-icons/fi";
 import useGetUser from "@component/hooks/getUserDb";
 import styled from "styled-components";
 import axios from "axios";
+import { RiDeleteBin6Line } from "react-icons/ri";
 const WorkCateBox = styled.div`
+  input{background:#fff}
   ul.depth_1 {
     display: flex;
     flex-direction: column;
@@ -33,6 +40,9 @@ const WorkCateBox = styled.div`
     display: none;
     padding-left: 10px;
     margin-top: 5px;
+    padding:10px;
+    border-radius:4px;
+    background:rgba(38, 115, 100,0.08)
   }
   ul.depth_1 > li {
     padding: 15px;
@@ -45,6 +55,27 @@ const WorkCateBox = styled.div`
   .tit_box {
     display: flex;
     align-items: center;
+    .ic_setting {
+      position: relative;
+      z-index: -1;
+      opacity: 0;
+      transition: all 0.1s;
+      margin-left:10px;
+      width:20px;height:20px;
+      padding:2px;
+      cursor:pointer;
+    }
+    .ic_setting.on{
+      border:1px solid #555;
+      color:#fff;
+      background:#555;
+      border-radius:2px;
+    }
+    &:hover .ic_setting, .ic_setting.on{
+        opacity: 1;
+        z-index: 1;
+      }
+    }
   }
   .tit {
     &.depth_1 {
@@ -91,6 +122,9 @@ const WorkCateBox = styled.div`
     gap: 10px;
   }
   ul.depth_3.on {
+    margin-top:10px;
+    margin-left:10px;
+    margin-right:10px;
     gap: 5px !important;
   }
 
@@ -106,10 +140,17 @@ const WorkCateBox = styled.div`
     height: auto;
     min-width: 0;
     border: 1px solid #555;
-    border-radius: 0;
+    border-radius: 3px;
+    &.modify {
+      border: 0;
+    }
+    &.remove{
+      border-radius:3px;
+      border:0;
+    }
     .ic {
-      width: 7px;
-      height: 7px;
+      width: 9px;
+      height: 9px;
       position: relative;
       &::after {
         content: "";
@@ -118,8 +159,8 @@ const WorkCateBox = styled.div`
         height: 1px;
         background: #555;
         position: absolute;
-        top: 3px;
-        left: 0;
+        top: 4px;
+        left: 1px;
       }
       &::before {
         content: "";
@@ -128,8 +169,8 @@ const WorkCateBox = styled.div`
         height: 7px;
         background: #555;
         position: absolute;
-        left: 3px;
-        top: 0;
+        left: 4px;
+        top: 1px;
         transition: all 0.2s;
       }
     }
@@ -147,9 +188,22 @@ const WorkCateBox = styled.div`
   ul.depth_3 li {
     font-size: 12px;
     font-weight: 400;
-    color: #555;
     .tit {
       cursor: auto;
+      padding-left:5px;
+    }
+  }
+  .setting_box {
+    display: flex;
+    align-items: center;
+    position:relative;
+    z-index:-1;
+    opacity:0;
+    height:0;
+    &.on{
+      height:auto;
+      opacity:1;
+      z-index:1;
     }
   }
 `;
@@ -171,127 +225,124 @@ function WorkCate() {
   };
 
   const onDepthInput = (e, depth) => {
-    e.currentTarget.classList.toggle("on");
+    const btn = e.currentTarget;
+    btn.classList.toggle("on");
     const box = document.querySelector(`div[data-depth="${depth}"]`);
+    const input = box.querySelector("input");
     box.classList.toggle("on");
+    if (btn.classList.contains("on")) {
+      input.value = "";
+    } else {
+      input.focus();
+    }
   };
 
-  let testCate = [
-    {
-      tit: "메뉴3",
-      depth: "2",
-    },
-    {
-      tit: "메뉴1",
-      depth: "0",
-    },
-    {
-      tit: "메뉴2",
-      depth: "1",
-    },
-    {
-      tit: "하위1_1",
-      depth: "0_0",
-    },
-    {
-      tit: "하위1_2",
-      depth: "0_1",
-    },
-    {
-      tit: "하위2_1",
-      depth: "1_0",
-    },
-    {
-      tit: "하위3",
-      depth: "0_2",
-    },
-    {
-      tit: "하위4",
-      depth: "0_3",
-    },
-    {
-      tit: "하위1_1_1",
-      depth: "0_0_0",
-    },
-    {
-      tit: "하위1_2_2",
-      depth: "0_1_0",
-    },
-    {
-      tit: "하위1_2_1",
-      depth: "0_1_1",
-    },
-  ];
-  let depthArr2 = [];
-  let depthArr3 = [];
+  const [depthArr2, setDepthArr2] = useState();
+  const [depthArr3, setDepthArr3] = useState();
+  const CateDataProcessing = (initArray) => {
+    let depthArr2 = [];
+    let depthArr3 = [];
 
-  let cateArr = [];
+    let cateArr = [];
 
-  testCate.forEach((el) => {
-    const depth = el.depth.split("_");
-    if (depth.length == 1) {
-      cateArr.push(el);
-    }
-    if (depth.length == 2) {
-      depthArr2.push(el);
-    }
-    if (depth.length == 3) {
-      depthArr3.push(el);
-    }
-  });
+    initArray.forEach((el) => {
+      const depth = el.depth.split("_");
+      if (depth.length == 1) {
+        cateArr.push(el);
+      }
+      if (depth.length == 2) {
+        depthArr2.push(el);
+      }
+      if (depth.length == 3) {
+        depthArr3.push(el);
+      }
+    });
 
-  cateArr.sort((a, b) => a.depth - b.depth);
+    cateArr.sort((a, b) => a.depth - b.depth);
 
-  depthArr3.forEach((d3) => {
-    const idx = depthArr2.findIndex(
-      (d2) =>
-        d2.depth.split("_")[0] == d3.depth.split("_")[0] &&
-        d2.depth.split("_")[1] == d3.depth.split("_")[1]
-    );
-    if (depthArr2[idx].sub) {
-      depthArr2[idx].sub.push(d3);
-    } else {
-      depthArr2[idx].sub = [d3];
-    }
-  });
+    depthArr3.forEach((d3) => {
+      const idx = depthArr2.findIndex(
+        (d2) =>
+          d2.depth.split("_")[0] == d3.depth.split("_")[0] &&
+          d2.depth.split("_")[1] == d3.depth.split("_")[1]
+      );
+      if (depthArr2[idx].sub) {
+        depthArr2[idx].sub.push(d3);
+      } else {
+        depthArr2[idx].sub = [d3];
+      }
+    });
 
-  depthArr2.forEach((d2) => {
-    if (d2.sub) {
-      d2.sub.sort((a, b) => a.depth.split("_")[2] - b.depth.split("_")[2]);
-    }
-    const idx = cateArr.findIndex(
-      (d1) => d1.depth.split("_")[0] == d2.depth.split("_")[0]
-    );
-    if (cateArr[idx].sub) {
-      cateArr[idx].sub.push(d2);
-    } else {
-      cateArr[idx].sub = [d2];
-    }
-  });
+    depthArr2.forEach((d2) => {
+      if (d2.sub) {
+        d2.sub.sort((a, b) => a.depth.split("_")[2] - b.depth.split("_")[2]);
+      }
+      const idx = cateArr.findIndex(
+        (d1) => d1.depth.split("_")[0] == d2.depth.split("_")[0]
+      );
+      if (cateArr[idx].sub) {
+        cateArr[idx].sub.push(d2);
+      } else {
+        cateArr[idx].sub = [d2];
+      }
+    });
 
-  cateArr.forEach((el) => {
-    if (el.sub) {
-      el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
-    }
-  });
+    cateArr.forEach((el) => {
+      if (el.sub) {
+        el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
+      }
+    });
+
+    setDepthArr2(depthArr2);
+    setDepthArr3(depthArr3);
+
+    return cateArr;
+  };
+
+  const [render, setRender] = useState();
+  const [cateList, setCateList] = useState();
+  useEffect(() => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_cate_list",
+      })
+      .then((res) => {
+        const listData = CateDataProcessing(res.data.cate);
+        console.log(listData);
+        setCateList(listData);
+      });
+  }, [render]);
 
   const makeDepth = (depth) => {
-    const d = depth.split("_");
+    const d = depth?.split("_");
+
     let idx;
-    if (d.length == 1) {
-      idx = 1 * cateArr[cateArr.length - 1].depth + 1;
+    if (d && d.length == 1) {
+      idx = depthArr2.filter((el) => el.depth.split("_")[0] == d[0]);
+      idx =
+        idx.length > 0 ? 1 * idx[idx.length - 1].depth.split("_")[1] + 1 : 0;
+    } else if (d && d.length == 2) {
+      idx = depthArr3.filter(
+        (el) => el.depth.split("_")[0] == d[0] && el.depth.split("_")[1] == d[1]
+      );
+      idx =
+        idx.length > 0 ? 1 * idx[idx.length - 1].depth.split("_")[2] + 1 : 0;
+    } else {
+      idx = cateList ? 1 * cateList[cateList.length - 1].depth + 1 : 0;
     }
-    if (d.length == 2) {
-      idx = 1 * depthArr2[depthArr2.length - 1].depth + 1;
-    }
-    const title = document.querySelector(
-      `div[data-depth="${depth}"] input`
-    ).value;
+
+    const addDepth = depth ? `${depth}_${idx}` : String(idx);
+
+    const input =
+      document.querySelector(`div[data-depth="${depth}"] input`) ||
+      document.querySelector(".input_poject");
+    const title = input.value;
+
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "regis_cate_depth",
         title,
-        depth,
+        depth: addDepth,
       })
       .then((res) => {
         toast({
@@ -300,84 +351,263 @@ function WorkCate() {
           duration: 1000,
           isClosable: false,
         });
+        input.value = "";
+        setRender(!render);
       });
+  };
+
+  const onModifyInput = (e, uid) => {
+    const btn = e.currentTarget;
+
+    const box = document.querySelector(`div[data-uid="${uid}"]`);
+    const input = box.querySelector("input");
+
+    box.classList.toggle("on");
+    if (btn.classList.contains("on")) {
+      input.value = "";
+    } else {
+      input.focus();
+    }
+  };
+
+  const cateModifySubmit = (uid) => {
+    const box = document.querySelector(`div[data-uid="${uid}"]`);
+    const input = box.querySelector("input");
+
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "update_cate_title",
+        title: input.value,
+        uid,
+      })
+      .then((res) => {
+        toast({
+          description: "카테고리가 수정 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        setRender(!render);
+      });
+  };
+
+  const onSettingToggle = (e, uid) => {
+    const btn = e.currentTarget;
+    const box = document.querySelector(`div[data-setting="${uid}"]`);
+    btn.classList.toggle("on");
+    box.classList.toggle("on");
+  };
+
+  const removeList = (uid) => {
+    const agree = confirm(
+      "삭제 하시겠습니까?\n상위 카테고리의 경우 하위 카테고리까지 모두 삭제 됩니다."
+    );
+    if (agree) {
+      axios
+        .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+          a: "remove_cate_list",
+          uid,
+        })
+        .then((res) => {
+          toast({
+            description: "삭제 되었습니다.",
+            status: "success",
+            duration: 1000,
+            isClosable: false,
+          });
+          setRender(!render);
+        });
+    }
   };
 
   return (
     <>
       <WorkCateBox>
+        <Flex width={400} mb={3}>
+          <Input
+            className="input_poject"
+            size="sm"
+            placeholder="프로젝트 추가"
+          />
+          <Button
+            onClick={() => makeDepth()}
+            size="sm"
+            ml={1}
+            colorScheme="teal"
+          >
+            생성
+          </Button>
+        </Flex>
         <ul className="depth_1">
-          {cateArr &&
-            cateArr.map((el) => {
+          {cateList &&
+            cateList.map((el) => {
               return (
                 <>
-                  <li>
+                  <li key={el.uid}>
                     <div className="tit_box">
                       <span
                         className="tit depth_1"
                         onClick={(e) => toggleDepth(e, el.depth)}
                       >
                         <span className="ic"></span>
-                        {el.tit}
+                        {el.title}
                       </span>
-                      <Button
-                        onClick={(e) => onDepthInput(e, el.depth)}
-                        className="btn_add"
-                        size="sm"
-                        ml={2}
-                      >
-                        <span className="ic" />
-                      </Button>
-                      <div data-depth={el.depth} className="add_cate_box">
-                        <Input size="sm" ml={2} placeholder="하위 카테고리명" />
+                      <AiOutlineSetting
+                        onClick={(e) => onSettingToggle(e, el.uid)}
+                        className="ic_setting"
+                        title="설정"
+                      />
+                      <div className="setting_box" data-setting={el.uid}>
                         <Button
-                          onClick={() => makeDepth(el.depth)}
+                          onClick={(e) => onModifyInput(e, el.uid)}
+                          className="btn_add modify"
                           size="sm"
-                          ml={1}
-                          colorScheme="teal"
+                          ml={2}
+                          title="제목 수정"
                         >
-                          생성
+                          <FiEdit />
                         </Button>
+                        <Button
+                          onClick={() => removeList(el.uid)}
+                          className="btn_add remove"
+                          size="sm"
+                          ml={2}
+                          title="삭제"
+                        >
+                          <RiDeleteBin6Line />
+                        </Button>
+                        <Button
+                          onClick={(e) => onDepthInput(e, el.depth)}
+                          className="btn_add"
+                          size="sm"
+                          ml={2}
+                          title="하위 추가"
+                        >
+                          <span className="ic" />
+                        </Button>
+                        <div data-uid={el.uid} className="add_cate_box">
+                          <Input
+                            size="sm"
+                            ml={2}
+                            width={250}
+                            defaultValue={el.title}
+                            placeholder={`[${el.title}] 수정할 이름`}
+                          />
+                          <Button
+                            onClick={() => cateModifySubmit(el.uid)}
+                            size="sm"
+                            ml={1}
+                            colorScheme="teal"
+                          >
+                            수정하기
+                          </Button>
+                        </div>
+                        <div data-depth={el.depth} className="add_cate_box">
+                          <Input
+                            size="sm"
+                            ml={2}
+                            width={250}
+                            placeholder={`[${el.title}] 하위 카테고리명`}
+                          />
+                          <Button
+                            onClick={() => makeDepth(el.depth)}
+                            size="sm"
+                            ml={1}
+                            colorScheme="teal"
+                          >
+                            생성
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <ul data-depth={el.depth} className="depth_2">
                       {el.sub &&
                         el.sub.map((list) => (
                           <>
-                            <li>
+                            <li key={list.uid}>
                               <div className="tit_box">
                                 <span
                                   className="tit open"
                                   onClick={(e) => toggleDepth(e, list.depth)}
                                 >
                                   <span className="ic"></span>
-                                  {list.tit}
+                                  {list.title}
                                 </span>
-                                <Button
-                                  onClick={(e) => onDepthInput(e, list.depth)}
-                                  className="btn_add"
-                                  size="sm"
-                                  ml={2}
-                                >
-                                  <span className="ic" />
-                                </Button>
+                                <AiOutlineSetting
+                                  onClick={(e) => onSettingToggle(e, list.uid)}
+                                  className="ic_setting"
+                                  title="설정"
+                                />
                                 <div
-                                  data-depth={list.depth}
-                                  className="add_cate_box"
+                                  className="setting_box"
+                                  data-setting={list.uid}
                                 >
-                                  <Input
+                                  <Button
+                                    onClick={(e) => onModifyInput(e, list.uid)}
+                                    className="btn_add modify"
                                     size="sm"
                                     ml={2}
-                                    placeholder="하위 카테고리명"
-                                  />
-                                  <Button
-                                    onClick={() => makeDepth(list.depth)}
-                                    size="sm"
-                                    ml={1}
-                                    colorScheme="teal"
+                                    title="제목 수정"
                                   >
-                                    생성
+                                    <FiEdit />
                                   </Button>
+                                  <Button
+                                    onClick={() => removeList(list.uid)}
+                                    className="btn_add remove"
+                                    size="sm"
+                                    ml={2}
+                                    title="삭제"
+                                  >
+                                    <RiDeleteBin6Line />
+                                  </Button>
+                                  <Button
+                                    onClick={(e) => onDepthInput(e, list.depth)}
+                                    className="btn_add"
+                                    size="sm"
+                                    ml={2}
+                                    title="하위 추가"
+                                  >
+                                    <span className="ic" />
+                                  </Button>
+                                  <div
+                                    data-uid={list.uid}
+                                    className="add_cate_box"
+                                  >
+                                    <Input
+                                      size="sm"
+                                      ml={2}
+                                      width={250}
+                                      defaultValue={list.title}
+                                      placeholder={`[${list.title}] 수정할 이름`}
+                                    />
+                                    <Button
+                                      onClick={() => cateModifySubmit(list.uid)}
+                                      size="sm"
+                                      ml={1}
+                                      colorScheme="teal"
+                                    >
+                                      수정하기
+                                    </Button>
+                                  </div>
+                                  <div
+                                    data-depth={list.depth}
+                                    className="add_cate_box"
+                                  >
+                                    <Input
+                                      size="sm"
+                                      ml={2}
+                                      width={250}
+                                      placeholder={`[${list.title}] 하위 카테고리명`}
+                                    />
+                                    <Button
+                                      onClick={() => makeDepth(list.depth)}
+                                      size="sm"
+                                      ml={1}
+                                      colorScheme="teal"
+                                    >
+                                      생성
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                               <ul
@@ -387,8 +617,68 @@ function WorkCate() {
                                 {list.sub &&
                                   list.sub.map((list2) => (
                                     <>
-                                      <li>
-                                        <span className="tit">{list2.tit}</span>
+                                      <li key={list2.uid}>
+                                        <div className="tit_box">
+                                          <span className="tit">
+                                            {list2.title}
+                                          </span>
+                                          <AiOutlineSetting
+                                            onClick={(e) =>
+                                              onSettingToggle(e, list2.uid)
+                                            }
+                                            className="ic_setting"
+                                            title="설정"
+                                          />
+                                          <div
+                                            data-setting={list2.uid}
+                                            className="setting_box"
+                                          >
+                                            <Button
+                                              onClick={(e) =>
+                                                onModifyInput(e, list2.uid)
+                                              }
+                                              className="btn_add modify"
+                                              size="sm"
+                                              ml={2}
+                                              title="제목 수정"
+                                            >
+                                              <FiEdit />
+                                            </Button>
+                                            <Button
+                                              onClick={() =>
+                                                removeList(list2.uid)
+                                              }
+                                              className="btn_add remove"
+                                              size="sm"
+                                              ml={2}
+                                              title="삭제"
+                                            >
+                                              <RiDeleteBin6Line />
+                                            </Button>
+                                            <div
+                                              data-uid={list2.uid}
+                                              className="add_cate_box"
+                                            >
+                                              <Input
+                                                size="sm"
+                                                ml={2}
+                                                width={250}
+                                                defaultValue={list2.title}
+                                                placeholder={`[${list2.title}] 수정할 이름`}
+                                              />
+                                              <Button
+                                                onClick={() =>
+                                                  cateModifySubmit(list2.uid)
+                                                }
+                                                size="sm"
+                                                ml={1}
+                                                colorScheme="teal"
+                                              >
+                                                수정하기
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
                                       </li>
                                     </>
                                   ))}
