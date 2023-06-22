@@ -686,203 +686,206 @@ export default function Main() {
   };
 
   return (
-    <MainWrapper>
-      <header
-        style={{
-          background: `url(${headerImg}) no-repeat center center/cover`,
-        }}
-      >
-        <div className="bg_balck"></div>
-        <div className="content_box">
-          <Button className="btn_bg_modify">
-            <input
-              type="file"
-              id="bg_input"
-              onInput={onMainBg}
-              accept="image/*"
-            />
-            <label htmlFor="bg_input">
-              <MdImageSearch style={{ fontSize: "20px" }} />
-            </label>
-          </Button>
-        </div>
-      </header>
-      <div className="content_box con">
-        <div className="profile_box">
-          <div className="profile_img">
-            {userInfo && userInfo.profile ? (
-              <div
-                style={{
-                  background: `url(${userInfo.profile}) no-repeat center center/cover`,
-                  width: "100%",
-                  height: "100%",
-                }}
+    <>
+      <MainWrapper>
+        <header
+          style={{
+            background: `url(${headerImg}) no-repeat center center/cover`,
+          }}
+        >
+          <div className="bg_balck"></div>
+          <div className="content_box">
+            <Button className="btn_bg_modify">
+              <input
+                type="file"
+                id="bg_input"
+                onInput={onMainBg}
+                accept="image/*"
               />
-            ) : (
-              <FaUser className="none_img" />
-            )}
-          </div>
-          <h3>{userInfo && userInfo.name}</h3>
-          <Button variant="outline" className="btn_modify" size="sm">
-            <Link href="/mypage">정보 수정하기</Link>
-          </Button>
-          <div className="attend_check">
-            <Button
-              colorScheme="teal"
-              variant="solid"
-              onClick={() => onAttentCheck(1)}
-            >
-              출근체크
+              <label htmlFor="bg_input">
+                <MdImageSearch style={{ fontSize: "20px" }} />
+              </label>
             </Button>
-            <Button onClick={() => onAttentCheck(2)}>퇴근체크</Button>
           </div>
-          <ul className="attend_list">
-            {attendList &&
-              attendList.map((el) => (
-                <>
-                  <li>
-                    <span>{el.type == 1 ? "출근" : "퇴근"}</span>
-                    <span>{el.date_regis}</span>
-                  </li>
-                </>
-              ))}
-          </ul>
-        </div>
-        <Flex justifyContent="space-between" alignItems="center">
-          <h2 className="title">
-            연차내역{" "}
-            <span className="rest_dayoff">
-              (남은연차 : {userInfo?.dayoff ? `${userInfo.dayoff} 개` : "0 개"})
-            </span>
-          </h2>
-          <Link href="/schedule">
-            <a className="link">
-              <Flex alignItems="center">
-                more
-                <HiExternalLink
-                  style={{ marginTop: "4px", marginLeft: "4px" }}
+        </header>
+        <div className="content_box con">
+          <div className="profile_box">
+            <div className="profile_img">
+              {userInfo && userInfo.profile ? (
+                <div
+                  style={{
+                    background: `url(${userInfo.profile}) no-repeat center center/cover`,
+                    width: "100%",
+                    height: "100%",
+                  }}
                 />
-              </Flex>
-            </a>
-          </Link>
-        </Flex>
+              ) : (
+                <FaUser className="none_img" />
+              )}
+            </div>
+            <h3>{userInfo && userInfo.name}</h3>
+            <Button variant="outline" className="btn_modify" size="sm">
+              <Link href="/mypage">정보 수정하기</Link>
+            </Button>
+            <div className="attend_check">
+              <Button
+                colorScheme="teal"
+                variant="solid"
+                onClick={() => onAttentCheck(1)}
+              >
+                출근체크
+              </Button>
+              <Button onClick={() => onAttentCheck(2)}>퇴근체크</Button>
+            </div>
+            <ul className="attend_list">
+              {attendList &&
+                attendList.map((el) => (
+                  <>
+                    <li>
+                      <span>{el.type == 1 ? "출근" : "퇴근"}</span>
+                      <span>{el.date_regis}</span>
+                    </li>
+                  </>
+                ))}
+            </ul>
+          </div>
+          <Flex justifyContent="space-between" alignItems="center">
+            <h2 className="title">
+              연차내역{" "}
+              <span className="rest_dayoff">
+                (남은연차 :{" "}
+                {userInfo?.dayoff ? `${userInfo.dayoff} 개` : "0 개"})
+              </span>
+            </h2>
+            <Link href="/schedule">
+              <a className="link">
+                <Flex alignItems="center">
+                  more
+                  <HiExternalLink
+                    style={{ marginTop: "4px", marginLeft: "4px" }}
+                  />
+                </Flex>
+              </a>
+            </Link>
+          </Flex>
 
-        <div className="hitmap_box">
-          <CalendarHeatmap
-            gutterSize={2}
-            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-            values={dayOffList}
-            classForValue={(value) => {
-              if (!value) {
-                return "color-empty";
-              }
-              return `color-github-${value.type}`;
-            }}
-            onMouseOver={(e, value) => {
-              onTooltip(e, value, "dayoff");
-            }}
-            showWeekdayLabels={true}
-          />
-          <ul className="type_info">
-            <li className="am_off">오전반차</li>
-            <li className="pm_off">오후반차</li>
-            <li className="all_off">연차</li>
-          </ul>
-        </div>
-        <div className="divide"></div>
-        <Flex justifyContent="space-between" alignItems="center">
-          <h2 className="title">결재내역</h2>
-          <Link href="/board/list">
-            <a className="link">
-              <Flex alignItems="center">
-                more
-                <HiExternalLink
-                  style={{ marginTop: "4px", marginLeft: "4px" }}
-                />
-              </Flex>
-            </a>
-          </Link>
-        </Flex>
-        <div className="hitmap_box">
-          <CalendarHeatmap
-            gutterSize={2}
-            startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-            endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
-            values={boardList}
-            classForValue={(value) => {
-              if (!value) {
-                return "color-empty";
-              } else {
-                return `board_type_${value.list[0].type} link`;
-              }
-            }}
-            onMouseOver={(e, value) => {
-              onTooltip(e, value, "board");
-            }}
-            onClick={(value) => onCurrentHitmap(value)}
-            showWeekdayLabels={true}
-          />
-          <ul className="type_info">
-            {boardType &&
-              boardType.map((el, idx) => (
-                <>
-                  <li key={idx} className={`board_type_${idx}`}>
-                    {el.title}
+          <div className="hitmap_box">
+            <CalendarHeatmap
+              gutterSize={2}
+              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+              values={dayOffList}
+              classForValue={(value) => {
+                if (!value) {
+                  return "color-empty";
+                }
+                return `color-github-${value.type}`;
+              }}
+              onMouseOver={(e, value) => {
+                onTooltip(e, value, "dayoff");
+              }}
+              showWeekdayLabels={true}
+            />
+            <ul className="type_info">
+              <li className="am_off">오전반차</li>
+              <li className="pm_off">오후반차</li>
+              <li className="all_off">연차</li>
+            </ul>
+          </div>
+          <div className="divide"></div>
+          <Flex justifyContent="space-between" alignItems="center">
+            <h2 className="title">결재내역</h2>
+            <Link href="/board/list">
+              <a className="link">
+                <Flex alignItems="center">
+                  more
+                  <HiExternalLink
+                    style={{ marginTop: "4px", marginLeft: "4px" }}
+                  />
+                </Flex>
+              </a>
+            </Link>
+          </Flex>
+          <div className="hitmap_box">
+            <CalendarHeatmap
+              gutterSize={2}
+              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
+              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+              values={boardList}
+              classForValue={(value) => {
+                if (!value) {
+                  return "color-empty";
+                } else {
+                  return `board_type_${value.list[0].type} link`;
+                }
+              }}
+              onMouseOver={(e, value) => {
+                onTooltip(e, value, "board");
+              }}
+              onClick={(value) => onCurrentHitmap(value)}
+              showWeekdayLabels={true}
+            />
+            <ul className="type_info">
+              {boardType &&
+                boardType.map((el, idx) => (
+                  <>
+                    <li key={idx} className={`board_type_${idx}`}>
+                      {el.title}
+                    </li>
+                  </>
+                ))}
+            </ul>
+          </div>
+          {hitmapListData && (
+            <HitmapDetail>
+              <h3 className="title">
+                <MdOutlineDateRange />
+                {hitmapListData.date}
+              </h3>
+              <ul className="header">
+                <li className="box">제목</li>
+                <li className="box">유형</li>
+                <li className="box">결재자</li>
+              </ul>
+              <ul className="body">
+                {hitmapListData.list.map((el, idx) => (
+                  <li key={idx}>
+                    <span className="box">{el.subject}</span>
+                    <span className="box">{el.typeName}</span>
+                    <span className="box">
+                      {el.manager.map((list, idx) => {
+                        if (el.manager.length == idx + 1) {
+                          return <>{list.name}</>;
+                        } else {
+                          return <>{list.name}, </>;
+                        }
+                      })}
+                    </span>
                   </li>
-                </>
-              ))}
-          </ul>
+                ))}
+              </ul>
+            </HitmapDetail>
+          )}
         </div>
-        {hitmapListData && (
-          <HitmapDetail>
-            <h3 className="title">
-              <MdOutlineDateRange />
-              {hitmapListData.date}
-            </h3>
-            <ul className="header">
-              <li className="box">제목</li>
-              <li className="box">유형</li>
-              <li className="box">결재자</li>
-            </ul>
-            <ul className="body">
-              {hitmapListData.list.map((el, idx) => (
-                <li key={idx}>
-                  <span className="box">{el.subject}</span>
-                  <span className="box">{el.typeName}</span>
-                  <span className="box">
-                    {el.manager.map((list, idx) => {
-                      if (el.manager.length == idx + 1) {
-                        return <>{list.name}</>;
-                      } else {
-                        return <>{list.name}, </>;
-                      }
-                    })}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </HitmapDetail>
+        {currentDayoff && (
+          <HitmapOver pos={tooltipPos} data={currentDayoff}>
+            <p>{currentDayoff.subject}</p>
+            <p>{currentDayoff.date}</p>
+            <p>{currentDayoff.offType}</p>
+          </HitmapOver>
         )}
-      </div>
-      {currentDayoff && (
-        <HitmapOver pos={tooltipPos} data={currentDayoff}>
-          <p>{currentDayoff.subject}</p>
-          <p>{currentDayoff.date}</p>
-          <p>{currentDayoff.offType}</p>
-        </HitmapOver>
-      )}
-      {currentBoard && (
-        <HitmapOver pos={tooltipPos} data={currentBoard}>
-          <p>
-            {currentBoard.list[0].subject}
-            {currentBoard.list.length > 1 &&
-              ` 외 ${currentBoard.list.length - 1} 건`}
-          </p>
-          <p>{currentBoard.date}</p>
-          <p>{currentBoard.list[0].typeName}</p>
-        </HitmapOver>
-      )}
-    </MainWrapper>
+        {currentBoard && (
+          <HitmapOver pos={tooltipPos} data={currentBoard}>
+            <p>
+              {currentBoard.list[0].subject}
+              {currentBoard.list.length > 1 &&
+                ` 외 ${currentBoard.list.length - 1} 건`}
+            </p>
+            <p>{currentBoard.date}</p>
+            <p>{currentBoard.list[0].typeName}</p>
+          </HitmapOver>
+        )}
+      </MainWrapper>
+    </>
   );
 }

@@ -108,6 +108,9 @@ export default function UserModifyPop({
   }, [userData, watchClient]);
 
   function onSubmit(values) {
+    const projectArr = values.project.split("_");
+    values.project = projectArr[0];
+    values.project_depth = projectArr[1];
     return new Promise((resolve) => {
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
@@ -230,11 +233,16 @@ export default function UserModifyPop({
                 </Stack>
               </FormControl>
               {watchClient && projectList && (
-                <Select {...register("project")}>
+                <Select
+                  defaultValue={`${userData.project}_${userData.project_depth}`}
+                  {...register("project")}
+                >
                   <>
                     {projectList.map((el) => (
                       <>
-                        <option value={el.uid}>{el.title}</option>
+                        <option value={`${el.uid}_${el.depth}`}>
+                          {el.title}
+                        </option>
                       </>
                     ))}
                   </>

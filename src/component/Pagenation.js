@@ -1,7 +1,7 @@
 import Link from "next/link";
 import styled from "styled-components";
 
-export const Pagenation = ({ total, current, viewPage }) => {
+export const Pagenation = ({ total, current, viewPage, type }) => {
   const PagenationBox = styled.ul`
     display: flex;
     margin: 15px 0;
@@ -45,7 +45,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         <li>
           <Link
             href={{
-              pathname: "/work",
+              pathname: type ? type : "/work",
               query: { p: 1 },
             }}
           >
@@ -57,7 +57,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         <li>
           <Link
             href={{
-              pathname: "/work",
+              pathname: type ? type : "/work",
               query: { p: 1 * startPage - viewPage },
             }}
           >
@@ -69,7 +69,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         <li className={el == current && "on"} key={idx}>
           <Link
             href={{
-              pathname: "/work",
+              pathname: type ? type : "/work",
               query: { p: el },
             }}
           >
@@ -81,7 +81,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         <li>
           <Link
             href={{
-              pathname: "/work",
+              pathname: type ? type : "/work",
               query: { p: 1 * lastPage + 1 },
             }}
           >
@@ -93,7 +93,7 @@ export const Pagenation = ({ total, current, viewPage }) => {
         <li>
           <Link
             href={{
-              pathname: "/work",
+              pathname: type ? type : "/work",
               query: { p: lastPageNum },
             }}
           >

@@ -398,7 +398,7 @@ function WorkCate() {
     box.classList.toggle("on");
   };
 
-  const removeList = (uid) => {
+  const removeList = (depth, uid) => {
     const agree = confirm(
       "삭제 하시겠습니까?\n상위 카테고리의 경우 하위 카테고리까지 모두 삭제 됩니다."
     );
@@ -406,9 +406,10 @@ function WorkCate() {
       axios
         .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
           a: "remove_cate_list",
-          uid,
+          depth,
         })
         .then((res) => {
+          console.log(res);
           toast({
             description: "삭제 되었습니다.",
             status: "success",
@@ -468,7 +469,7 @@ function WorkCate() {
                           <FiEdit />
                         </Button>
                         <Button
-                          onClick={() => removeList(el.uid)}
+                          onClick={() => removeList(el.depth, el.uid)}
                           className="btn_add remove"
                           size="sm"
                           ml={2}
@@ -552,7 +553,9 @@ function WorkCate() {
                                     <FiEdit />
                                   </Button>
                                   <Button
-                                    onClick={() => removeList(list.uid)}
+                                    onClick={() =>
+                                      removeList(list.depth, list.uid)
+                                    }
                                     className="btn_add remove"
                                     size="sm"
                                     ml={2}
@@ -646,7 +649,10 @@ function WorkCate() {
                                             </Button>
                                             <Button
                                               onClick={() =>
-                                                removeList(list2.uid)
+                                                removeList(
+                                                  list2.depth,
+                                                  list2.uid
+                                                )
                                               }
                                               className="btn_add remove"
                                               size="sm"

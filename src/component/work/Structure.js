@@ -19,6 +19,9 @@ import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import styled from "styled-components";
 import WorkPop from "@component/work/WorkPop";
+import WorkResigPop from "@component/work/WorkResigPop";
+import CateStatePop from "@component/work/CateStatePop";
+import CateStateListPop from "./CateStateListPop";
 
 const MenuStructure = styled.div`
   margin-top: 20px;
@@ -32,6 +35,9 @@ const MenuStructure = styled.div`
   }
   .wid_2 {
     width: 130px;
+  }
+  .wid_3 {
+    width: 160px;
   }
   .header {
     display: flex;
@@ -83,6 +89,8 @@ const MenuStructure = styled.div`
 `;
 
 export default function Structure() {
+  const cateState = ["대기", "진행", "완료"];
+
   const router = useRouter();
   useGetUser();
   const toast = useToast();
@@ -118,6 +126,17 @@ export default function Structure() {
     cateArr.sort((a, b) => a.depth - b.depth);
 
     depthArr3.forEach((d3) => {
+      if (d3.manager) {
+        const manager = [];
+        const managerArr = JSON.parse(d3.manager);
+        managerArr.forEach((el) => {
+          if (el === userInfo.uid) {
+            d3.isManager = true;
+          }
+          manager.push(userAll?.find((user) => el === user.uid));
+        });
+        d3.manager = manager;
+      }
       const idx = depthArr2.findIndex(
         (d2) =>
           d2.depth.split("_")[0] == d3.depth.split("_")[0] &&
@@ -205,7 +224,7 @@ export default function Structure() {
     }
   };
 
-  const [render, setRender] = useState();
+  const [render, setRender] = useState(false);
   const [cateList, setCateList] = useState();
   useEffect(() => {
     axios
@@ -213,11 +232,22 @@ export default function Structure() {
         a: "get_cate_work",
       })
       .then((res) => {
-        console.log(res);
         const listData = CateDataProcessing(res.data.cate);
+        console.log(listData);
         setCateList(listData);
       });
   }, [render]);
+
+  useEffect(() => {
+    if (!cateList) return;
+    if (cateUid1) {
+      onChangeCate(cateUid1.uid, 1);
+      return;
+    }
+    if (userInfo?.partner) {
+      onChangeCate(userInfo.project, 1);
+    }
+  }, [cateList]);
 
   //리스트 팝업
   const [isWorkPop, setIsWorkPop] = useState(false);
@@ -229,32 +259,128 @@ export default function Structure() {
   };
   const closeDayoffPop = () => {
     setIsWorkPop(false);
+    setSelectWorkInfo("");
+  };
+
+  //글작성 팝업
+  const [isWorkRegisPop, setIsWorkRegisPop] = useState(false);
+  const onPopWorkRegis = (depth) => {
+    setIsWorkRegisPop(true);
+    setSelectWorkInfo(depth);
+  };
+  const closeRegisPop = () => {
+    setIsWorkRegisPop(false);
+    setSelectWorkInfo("");
+  };
+  const closeRender = () => {
+    setIsWorkRegisPop(false);
+    setSelectWorkInfo("");
+    setRender(!render);
+  };
+
+  //카테고리 상태 변경 팝업
+  const [isCateStatePop, setIsCateStatePop] = useState(false);
+  const [selectCateInfo, setSelectCateInfo] = useState();
+
+  const onCateStatePop = (data) => {
+    setIsCateStatePop(true);
+    setSelectCateInfo(data);
+  };
+  const closeCatePop = () => {
+    setIsCateStatePop(false);
+    setSelectCateInfo("");
+  };
+  const reRender = () => {
+    setRender(!render);
+  };
+
+  //카테고리 상태 변경 내역 팝업
+  const [isStateListPop, setIsStateListPop] = useState(false);
+  const onCateStateListPop = (data) => {
+    setSelectCateInfo(data);
+    setIsStateListPop(true);
+  };
+  const closeCateListPop = () => {
+    setIsStateListPop(false);
+    setSelectCateInfo("");
+  };
+
+  //담당자 추가
+  const onJoinManager = (uid) => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "add_cate_manager",
+        uid,
+        user: userInfo.uid,
+      })
+      .then((res) => {
+        if (res.data?.is) {
+          toast({
+            description: "이미 담당자에 추가 되어있습니다.",
+            status: "info",
+            duration: 1000,
+            isClosable: false,
+          });
+          return;
+        }
+        toast({
+          description: "담당자로 추가 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        reRender();
+      });
+  };
+
+  //담당자 제외
+  const onOutManager = (uid) => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "remove_cate_manager",
+        uid,
+        user: userInfo.uid,
+      })
+      .then((res) => {
+        toast({
+          description: "담당자에서 제외 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        reRender();
+      });
   };
 
   return (
     <>
-      <Flex>
-        <Select width={250} onChange={(e) => onChangeCate(e, 1)}>
-          <option value="">프로젝트 선택</option>
-          {cateList &&
-            cateList.map((el) => (
-              <>
-                <option key={el.uid} value={el.uid}>
-                  {el.title}
-                </option>
-              </>
-            ))}
-        </Select>
-      </Flex>
+      {userInfo && !userInfo.partner && (
+        <Flex>
+          <Select width={250} onChange={(e) => onChangeCate(e, 1)}>
+            <option value="">프로젝트 선택</option>
+            {cateList &&
+              cateList.map((el) => (
+                <>
+                  <option key={el.uid} value={el.uid}>
+                    {el.title}
+                  </option>
+                </>
+              ))}
+          </Select>
+        </Flex>
+      )}
 
       {selectCateDepth2 && (
         <MenuStructure>
           <div className="header">
             <span className="wid_1">카테고리1</span>
             <span className="wid_1">카테고리2</span>
-            <span className="wid_2">진행상황</span>
+            <span className="wid_1">진행상황</span>
             <span className="wid_2">미완료</span>
             <span className="wid_2">완료</span>
+            <span className="wid_2">글등록</span>
+            <span className="wid_2">담당자</span>
+            <span className="wid_2">담당자 지정</span>
           </div>
           <ul className="depth_2">
             {selectCateDepth2.map((list) => (
@@ -274,7 +400,23 @@ export default function Structure() {
                             <div className="tit_box wid_1">
                               <span className="tit">{list2.title}</span>
                             </div>
-                            <div className="tit_box wid_2">진행상황</div>
+                            <div className="tit_box wid_1">
+                              {cateState[list2.state]}
+                              <Button
+                                size="sm"
+                                ml={2}
+                                onClick={() => onCateStatePop(list2)}
+                              >
+                                변경
+                              </Button>
+                              <Button
+                                size="sm"
+                                ml={1}
+                                onClick={() => onCateStateListPop(list2)}
+                              >
+                                내역
+                              </Button>
+                            </div>
                             <div className="tit_box wid_2">
                               {list2.work?.state_1 && (
                                 <button
@@ -293,6 +435,51 @@ export default function Structure() {
                                 </button>
                               )}
                             </div>
+                            <div className="tit_box wid_2">
+                              <Button
+                                onClick={() => onPopWorkRegis(list2.depth)}
+                                size="sm"
+                                colorScheme="teal"
+                              >
+                                글등록
+                              </Button>
+                            </div>
+                            <div className="tit_box wid_2">
+                              {list2.manager &&
+                                list2.manager.map((mng, idx) => {
+                                  let comma = "";
+                                  if (idx != 0) {
+                                    comma = ", ";
+                                  }
+                                  return (
+                                    <>
+                                      <span>
+                                        {comma}
+                                        {mng?.name}
+                                      </span>
+                                    </>
+                                  );
+                                })}
+                            </div>
+                            <div className="tit_box wid_2">
+                              {list2.isManager ? (
+                                <Button
+                                  onClick={() => onOutManager(list2.uid)}
+                                  size="sm"
+                                  colorScheme="red"
+                                >
+                                  담당제외
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => onJoinManager(list2.uid)}
+                                  size="sm"
+                                  colorScheme="teal"
+                                >
+                                  담당추가
+                                </Button>
+                              )}
+                            </div>
                           </li>
                         </>
                       ))}
@@ -308,6 +495,32 @@ export default function Structure() {
           selectWorkInfo={selectWorkInfo}
           closeDayoffPop={closeDayoffPop}
         />
+      )}
+      {isWorkRegisPop && (
+        <WorkResigPop
+          selectWorkInfo={selectWorkInfo}
+          closeRegisPop={closeRegisPop}
+          closeRender={closeRender}
+        />
+      )}
+
+      {isCateStatePop && (
+        <>
+          <CateStatePop
+            selectCateInfo={selectCateInfo}
+            closeCatePop={closeCatePop}
+            reRender={reRender}
+          />
+        </>
+      )}
+
+      {isStateListPop && (
+        <>
+          <CateStateListPop
+            selectCateInfo={selectCateInfo}
+            closeCateListPop={closeCateListPop}
+          />
+        </>
       )}
     </>
   );

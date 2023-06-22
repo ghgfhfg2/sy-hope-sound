@@ -81,7 +81,12 @@ export default function ReportList() {
           ))}
         {listData?.length === 0 && <None />}
       </WorkBoardList>
-      <Pagenation total={totalPage} current={curPage} viewPage={10} />
+      <Pagenation
+        type="report"
+        total={totalPage}
+        current={curPage}
+        viewPage={10}
+      />
     </>
   );
 }

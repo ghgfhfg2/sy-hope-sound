@@ -131,6 +131,7 @@ export default function Editor({
   initTypeCon,
   disable,
   insertHtml,
+  height,
 }) {
   const toast = useToast();
   const editor = useRef();
@@ -192,7 +193,7 @@ export default function Editor({
           <SunEditor
             disable={disable || false}
             onChange={handleEditor}
-            height="70vh"
+            height={height ? height : "70vh"}
             onImageUploadBefore={handleImageUploadBefore}
             getSunEditorInstance={getSunEditorInstance}
             defaultValue={initTypeCon || basicForm}

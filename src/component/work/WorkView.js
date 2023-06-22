@@ -5,7 +5,7 @@ import styled from "styled-components";
 import axios from "axios";
 import useGetUser from "@component/hooks/getUserDb";
 import StepBox from "@component/work/StepBox";
-import { Button, Flex, useToast } from "@chakra-ui/react";
+import { Button, Flex, Textarea, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 
 export const WorkViewBox = styled.div`
@@ -60,11 +60,13 @@ export default function WorkView() {
         resData.cate_2 = resData.cate_2 ? JSON.parse(resData.cate_2) : "";
         resData.cate_3 = resData.cate_3 ? JSON.parse(resData.cate_3) : "";
         const writer = userAll?.find((user) => resData.writer === user.uid);
-        const managerArr = JSON.parse(resData.manager);
         const manager = [];
-        managerArr.forEach((el) => {
-          manager.push(userAll?.find((user) => el === user.uid));
-        });
+        if (resData.manager) {
+          const managerArr = JSON.parse(resData.manager);
+          managerArr.forEach((el) => {
+            manager.push(userAll?.find((user) => el === user.uid));
+          });
+        }
         resData.images = JSON.parse(resData.images);
         setViewData({
           ...writer,
@@ -191,6 +193,14 @@ export default function WorkView() {
                         />
                       </>
                     ))}
+                </Flex>
+              </dd>
+              <dd>
+                <Flex alignItems="stretch" width="100%">
+                  <Textarea style={{ flex: "1" }} />
+                  <Button height="auto" colorScheme="teal" ml={2}>
+                    댓글추가
+                  </Button>
                 </Flex>
               </dd>
             </dl>

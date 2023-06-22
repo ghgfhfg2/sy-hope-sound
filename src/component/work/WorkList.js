@@ -50,6 +50,7 @@ export const WorkBoardList = styled(BoardLi)`
 `;
 
 export default function WorkList() {
+  const userInfo = useSelector((state) => state.user.currentUser);
   const stateText = [
     { txt: "대기", state: 1 },
     { txt: "접수", state: 2 },
@@ -66,21 +67,26 @@ export default function WorkList() {
 
   const [totalPage, setTotalPage] = useState();
   const getWorkList = (page) => {
+    if (!userInfo) return;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_work_list",
         page,
+        depth: userInfo.project_depth || "",
       })
       .then((res) => {
+        console.log(res);
         const total = res.data.total;
         setTotalPage(total);
         const list = res.data.list?.map((el) => {
           const findUser = userAll?.find((user) => el.writer === user.uid);
-          const managerArr = JSON.parse(el.manager);
           const manager = [];
-          managerArr.forEach((el) => {
-            manager.push(userAll?.find((user) => el === user.uid));
-          });
+          if (el.manager) {
+            const managerArr = JSON.parse(el.manager);
+            managerArr.forEach((el) => {
+              manager.push(userAll?.find((user) => el === user.uid));
+            });
+          }
           el.cate_1 = JSON.parse(el.cate_1);
           el.cate_2 = el.cate_2 ? JSON.parse(el.cate_2) : "";
           el.cate_3 = el.cate_3 ? JSON.parse(el.cate_3) : "";
@@ -95,10 +101,9 @@ export default function WorkList() {
   };
 
   useEffect(() => {
-    console.log(curPage);
     getWorkList(curPage);
     return () => {};
-  }, [userAll, curPage]);
+  }, [userAll, curPage, userInfo]);
 
   return (
     <>

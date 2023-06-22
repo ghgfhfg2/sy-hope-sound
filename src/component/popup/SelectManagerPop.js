@@ -14,6 +14,10 @@ import {
 import { CommonPopup } from "@component/insa/UserModifyPop";
 import { ListUl } from "@component/insa/UserList";
 import styled from "styled-components";
+const ManagerPopBox = styled(CommonPopup)`
+  width: 100%;
+`;
+
 const ManagerSelect = styled(ListUl)`
   width: 90vw;
   max-width: 500px;
@@ -51,7 +55,7 @@ export default function SelectManagerPop({
   };
 
   return (
-    <CommonPopup>
+    <ManagerPopBox>
       <div className="con_box">
         <ManagerSelect>
           <ul className="header">
@@ -95,6 +99,6 @@ export default function SelectManagerPop({
         </Flex>
       </div>
       <div className="bg" onClick={closeManagerPop}></div>
-    </CommonPopup>
+    </ManagerPopBox>
   );
 }

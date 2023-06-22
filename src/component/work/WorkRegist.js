@@ -17,6 +17,7 @@ import {
   Stack,
   useToast,
   Select,
+  Text,
 } from "@chakra-ui/react";
 import { BsListCheck } from "react-icons/bs";
 import SelectManagerPop from "@component/popup/SelectManagerPop";
@@ -27,7 +28,7 @@ const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
 
-function WorkRegist() {
+function WorkRegist({ selectWorkInfo, closeRender }) {
   const router = useRouter();
   useGetUser();
   const toast = useToast();
@@ -156,6 +157,7 @@ function WorkRegist() {
   };
 
   const [cateList, setCateList] = useState();
+  const [totalCate, setTotalCate] = useState();
   useEffect(() => {
     axios &&
       axios
@@ -164,10 +166,35 @@ function WorkRegist() {
         })
         .then((res) => {
           const cate = res.data.cate;
+          setTotalCate(cate);
           const list = CateDataProcessing(cate);
           setCateList(list);
         });
   }, []);
+
+  useEffect(() => {
+    if (selectWorkInfo && totalCate) {
+      let depth = selectWorkInfo.split("_");
+      let obj = {
+        depth_1: depth[0],
+        depth_2: `${depth[0]}_${depth[1]}`,
+        depth_3: `${depth[0]}_${depth[1]}_${depth[2]}`,
+      };
+
+      totalCate.forEach((el) => {
+        if (el.depth == obj.depth_1) {
+          setCateUid1(el);
+        }
+        if (el.depth == obj.depth_2) {
+          console.log("setSelectCateDepth2", el);
+          setCateUid2(el);
+        }
+        if (el.depth == obj.depth_3) {
+          setCateUid3(el);
+        }
+      });
+    }
+  }, [totalCate]);
 
   const onManagerPop = () => {
     setIsManagerPop(true);
@@ -215,6 +242,7 @@ function WorkRegist() {
         })
       : "";
     values.depth = cateUid3.depth;
+    values.project = cateUid1.depth;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "regis_work_list",
@@ -243,7 +271,12 @@ function WorkRegist() {
               duration: 1000,
               isClosable: false,
             });
-            router.push("/work");
+            if (selectWorkInfo) {
+              //팝업일때
+              closeRender();
+            } else {
+              router.push("/work");
+            }
           });
       });
   };
@@ -273,15 +306,7 @@ function WorkRegist() {
       });
       return;
     }
-    if (!selectUser) {
-      toast({
-        description: "담당자를 지정해 주세요.",
-        status: "error",
-        duration: 1000,
-        isClosable: false,
-      });
-      return;
-    }
+
     values = {
       ...values,
       type: typeRadio,
@@ -341,49 +366,67 @@ function WorkRegist() {
                 {errors.title && errors.title.message}
               </FormErrorMessage>
             </FormControl>
-
-            <FormControl className="row_section">
-              <div className="row_box">
-                <FormLabel className="label">카테고리</FormLabel>
-                <Select width={250} onChange={(e) => onChangeCate(e, 1)}>
-                  <option value="">프로젝트 선택</option>
-                  {cateList &&
-                    cateList.map((el) => (
-                      <option key={el.uid} value={el.uid}>
-                        {el.title}
-                      </option>
-                    ))}
-                </Select>
-                {selectCateDepth2 && (
-                  <Select
-                    width={250}
-                    ml={2}
-                    onChange={(e) => onChangeCate(e, 2)}
-                  >
-                    <option value="">[{cateUid1.title}] 카테고리 선택</option>
-                    {selectCateDepth2.map((el) => (
-                      <option key={el.uid} value={el.uid}>
-                        {el.title}
-                      </option>
-                    ))}
+            {selectWorkInfo ? (
+              <>
+                <FormControl className="row_section">
+                  <div className="row_box">
+                    <FormLabel className="label">카테고리</FormLabel>
+                    {cateUid1?.title}
+                    <Text ml={1} mr={1}>
+                      &gt;
+                    </Text>
+                    {cateUid2?.title}
+                    <Text ml={1} mr={1}>
+                      &gt;
+                    </Text>
+                    {cateUid3?.title}
+                  </div>
+                </FormControl>
+              </>
+            ) : (
+              <FormControl className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label">카테고리</FormLabel>
+                  <Select width={250} onChange={(e) => onChangeCate(e, 1)}>
+                    <option value="">프로젝트 선택</option>
+                    {cateList &&
+                      cateList.map((el) => (
+                        <option key={el.uid} value={el.uid}>
+                          {el.title}
+                        </option>
+                      ))}
                   </Select>
-                )}
-                {selectCateDepth3 && (
-                  <Select
-                    width={250}
-                    ml={2}
-                    onChange={(e) => onChangeCate(e, 3)}
-                  >
-                    <option value="">[{cateUid2.title}] 카테고리 선택</option>
-                    {selectCateDepth3.map((el) => (
-                      <option key={el.uid} value={el.uid}>
-                        {el.title}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </div>
-            </FormControl>
+                  {selectCateDepth2 && (
+                    <Select
+                      width={250}
+                      ml={2}
+                      onChange={(e) => onChangeCate(e, 2)}
+                    >
+                      <option value="">[{cateUid1.title}] 카테고리 선택</option>
+                      {selectCateDepth2.map((el) => (
+                        <option key={el.uid} value={el.uid}>
+                          {el.title}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                  {selectCateDepth3 && (
+                    <Select
+                      width={250}
+                      ml={2}
+                      onChange={(e) => onChangeCate(e, 3)}
+                    >
+                      <option value="">[{cateUid2.title}] 카테고리 선택</option>
+                      {selectCateDepth3.map((el) => (
+                        <option key={el.uid} value={el.uid}>
+                          {el.title}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </div>
+              </FormControl>
+            )}
 
             <FormControl className="row_section">
               <div className="row_box">
@@ -397,35 +440,41 @@ function WorkRegist() {
                 </RadioGroup>
               </div>
             </FormControl>
-            <FormControl isInvalid={errors.manager} className="row_section">
-              <div className="row_box">
-                <FormLabel className="label" htmlFor="manager">
-                  담당자
-                </FormLabel>
-                <Box size="lg">
-                  <Button onClick={onManagerPop} colorScheme="teal">
-                    편집
-                    <BsListCheck style={{ marginLeft: "5px" }} />
-                  </Button>
-                  <ul className="manager_list">
-                    {userAll &&
-                      userAll.map((el) => {
-                        if (selectUser?.includes(el.uid)) {
-                          return (
-                            <li>
-                              {el.name}
-                              {el.rank && `(${el.rank})`}
-                              {el.part && `- ${el.part}`}
-                            </li>
-                          );
-                        }
-                      })}
-                  </ul>
-                </Box>
-              </div>
-            </FormControl>
+            {!userInfo.partner && (
+              <FormControl isInvalid={errors.manager} className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="manager">
+                    담당자
+                  </FormLabel>
+                  <Box size="lg">
+                    <Button onClick={onManagerPop} colorScheme="teal">
+                      편집
+                      <BsListCheck style={{ marginLeft: "5px" }} />
+                    </Button>
+                    <ul className="manager_list">
+                      {userAll &&
+                        userAll.map((el) => {
+                          if (selectUser?.includes(el.uid)) {
+                            return (
+                              <li>
+                                {el.name}
+                                {el.rank && `(${el.rank})`}
+                                {el.part && `- ${el.part}`}
+                              </li>
+                            );
+                          }
+                        })}
+                    </ul>
+                  </Box>
+                </div>
+              </FormControl>
+            )}
 
-            <Editor initTypeCon=" " handleEditor={handleEditor} />
+            <Editor
+              height={selectWorkInfo ? "300px" : ""}
+              initTypeCon=" "
+              handleEditor={handleEditor}
+            />
 
             <Flex mt={4} width="100%">
               <UploadBox
