@@ -27,6 +27,27 @@ export const WorkViewBox = styled.div`
       font-weight: 600;
     }
   }
+  .reply_list {
+    width: 100%;
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      &:last-child {
+        border: 0;
+      }
+      .name {
+        font-weight: 600;
+        margin-right: 5px;
+      }
+      .date {
+        font-size: 12px;
+        color: #888;
+      }
+      .comment {
+        margin-top: 5px;
+      }
+    }
+  }
 `;
 
 export default function WorkView() {
@@ -47,6 +68,8 @@ export default function WorkView() {
     { txt: "테스트", state: 4 },
     { txt: "완료", state: 5 },
   ];
+
+  const [replyList, setReplyList] = useState();
   useEffect(() => {
     const uid = router.query.uid;
     axios
@@ -93,6 +116,21 @@ export default function WorkView() {
         });
         setStateData(history);
       });
+
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_work_reply",
+        wuid: router.query.uid,
+      })
+      .then((res) => {
+        const list = res.data.reply.map((el) => {
+          const writer = userAll?.find((user) => el.writer === user.uid);
+          el.writer = writer;
+          return el;
+        });
+        console.log(list);
+        setReplyList(list);
+      });
   }, [userAll, render]);
 
   const onRender = () => {
@@ -115,6 +153,51 @@ export default function WorkView() {
           isClosable: false,
         });
         router.push("/work");
+      });
+  };
+
+  //댓글
+  const [reply, setReply] = useState();
+  const onChangeReply = (e) => {
+    setReply(e.target.value);
+  };
+
+  const onSubmitReply = () => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "regis_work_reply",
+        uid: router.query.uid,
+        writer: userInfo.uid,
+        comment: reply,
+      })
+      .then((res) => {
+        toast({
+          description: "댓글을 추가 했습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        onRender();
+        setReply("");
+      });
+  };
+
+  const onRemoveReply = (uid) => {
+    const agree = confirm("삭제 하시겠습니까?");
+    if (!agree) return;
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "remove_work_reply",
+        uid,
+      })
+      .then((res) => {
+        toast({
+          description: "댓글을 삭제 했습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        onRender();
       });
   };
 
@@ -196,9 +279,45 @@ export default function WorkView() {
                 </Flex>
               </dd>
               <dd>
+                {replyList && (
+                  <>
+                    <ul className="reply_list">
+                      {replyList.map((el) => (
+                        <li key={el.uid}>
+                          <div className="name_box">
+                            <span className="name">{el.writer.name}</span>
+                            <span className="date">{el.date_regis}</span>
+                            {el.writer.uid == userInfo?.uid && (
+                              <Button
+                                onClick={() => onRemoveReply(el.uid)}
+                                ml={2}
+                                colorScheme="red"
+                                size="xs"
+                              >
+                                삭제
+                              </Button>
+                            )}
+                          </div>
+                          <div className="comment">{el.comment}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </dd>
+              <dd>
                 <Flex alignItems="stretch" width="100%">
-                  <Textarea style={{ flex: "1" }} />
-                  <Button height="auto" colorScheme="teal" ml={2}>
+                  <Textarea
+                    value={reply}
+                    onChange={onChangeReply}
+                    style={{ flex: "1" }}
+                  />
+                  <Button
+                    onClick={onSubmitReply}
+                    height="auto"
+                    colorScheme="teal"
+                    ml={2}
+                  >
                     댓글추가
                   </Button>
                 </Flex>
