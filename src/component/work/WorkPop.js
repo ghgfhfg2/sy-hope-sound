@@ -17,6 +17,38 @@ const WorkPopBox = styled(CommonPopup)`
   }
 `;
 
+export const StepComponent = styled.span`
+  .state {
+    width: 55px;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 600;
+    &.state_1 {
+      color: #2d3748;
+      border: 1px solid #2d3748;
+    }
+    &.state_2 {
+      color: #e53e3e;
+      border: 1px solid #e53e3e;
+    }
+    &.state_3 {
+      color: #2f855a;
+      border: 1px solid #2f855a;
+    }
+    &.state_4 {
+      color: #2b6cb0;
+      border: 1px solid #2b6cb0;
+    }
+    &.state_5 {
+      color: #a0aec0;
+      border: 1px solid #a0aec0;
+    }
+  }
+`;
+
 export default function WorkPop({ selectWorkInfo, closeDayoffPop }) {
   const stateText = [
     { txt: "대기", state: 1 },
@@ -32,11 +64,6 @@ export default function WorkPop({ selectWorkInfo, closeDayoffPop }) {
 
   const [listData, setListData] = useState();
   useEffect(() => {
-    console.log({
-      a: "get_select_work",
-      state: selectWorkInfo.state,
-      depth: selectWorkInfo.depth,
-    });
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_select_work",
@@ -83,7 +110,11 @@ export default function WorkPop({ selectWorkInfo, closeDayoffPop }) {
               listData.map((el, idx) => (
                 <li className="body" key={idx}>
                   <span>{el.uid}</span>
-                  <span>{stateText[el.state - 1].txt}</span>
+                  <StepComponent>
+                    <span className={`state state_${el.state}`}>
+                      {stateText[el.state - 1].txt}
+                    </span>
+                  </StepComponent>
                   <span className="subject">
                     <Link
                       target="_blank"

@@ -10,6 +10,8 @@ import axios from "axios";
 import useGetUser from "@component/hooks/getUserDb";
 import { Pagenation } from "../Pagenation";
 import Link from "next/link";
+import { Button, Flex, Select } from "@chakra-ui/react";
+import { StepComponent } from "@component/work/WorkPop";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
@@ -66,12 +68,14 @@ export default function WorkList() {
   const curPage = router.query["p"] || 1;
 
   const [totalPage, setTotalPage] = useState();
-  const getWorkList = (page) => {
+  const getWorkList = (page, state, project) => {
     if (!userInfo) return;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_work_list",
         page,
+        state,
+        project,
         depth: userInfo.project_depth || "",
       })
       .then((res) => {
@@ -100,13 +104,73 @@ export default function WorkList() {
       });
   };
 
+  const [projectList, setProjectList] = useState();
+  useEffect(() => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_project_list",
+      })
+      .then((res) => {
+        setProjectList(res.data.project);
+      });
+  }, []);
+
   useEffect(() => {
     getWorkList(curPage);
     return () => {};
   }, [userAll, curPage, userInfo]);
 
+  //상태 필터
+  const [curState, setCurState] = useState();
+  const filterState = (state) => {
+    setCurState(state);
+    getWorkList(1, state);
+  };
+
+  //프로젝트 필터
+  const [curProject, setCurProject] = useState();
+  const onFilterProject = (e) => {
+    setCurProject(e.target.value);
+    getWorkList(1, "", e.target.value);
+  };
+
   return (
     <>
+      <Flex>
+        {projectList && (
+          <Select onChange={onFilterProject} width={200} mr={3}>
+            <option value="" key="-1">
+              전체 프로젝트
+            </option>
+            {projectList.map((el) => (
+              <option value={el.uid} key={el.uid}>
+                {el.title}
+              </option>
+            ))}
+          </Select>
+        )}
+        {stateText && (
+          <>
+            <Flex mb={3} gap={2}>
+              <Button
+                colorScheme={curState ? "gray" : "teal"}
+                onClick={() => filterState()}
+              >
+                전체
+              </Button>
+              {stateText.map((el) => (
+                <Button
+                  colorScheme={curState == el.state ? "teal" : "gray"}
+                  key={el.state}
+                  onClick={() => filterState(el.state)}
+                >
+                  {el.txt}
+                </Button>
+              ))}
+            </Flex>
+          </>
+        )}
+      </Flex>
       <WorkBoardList>
         <li className="header">
           <span>번호</span>
@@ -123,7 +187,11 @@ export default function WorkList() {
           listData.map((el) => (
             <li className="body" key={shortid()}>
               <span>{el.uid}</span>
-              <span>{stateText[el.state - 1].txt}</span>
+              <StepComponent>
+                <span className={`state state_${el.state}`}>
+                  {stateText[el.state - 1].txt}
+                </span>
+              </StepComponent>
               <span className="cate">{el.cate_1.title}</span>
               <span className="cate">{el.cate_2.title}</span>
               <span className="cate">{el.cate_3.title}</span>
@@ -136,6 +204,11 @@ export default function WorkList() {
                 >
                   {el.title}
                 </Link>
+                {el.reply_cnt && (
+                  <span style={{ marginLeft: "4px", width: "auto" }}>
+                    ({el.reply_cnt})
+                  </span>
+                )}
               </span>
               <span className="name">{el.name}</span>
               <span className="manager">

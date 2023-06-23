@@ -130,7 +130,7 @@ export default function Structure() {
         const manager = [];
         const managerArr = JSON.parse(d3.manager);
         managerArr.forEach((el) => {
-          if (el === userInfo.uid) {
+          if (el === userInfo?.uid) {
             d3.isManager = true;
           }
           manager.push(userAll?.find((user) => el === user.uid));

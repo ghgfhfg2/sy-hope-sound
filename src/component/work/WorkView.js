@@ -123,12 +123,12 @@ export default function WorkView() {
         wuid: router.query.uid,
       })
       .then((res) => {
+        if (!res.data?.reply) return;
         const list = res.data.reply.map((el) => {
           const writer = userAll?.find((user) => el.writer === user.uid);
           el.writer = writer;
           return el;
         });
-        console.log(list);
         setReplyList(list);
       });
   }, [userAll, render]);
@@ -285,9 +285,9 @@ export default function WorkView() {
                       {replyList.map((el) => (
                         <li key={el.uid}>
                           <div className="name_box">
-                            <span className="name">{el.writer.name}</span>
+                            <span className="name">{el?.writer?.name}</span>
                             <span className="date">{el.date_regis}</span>
-                            {el.writer.uid == userInfo?.uid && (
+                            {el?.writer?.uid == userInfo?.uid && (
                               <Button
                                 onClick={() => onRemoveReply(el.uid)}
                                 ml={2}

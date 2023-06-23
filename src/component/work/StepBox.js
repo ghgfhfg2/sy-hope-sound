@@ -39,35 +39,6 @@ const StepComponent = styled.div`
       align-items: center;
       font-size: 12px;
     }
-    .state {
-      width: 55px;
-      display: flex;
-      justify-content: center;
-      border-radius: 4px;
-      margin-right: 10px;
-      color: #fff;
-      font-weight: 600;
-      &.state_1 {
-        color: #2d3748;
-        border: 1px solid #2d3748;
-      }
-      &.state_2 {
-        color: #e53e3e;
-        border: 1px solid #e53e3e;
-      }
-      &.state_3 {
-        color: #2f855a;
-        border: 1px solid #2f855a;
-      }
-      &.state_4 {
-        color: #2b6cb0;
-        border: 1px solid #2b6cb0;
-      }
-      &.state_5 {
-        color: #a0aec0;
-        border: 1px solid #a0aec0;
-      }
-    }
     .name {
       margin-right: 10px;
     }
@@ -76,6 +47,36 @@ const StepComponent = styled.div`
     .date {
       margin-right: 10px;
       color: #888;
+    }
+  }
+
+  .state {
+    width: 55px;
+    display: flex;
+    justify-content: center;
+    border-radius: 4px;
+    margin-right: 10px;
+    color: #fff;
+    font-weight: 600;
+    &.state_1 {
+      color: #2d3748;
+      border: 1px solid #2d3748;
+    }
+    &.state_2 {
+      color: #e53e3e;
+      border: 1px solid #e53e3e;
+    }
+    &.state_3 {
+      color: #2f855a;
+      border: 1px solid #2f855a;
+    }
+    &.state_4 {
+      color: #2b6cb0;
+      border: 1px solid #2b6cb0;
+    }
+    &.state_5 {
+      color: #a0aec0;
+      border: 1px solid #a0aec0;
     }
   }
 `;

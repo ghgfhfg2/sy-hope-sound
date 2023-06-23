@@ -242,7 +242,7 @@ function WorkRegist({ selectWorkInfo, closeRender }) {
         })
       : "";
     values.depth = cateUid3.depth;
-    values.project = cateUid1.depth;
+    values.project = cateUid1.uid;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "regis_work_list",

@@ -343,8 +343,10 @@ function WorkCate() {
         a: "regis_cate_depth",
         title,
         depth: addDepth,
+        project: addDepth.length == 1 ? 1 : 0,
       })
       .then((res) => {
+        console.log(res);
         toast({
           description: "카테고리가 추가 되었습니다.",
           status: "success",
@@ -407,9 +409,9 @@ function WorkCate() {
         .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
           a: "remove_cate_list",
           depth,
+          uid,
         })
         .then((res) => {
-          console.log(res);
           toast({
             description: "삭제 되었습니다.",
             status: "success",

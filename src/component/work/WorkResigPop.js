@@ -3,7 +3,11 @@ import { CommonPopup } from "@component/insa/UserDayoffPop";
 
 import WorkRegist from "@component/work/WorkRegist";
 
-const WorkRegisPopBox = styled(CommonPopup)``;
+const WorkRegisPopBox = styled(CommonPopup)`
+  .con_box {
+    min-width: 50vw;
+  }
+`;
 
 export default function WorkResigPop({
   selectWorkInfo,

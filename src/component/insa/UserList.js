@@ -111,6 +111,11 @@ export default function UserList() {
         }
         return el;
       });
+
+      userAll.sort((a, b) => {
+        return a["timestamp"] - b["timestamp"];
+      });
+
       setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);
@@ -141,9 +146,9 @@ export default function UserList() {
     setSortState(sortObj);
     userAll = userAll.sort((a, b) => {
       if (sortObj.sort === "asc") {
-        return a[type] - b[type];
-      } else {
         return b[type] - a[type];
+      } else {
+        return a[type] - b[type];
       }
     });
     setUserAllState(userAll);
