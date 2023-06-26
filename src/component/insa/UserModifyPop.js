@@ -9,6 +9,7 @@ import {
   Checkbox,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { db } from "src/firebase";
@@ -77,6 +78,7 @@ export default function UserModifyPop({
   rankList,
   onRender,
 }) {
+  const toast = useToast();
   const dispatch = useDispatch();
 
   const {
@@ -98,7 +100,6 @@ export default function UserModifyPop({
           a: "get_cate_list",
         })
         .then((res) => {
-          console.log(res);
           const cateList = res.data.cate.filter((el) => {
             return el.depth.split("_").length == 1;
           });
@@ -108,9 +109,20 @@ export default function UserModifyPop({
   }, [userData, watchClient]);
 
   function onSubmit(values) {
-    const projectArr = values.project.split("_");
-    values.project = projectArr[0];
-    values.project_depth = projectArr[1];
+    if (values.partner && !values.project) {
+      toast({
+        description: "협력사를 선택해 주세요.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      return;
+    }
+    if (values.project) {
+      const projectArr = values.project.split("_");
+      values.project = projectArr[0];
+      values.project_depth = projectArr[1];
+    }
     return new Promise((resolve) => {
       values.uid = userData.uid;
       update(ref(db, `user/${userData.uid}`), {
@@ -122,6 +134,7 @@ export default function UserModifyPop({
         dayoff: Number(values.dayoff) || "",
         manager_uid: values.manager_uid || "",
         date: values.date || "",
+        timestamp: new Date(values.date).getTime(),
       })
         .then(() => {
           values.part = values.part ? partList[values.part] : "";
@@ -130,6 +143,12 @@ export default function UserModifyPop({
           closeUserModify();
           onRender();
           resolve();
+          toast({
+            description: "수정되었습니다.",
+            status: "success",
+            duration: 1000,
+            isClosable: false,
+          });
         })
         .catch((error) => {
           console.error(error);
@@ -216,7 +235,11 @@ export default function UserModifyPop({
               </FormControl>
               <FormControl mt={1} isInvalid={errors.hidden}>
                 <Stack spacing={4} pl={1} direction="row">
-                  <Checkbox colorScheme="teal" {...register("hidden")}>
+                  <Checkbox
+                    defaultChecked={userData.hidden}
+                    colorScheme="teal"
+                    {...register("hidden")}
+                  >
                     <Text fontSize="sm">근태숨김</Text>
                   </Checkbox>
                 </Stack>
@@ -237,6 +260,7 @@ export default function UserModifyPop({
                   defaultValue={`${userData.project}_${userData.project_depth}`}
                   {...register("project")}
                 >
+                  <option value="">협력사 선택</option>
                   <>
                     {projectList.map((el) => (
                       <>

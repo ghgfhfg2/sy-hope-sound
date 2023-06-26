@@ -204,7 +204,7 @@ export default function WorkList() {
                 >
                   {el.title}
                 </Link>
-                {el.reply_cnt && (
+                {el.reply_cnt > 0 && (
                   <span style={{ marginLeft: "4px", width: "auto" }}>
                     ({el.reply_cnt})
                   </span>
