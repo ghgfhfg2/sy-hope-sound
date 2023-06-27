@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { RiArrowUpDownFill } from "react-icons/ri";
 import { AiOutlineSetting } from "react-icons/ai";
 import UserDayoffPop from "./UserDayoffPop";
+import DayoffHistoryPop from "@component/insa/DayoffHistoryPop";
 
 export const ListUl = styled.div`
   position: relative;
@@ -43,7 +44,6 @@ export const ListUl = styled.div`
       border-bottom: 1px solid #eaeaea;
       &.dayoff {
         display: flex;
-        justify-content: flex-end;
         button {
           margin-left: 10px;
         }
@@ -55,8 +55,8 @@ export const ListUl = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    &.dayoff {
-      flex: 0 0 90px;
+    &.dayoff_history {
+      width: 100px;
     }
   }
   @media screen and (max-width: 1024px) {
@@ -156,18 +156,25 @@ export default function UserList() {
 
   //연차관리.
   const [isDayoffPop, setIsDayoffPop] = useState(false);
-  const onDayoffPop = async (uid) => {
-    const dbRef = ref(db, `user/${uid}`);
-    const getUser = await get(dbRef);
-    let user = {
-      ...getUser.val(),
-    };
-    setUserData(user);
-    setIsDayoffPop(true);
+  const [isDayoffHistoryPop, setIsDayoffHistoryPop] = useState(false);
+  const onDayoffPop = async (uid, dayoff, type) => {
+    if (type == "history") {
+      setUserData({ uid, dayoff });
+      setIsDayoffHistoryPop(true);
+    } else {
+      const dbRef = ref(db, `user/${uid}`);
+      const getUser = await get(dbRef);
+      let user = {
+        ...getUser.val(),
+      };
+      setUserData(user);
+      setIsDayoffPop(true);
+    }
   };
   const closeDayoffPop = () => {
     setUserData("");
     setIsDayoffPop(false);
+    setIsDayoffHistoryPop(false);
   };
 
   return (
@@ -194,6 +201,7 @@ export default function UserList() {
                   />
                 </button>
               </li>
+              <li className="box dayoff_history">연차내역</li>
               {adminCheck && (
                 <>
                   <li className="box dayoff">남은연차</li>
@@ -222,10 +230,42 @@ export default function UserList() {
                       <span className="box date">
                         {el.date && format(new Date(el.date), "yyyy-MM-dd")}
                       </span>
+                      <span className="box dayoff_history">
+                        {adminCheck ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              colorScheme="teal"
+                              onClick={() => {
+                                onDayoffPop(el.uid, el.dayoff, "history");
+                              }}
+                            >
+                              내역보기
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            {el.uid == userInfo?.uid && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorScheme="teal"
+                                onClick={() => {
+                                  onDayoffPop(el.uid, el.dayoff, "history");
+                                }}
+                              >
+                                내역보기
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </span>
                       {adminCheck && (
                         <>
                           <span className="box dayoff">
-                            {el.dayoff ? `${el.dayoff}일` : ""}
+                            {el.dayoff ? `${el.dayoff}일` : "0일"}
+
                             <Button
                               size="sm"
                               variant="outline"
@@ -268,6 +308,12 @@ export default function UserList() {
             <UserDayoffPop
               userData={userData}
               onRender={onRender}
+              closeDayoffPop={closeDayoffPop}
+            />
+          )}
+          {userData && isDayoffHistoryPop && (
+            <DayoffHistoryPop
+              userData={userData}
               closeDayoffPop={closeDayoffPop}
             />
           )}

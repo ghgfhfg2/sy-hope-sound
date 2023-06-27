@@ -169,6 +169,7 @@ export default function UserModifyPop({
               alignItems="center"
               gap={2}
             >
+              <Input readOnly defaultValue={userData.uid} />
               <Input
                 readOnly
                 defaultValue={userData.name}

@@ -44,12 +44,12 @@ export const CommonPopup = styled.div`
     top: 0;
     background: rgba(0, 0, 0, 0.25);
   }
-  .con_box {    
+  .con_box {
     border-radius: 10px;
     background: #fff;
-    height:90vh;
-    overflow:auto;
-    max-height:600px;
+    height: 90vh;
+    overflow: auto;
+    max-height: 600px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
     padding: 1rem;
     transform: translateY(30px);
@@ -63,34 +63,29 @@ export const CommonPopup = styled.div`
   }
 `;
 
-export default function UserDayoffPop({
-  userData,
-  closeDayoffPop,
-  onRender,
-}) {
-  const toast = useToast()
+export default function UserDayoffPop({ userData, closeDayoffPop, onRender }) {
+  const toast = useToast();
   const dispatch = useDispatch();
-  const [userPartRank, setUserPartRank] = useState()
+  const [userPartRank, setUserPartRank] = useState();
   useEffect(() => {
-    get(ref(db,`admin/setting`))
-    .then(data=>{
+    get(ref(db, `admin/setting`)).then((data) => {
       const adminSet = data.val();
-      let obj = {part:"",rank:""}
-      console.log(adminSet)
-      adminSet.part.forEach(el=>{
-        if(userData.part === el.uid){
-          obj.part = el.name
+      let obj = { part: "", rank: "" };
+      console.log(adminSet);
+      adminSet.part.forEach((el) => {
+        if (userData.part === el.uid) {
+          obj.part = el.name;
         }
-      })
-      adminSet.rank.forEach(el=>{
-        if(userData.rank === el.uid){
-          obj.rank = el.name
+      });
+      adminSet.rank.forEach((el) => {
+        if (userData.rank === el.uid) {
+          obj.rank = el.name;
         }
-      })
-      setUserPartRank(obj)
-    })
-  }, [])
-  
+      });
+      setUserPartRank(obj);
+    });
+  }, []);
+
   const {
     handleSubmit,
     register,
@@ -98,45 +93,50 @@ export default function UserDayoffPop({
   } = useForm();
 
   function onSubmit(values) {
-    
-    let newUserData = {...userData};
-    
-    if(values.modiType === '1'){
-      newUserData.dayoff = Number(newUserData.dayoff) + Number(values.day)
-    }else{
-      newUserData.dayoff = Number(newUserData.dayoff) - Number(values.day)
+    let newUserData = { ...userData };
+
+    if (values.modiType === "1") {
+      newUserData.dayoff = Number(newUserData.dayoff) + Number(values.day);
+    } else {
+      newUserData.dayoff = Number(newUserData.dayoff) - Number(values.day);
     }
-    if(newUserData.dayoff < 0){
+    if (newUserData.dayoff < 0) {
       toast({
         description: "휴가는 0개 미만이 될 수 없습니다.",
         status: "error",
         duration: 1000,
         isClosable: false,
       });
-      return
+      return;
     }
-    
-    const date = format(new Date(),'yyyy-MM-dd');
+
+    const date = format(new Date(), "yyyy-MM-dd");
     values.date = date;
     values.manager = "";
-    values.subject = "관리자 수정"
+    values.subject = "관리자 수정";
     values.timestamp = new Date().getTime();
     values.uid = "";
     values.name = newUserData.name;
     values.userUid = newUserData.uid;
-    values.offType = values.modiType === '1' ? '추가' : '삭감';
+    values.offType = values.modiType === "1" ? "추가" : "삭감";
     values.restDayoff = newUserData.dayoff || values.day;
-    
+
     newUserData.date = date;
     newUserData.part = userPartRank.part;
     newUserData.rank = userPartRank.rank;
 
     return new Promise((resolve) => {
-      set(ref(db,`dayoff/list/${format(new Date(),'yyyyMMdd')}/${shortid.generate()}`),{
-        ...values
-      })
+      set(
+        ref(
+          db,
+          `dayoff/list/${format(new Date(), "yyyyMMdd")}/${shortid.generate()}`
+        ),
+        {
+          ...values,
+        }
+      );
       update(ref(db, `user/${userData.uid}`), {
-        dayoff: Number(newUserData.dayoff) || values.day,
+        dayoff: Number(newUserData.dayoff),
       })
         .then(() => {
           dispatch(updateAllUser(newUserData));
@@ -169,25 +169,23 @@ export default function UserDayoffPop({
               alignItems="center"
               gap={2}
             >
-              {userPartRank &&
-                <Text fontSize='md'>{`${userData.name}(${userPartRank.part})`}</Text>
-              }
+              {userPartRank && (
+                <Text fontSize="md">{`${userData.name}(${userPartRank.part})`}</Text>
+              )}
               <FormControl>
                 <Flex justifyContent="flex-end" alignItems="center">
-                <FormLabel style={{flexShrink:"0",marginBottom:"0"}}>
-                  남은연차
-                </FormLabel>
-                {userData.dayoff} 개
+                  <FormLabel style={{ flexShrink: "0", marginBottom: "0" }}>
+                    남은연차
+                  </FormLabel>
+                  {userData.dayoff} 개
                 </Flex>
               </FormControl>
 
               <Flex>
                 <FormControl mr={2} isInvalid={errors.modiType}>
-                  <Select placeholder='증감선택'
-                    {...register("modiType")}
-                  >
-                    <option value='1'>추가</option>
-                    <option value='2'>감소</option>
+                  <Select placeholder="증감선택" {...register("modiType")}>
+                    <option value="1">추가</option>
+                    <option value="2">감소</option>
                   </Select>
                 </FormControl>
                 <FormControl isInvalid={errors.day}>
@@ -203,19 +201,15 @@ export default function UserDayoffPop({
 
               <FormControl isInvalid={errors.reason}>
                 <Flex alignItems="center">
-                <Input
-                  type="text"
-                  placeholder="사유"
-                  {...register("reason")}
-                />
+                  <Input
+                    type="text"
+                    placeholder="사유"
+                    {...register("reason")}
+                  />
                 </Flex>
               </FormControl>
 
-              <Flex
-                mt={4}
-                width="100%"
-                justifyContent="center"
-              >
+              <Flex mt={4} width="100%" justifyContent="center">
                 <Button
                   mb={2}
                   width="100%"

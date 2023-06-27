@@ -232,7 +232,7 @@ export default function WorkList() {
               </span>
             </li>
           ))}
-        {listData?.length === 0 && <None />}
+        {!listData && <None />}
       </WorkBoardList>
       <Pagenation total={totalPage} current={curPage} viewPage={10} />
     </>
