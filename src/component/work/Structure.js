@@ -86,6 +86,29 @@ const MenuStructure = styled.div`
       }
     }
   }
+  .mb_box {
+    display: none;
+  }
+  @media all and (max-width: 1024px) {
+    .mb_scroll {
+      width: 100%;
+      overflow: auto;
+    }
+    .wid_1 {
+      width: 150px;
+    }
+    .wid_2 {
+      width: auto;
+      min-width: 70px;
+      padding: 0 5px;
+    }
+    .header {
+      width: 850px;
+    }
+    .depth_2 {
+      width: 850px;
+    }
+  }
 `;
 
 export default function Structure() {
@@ -127,15 +150,25 @@ export default function Structure() {
 
     depthArr3.forEach((d3) => {
       if (d3.manager) {
-        const manager = [];
+        const manager_eddit = [];
+        const manager_partner = [];
         const managerArr = JSON.parse(d3.manager);
         managerArr.forEach((el) => {
           if (el === userInfo?.uid) {
             d3.isManager = true;
           }
-          manager.push(userAll?.find((user) => el === user.uid));
+          userAll?.forEach((user) => {
+            if (user.uid === el) {
+              if (user.partner) {
+                manager_partner.push(user);
+              } else {
+                manager_eddit.push(user);
+              }
+            }
+          });
         });
-        d3.manager = manager;
+        d3.manager_eddit = manager_eddit;
+        d3.manager_partner = manager_partner;
       }
       const idx = depthArr2.findIndex(
         (d2) =>
@@ -233,7 +266,6 @@ export default function Structure() {
       })
       .then((res) => {
         const listData = CateDataProcessing(res.data.cate);
-        console.log(listData);
         setCateList(listData);
       });
   }, [render]);
@@ -372,122 +404,159 @@ export default function Structure() {
 
       {selectCateDepth2 && (
         <MenuStructure>
-          <div className="header">
-            <span className="wid_1">카테고리1</span>
-            <span className="wid_1">카테고리2</span>
-            <span className="wid_1">진행상황</span>
-            <span className="wid_2">미완료</span>
-            <span className="wid_2">완료</span>
-            <span className="wid_2">글등록</span>
-            <span className="wid_2">담당자</span>
-            <span className="wid_2">담당자 지정</span>
-          </div>
-          <ul className="depth_2">
-            {selectCateDepth2.map((list) => (
-              <>
-                <li key={list.uid}>
-                  <div className="tit_box wid_1">
-                    <span className="tit open">
-                      <span className="ic"></span>
-                      {list.title}
-                    </span>
-                  </div>
-                  <ul data-depth={list.depth} className="depth_3 on">
-                    {list.sub &&
-                      list.sub.map((list2) => (
-                        <>
-                          <li key={list2.uid}>
-                            <div className="tit_box wid_1">
-                              <span className="tit">{list2.title}</span>
-                            </div>
-                            <div className="tit_box wid_1">
-                              {cateState[list2.state]}
-                              <Button
-                                size="sm"
-                                ml={2}
-                                onClick={() => onCateStatePop(list2)}
-                              >
-                                변경
-                              </Button>
-                              <Button
-                                size="sm"
-                                ml={1}
-                                onClick={() => onCateStateListPop(list2)}
-                              >
-                                내역
-                              </Button>
-                            </div>
-                            <div className="tit_box wid_2">
-                              {list2.work?.state_1 && (
-                                <button
-                                  onClick={() => onPopWorkList(1, list2.depth)}
-                                >
-                                  {list2.work.state_1.length} 건
-                                </button>
-                              )}
-                            </div>
-                            <div className="tit_box wid_2">
-                              {list2.work?.state_2 && (
-                                <button
-                                  onClick={() => onPopWorkList(2, list2.depth)}
-                                >
-                                  {list2.work.state_2.length} 건
-                                </button>
-                              )}
-                            </div>
-                            <div className="tit_box wid_2">
-                              <Button
-                                onClick={() => onPopWorkRegis(list2.depth)}
-                                size="sm"
-                                colorScheme="teal"
-                              >
-                                글등록
-                              </Button>
-                            </div>
-                            <div className="tit_box wid_2">
-                              {list2.manager &&
-                                list2.manager.map((mng, idx) => {
-                                  let comma = "";
-                                  if (idx != 0) {
-                                    comma = ", ";
-                                  }
-                                  return (
-                                    <>
-                                      <span>
-                                        {comma}
-                                        {mng?.name}
-                                      </span>
-                                    </>
-                                  );
-                                })}
-                            </div>
-                            <div className="tit_box wid_2">
-                              {list2.isManager ? (
+          <div className="mb_scroll">
+            <div className="header">
+              <span className="wid_1">카테고리1</span>
+              <span className="wid_1">카테고리2</span>
+              <span className="wid_1">진행상황</span>
+              <span className="wid_2">미완료</span>
+              <span className="wid_2">완료</span>
+              <span className="wid_2">글등록</span>
+              <span className="wid_2" style={{ textAlign: "center" }}>
+                담당자
+                <br />
+                (에딧)
+              </span>
+              <span className="wid_2" style={{ textAlign: "center" }}>
+                담당자
+                <br />({cateList[0].title})
+              </span>
+              <span className="wid_2">담당자 지정</span>
+            </div>
+            <ul className="depth_2">
+              {selectCateDepth2.map((list) => (
+                <>
+                  <li key={list.uid}>
+                    <div className="tit_box wid_1">
+                      <span className="tit open">
+                        <span className="ic"></span>
+                        {list.title}
+                      </span>
+                    </div>
+                    <ul data-depth={list.depth} className="depth_3 on">
+                      {list.sub &&
+                        list.sub.map((list2) => (
+                          <>
+                            <li key={list2.uid}>
+                              <div className="tit_box wid_1">
+                                <span className="tit">{list2.title}</span>
+                              </div>
+                              <div className="tit_box wid_1">
+                                {cateState[list2.state]}
                                 <Button
-                                  onClick={() => onOutManager(list2.uid)}
                                   size="sm"
-                                  colorScheme="red"
+                                  ml={2}
+                                  onClick={() => onCateStatePop(list2)}
                                 >
-                                  담당제외
+                                  변경
                                 </Button>
-                              ) : (
                                 <Button
-                                  onClick={() => onJoinManager(list2.uid)}
+                                  size="sm"
+                                  ml={1}
+                                  onClick={() => onCateStateListPop(list2)}
+                                >
+                                  내역
+                                </Button>
+                              </div>
+                              <div className="tit_box wid_2">
+                                {list2.work?.state_1 && (
+                                  <button
+                                    onClick={() =>
+                                      onPopWorkList(1, list2.depth)
+                                    }
+                                  >
+                                    {list2.work.state_1.length} 건
+                                  </button>
+                                )}
+                              </div>
+                              <div className="tit_box wid_2">
+                                {list2.work?.state_2 && (
+                                  <button
+                                    onClick={() =>
+                                      onPopWorkList(2, list2.depth)
+                                    }
+                                  >
+                                    {list2.work.state_2.length} 건
+                                  </button>
+                                )}
+                              </div>
+                              <div className="tit_box wid_2">
+                                <Button
+                                  onClick={() => onPopWorkRegis(list2.depth)}
                                   size="sm"
                                   colorScheme="teal"
                                 >
-                                  담당추가
+                                  글등록
                                 </Button>
-                              )}
-                            </div>
-                          </li>
-                        </>
-                      ))}
-                  </ul>
-                </li>
-              </>
-            ))}
-          </ul>
+                              </div>
+                              <div
+                                className="tit_box wid_2"
+                                style={{ flexWrap: "wrap" }}
+                              >
+                                {list2.manager_eddit &&
+                                  list2.manager_eddit.map((mng, idx) => {
+                                    let comma = "";
+                                    if (idx != 0) {
+                                      comma = ", ";
+                                    }
+                                    return (
+                                      <>
+                                        <span>
+                                          {comma}
+                                          {mng?.name}
+                                        </span>
+                                      </>
+                                    );
+                                  })}
+                              </div>
+                              <div
+                                className="tit_box wid_2"
+                                style={{ flexWrap: "wrap" }}
+                              >
+                                {list2.manager_partner &&
+                                  list2.manager_partner.map((mng, idx) => {
+                                    let comma = "";
+                                    if (idx != 0) {
+                                      comma = ", ";
+                                    }
+                                    return (
+                                      <>
+                                        <span>
+                                          {comma}
+                                          {mng?.name}
+                                        </span>
+                                      </>
+                                    );
+                                  })}
+                              </div>
+                              <div className="tit_box wid_2">
+                                {list2.isManager ? (
+                                  <Button
+                                    onClick={() => onOutManager(list2.uid)}
+                                    size="sm"
+                                    colorScheme="red"
+                                  >
+                                    담당제외
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    onClick={() => onJoinManager(list2.uid)}
+                                    size="sm"
+                                    colorScheme="teal"
+                                  >
+                                    담당추가
+                                  </Button>
+                                )}
+                              </div>
+                            </li>
+                          </>
+                        ))}
+                    </ul>
+                  </li>
+                </>
+              ))}
+            </ul>
+          </div>
         </MenuStructure>
       )}
       {isWorkPop && (

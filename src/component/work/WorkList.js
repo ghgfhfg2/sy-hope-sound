@@ -49,6 +49,23 @@ export const WorkBoardList = styled(BoardLi)`
       }
     }
   }
+  @media all and (max-width: 640px) {
+    overflow: auto;
+    li {
+      width: 600px;
+    }
+  }
+`;
+
+const WorkTopSelect = styled.div`
+  @media all and (max-width: 640px) {
+    .wrap {
+      flex-direction: column;
+    }
+    .state {
+      margin-top: 10px;
+    }
+  }
 `;
 
 export default function WorkList() {
@@ -79,7 +96,6 @@ export default function WorkList() {
         depth: userInfo.project_depth || "",
       })
       .then((res) => {
-        console.log(res);
         const total = res.data.total;
         setTotalPage(total);
         const list = res.data.list?.map((el) => {
@@ -136,41 +152,43 @@ export default function WorkList() {
 
   return (
     <>
-      <Flex>
-        {projectList && (
-          <Select onChange={onFilterProject} width={200} mr={3}>
-            <option value="" key="-1">
-              전체 프로젝트
-            </option>
-            {projectList.map((el) => (
-              <option value={el.uid} key={el.uid}>
-                {el.title}
+      <WorkTopSelect>
+        <Flex className="wrap">
+          {projectList && (
+            <Select onChange={onFilterProject} width={200} mr={3}>
+              <option value="" key="-1">
+                전체 프로젝트
               </option>
-            ))}
-          </Select>
-        )}
-        {stateText && (
-          <>
-            <Flex mb={3} gap={2}>
-              <Button
-                colorScheme={curState ? "gray" : "teal"}
-                onClick={() => filterState()}
-              >
-                전체
-              </Button>
-              {stateText.map((el) => (
-                <Button
-                  colorScheme={curState == el.state ? "teal" : "gray"}
-                  key={el.state}
-                  onClick={() => filterState(el.state)}
-                >
-                  {el.txt}
-                </Button>
+              {projectList.map((el) => (
+                <option value={el.uid} key={el.uid}>
+                  {el.title}
+                </option>
               ))}
-            </Flex>
-          </>
-        )}
-      </Flex>
+            </Select>
+          )}
+          {stateText && (
+            <>
+              <Flex className="state" mb={3} gap={2}>
+                <Button
+                  colorScheme={curState ? "gray" : "teal"}
+                  onClick={() => filterState()}
+                >
+                  전체
+                </Button>
+                {stateText.map((el) => (
+                  <Button
+                    colorScheme={curState == el.state ? "teal" : "gray"}
+                    key={el.state}
+                    onClick={() => filterState(el.state)}
+                  >
+                    {el.txt}
+                  </Button>
+                ))}
+              </Flex>
+            </>
+          )}
+        </Flex>
+      </WorkTopSelect>
       <WorkBoardList>
         <li className="header">
           <span>번호</span>

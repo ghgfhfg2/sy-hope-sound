@@ -109,9 +109,9 @@ function App({ Component, pageProps }) {
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
+      let userData;
       if (user) {
         const isLogin = window.sessionStorage.getItem("isLogin");
-        console.log("isLogin", isLogin);
         if (!isLogin) {
           // signOut(auth)
           //   .then((res) => {
@@ -125,14 +125,14 @@ function App({ Component, pageProps }) {
         const userRef = ref(db, `user/${user.uid}`);
         onValue(userRef, (data) => {
           if (data.val()) {
-            let userData = {
+            userData = {
               ...user,
               ...data.val(),
             };
             dispatch(setUser(userData));
           }
+          setAuthCheck(true);
         });
-        setAuthCheck(true);
       } else {
         window.sessionStorage.setItem("isLogin", false);
         dispatch(clearUser());
@@ -141,13 +141,19 @@ function App({ Component, pageProps }) {
           router.push("/login");
         }
       }
-      setisLoading(false);
+      setTimeout(() => {
+        setisLoading(false);
+      }, 500);
     });
   }, []);
 
   const [isPaymentPop, setIsPaymentPop] = useState(false);
   const [regularList, setRegularList] = useState();
   useEffect(() => {
+    if (userInfo?.partner && !router.route.includes("/work")) {
+      console.log("router.query", router.route.includes("/work"));
+      router.push("/work");
+    }
     if (userInfo && userInfo.authority?.includes("admin")) {
       const curMonth = format(new Date(), "yyyyMM");
       const pRef = query(

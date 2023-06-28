@@ -44,6 +44,28 @@ const TableBox = styled.div`
   }
 `;
 
+const TopInputBox = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  align-items: stretch;
+  .title {
+    width: 30%;
+  }
+  button {
+    min-width: 120px;
+    height: auto;
+    min-height: 40px;
+  }
+  @media all and (max-width: 640px) {
+    flex-direction: column;
+    .title {
+      width: 100%;
+    }
+  }
+`;
+
 export default function WorkInfo() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const { handleSubmit, register, resetField } = useForm();
@@ -161,7 +183,11 @@ export default function WorkInfo() {
   return (
     <>
       {projectList && (
-        <Select onChange={onFilterProject} width={200} mr={3}>
+        <Select
+          onChange={onFilterProject}
+          width={{ lg: 200, sm: "100%" }}
+          mr={{ lg: 3, sm: "0" }}
+        >
           <option value="" key="-1">
             프로젝트 선택
           </option>
@@ -174,13 +200,17 @@ export default function WorkInfo() {
       )}
       {curProject && (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Flex gap={2} mt={3} mb={5}>
+          <TopInputBox>
+            <Input
+              className="title"
+              placeholder="항목"
+              {...register("title")}
+            />
+            <Textarea placeholder="내용" {...register("content")} />
             <Button type="submit" colorScheme="teal">
               항목 추가
             </Button>
-            <Input width={300} placeholder="항목" {...register("title")} />
-            <Textarea placeholder="내용" {...register("content")} />
-          </Flex>
+          </TopInputBox>
         </form>
       )}
       {infoData && (
