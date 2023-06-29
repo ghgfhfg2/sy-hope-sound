@@ -387,8 +387,9 @@ const HitmapDetail = styled(ListUl)`
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
+  const ranBgIdx = Math.floor(Math.random() * (21 - 1) + 1);
   const [headerImg, setHeaderImg] = useState(
-    "https://source.unsplash.com/1920x250/?colorfull,sky,nature,space"
+    `https://shop.editt.co.kr/_upload/_groupware/bg/${ranBgIdx}.jpg`
   );
 
   const [curDate, setCurDate] = useState(new Date());
