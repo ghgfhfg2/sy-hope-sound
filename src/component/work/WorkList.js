@@ -10,8 +10,9 @@ import axios from "axios";
 import useGetUser from "@component/hooks/getUserDb";
 import { Pagenation } from "../Pagenation";
 import Link from "next/link";
-import { Button, Flex, Select } from "@chakra-ui/react";
+import { Button, Flex, Select, useToast } from "@chakra-ui/react";
 import { StepComponent } from "@component/work/WorkPop";
+import { IoMdTimer } from "react-icons/io";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
@@ -70,6 +71,7 @@ const WorkTopSelect = styled.div`
 
 export default function WorkList() {
   const userInfo = useSelector((state) => state.user.currentUser);
+  const toast = useToast();
   const stateText = [
     { txt: "대기", state: 1 },
     { txt: "접수", state: 2 },
@@ -131,10 +133,38 @@ export default function WorkList() {
       });
   }, []);
 
+  const [render, setRender] = useState(false);
+
   useEffect(() => {
     getWorkList(curPage);
-    return () => {};
-  }, [userAll, curPage, userInfo]);
+  }, [userAll, curPage, userInfo, render]);
+
+  const refreshTime = 600;
+  const [refreshTimer, setRefreshTimer] = useState(refreshTime);
+  const rerender = () => {
+    setRender(!render);
+    setRefreshTimer(refreshTime);
+    toast({
+      description: "새로고침 되었습니다.",
+      status: "success",
+      duration: 1000,
+      isClosable: false,
+    });
+  };
+
+  //자동 새로고침
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRefreshTimer((time) => time - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    if (refreshTimer < 1) {
+      setRefreshTimer(refreshTime);
+      rerender();
+    }
+  }, [refreshTimer]);
 
   //상태 필터
   const [curState, setCurState] = useState();
@@ -153,18 +183,20 @@ export default function WorkList() {
   return (
     <>
       <WorkTopSelect>
-        <Flex className="wrap">
+        <Flex className="wrap" gap={2}>
           {projectList && (
-            <Select onChange={onFilterProject} width={200} mr={3}>
-              <option value="" key="-1">
-                전체 프로젝트
-              </option>
-              {projectList.map((el) => (
-                <option value={el.uid} key={el.uid}>
-                  {el.title}
+            <>
+              <Select onChange={onFilterProject} width={200}>
+                <option value="" key="-1">
+                  전체 프로젝트
                 </option>
-              ))}
-            </Select>
+                {projectList.map((el) => (
+                  <option value={el.uid} key={el.uid}>
+                    {el.title}
+                  </option>
+                ))}
+              </Select>
+            </>
           )}
           {stateText && (
             <>
@@ -184,6 +216,18 @@ export default function WorkList() {
                     {el.txt}
                   </Button>
                 ))}
+                {projectList && (
+                  <>
+                    <Button
+                      width={refreshTimer < 100 ? 145 : 120}
+                      colorScheme="teal"
+                      onClick={rerender}
+                    >
+                      <IoMdTimer />
+                      새로고침{refreshTimer < 100 && <>({refreshTimer})</>}
+                    </Button>
+                  </>
+                )}
               </Flex>
             </>
           )}

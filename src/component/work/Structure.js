@@ -22,6 +22,8 @@ import WorkPop from "@component/work/WorkPop";
 import WorkResigPop from "@component/work/WorkResigPop";
 import CateStatePop from "@component/work/CateStatePop";
 import CateStateListPop from "./CateStateListPop";
+import { IoMdRefresh } from "react-icons/io";
+import Refresh from "@component/Refresh";
 
 const MenuStructure = styled.div`
   margin-top: 20px;
@@ -198,7 +200,8 @@ export default function Structure() {
 
     cateArr.forEach((el) => {
       if (el.sub) {
-        el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
+        //el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
+        el.sub.sort((a, b) => a.order_num - b.order_num);
       }
     });
     return cateArr;
@@ -374,6 +377,7 @@ export default function Structure() {
         user: userInfo.uid,
       })
       .then((res) => {
+        console.log(res);
         toast({
           description: "담당자에서 제외 되었습니다.",
           status: "success",
@@ -386,9 +390,9 @@ export default function Structure() {
 
   return (
     <>
-      {userInfo && !userInfo.partner && (
-        <Flex>
-          <Select width={250} onChange={(e) => onChangeCate(e, 1)}>
+      <Flex>
+        {userInfo && !userInfo.partner && (
+          <Select mr={2} width={250} onChange={(e) => onChangeCate(e, 1)}>
             <option value="">프로젝트 선택</option>
             {cateList &&
               cateList.map((el) => (
@@ -399,8 +403,9 @@ export default function Structure() {
                 </>
               ))}
           </Select>
-        </Flex>
-      )}
+        )}
+        <Refresh reRender={reRender} />
+      </Flex>
 
       {selectCateDepth2 && (
         <MenuStructure>

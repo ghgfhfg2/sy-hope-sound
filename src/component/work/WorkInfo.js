@@ -22,6 +22,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import InfoModifyPop from "@component/work/InfoModifyPop";
+import Refresh from "@component/Refresh";
 const TableBox = styled.div`
   border: 1px solid #ededed;
   padding: 10px 15px 15px 15px;
@@ -183,20 +184,25 @@ export default function WorkInfo() {
   return (
     <>
       {projectList && (
-        <Select
-          onChange={onFilterProject}
-          width={{ lg: 200, sm: "100%" }}
-          mr={{ lg: 3, sm: "0" }}
-        >
-          <option value="" key="-1">
-            프로젝트 선택
-          </option>
-          {projectList.map((el) => (
-            <option value={el.uid} key={el.uid}>
-              {el.title}
-            </option>
-          ))}
-        </Select>
+        <>
+          <Flex>
+            <Select
+              onChange={onFilterProject}
+              width={{ lg: 200, sm: "100%" }}
+              mr={{ lg: 3, sm: "0" }}
+            >
+              <option value="" key="-1">
+                프로젝트 선택
+              </option>
+              {projectList.map((el) => (
+                <option value={el.uid} key={el.uid}>
+                  {el.title}
+                </option>
+              ))}
+            </Select>
+            <Refresh reRender={onRender} />
+          </Flex>
+        </>
       )}
       {curProject && (
         <form onSubmit={handleSubmit(onSubmit)}>

@@ -20,6 +20,8 @@ import {
 } from "@chakra-ui/react";
 import { BsListCheck } from "react-icons/bs";
 import {
+  AiOutlineArrowDown,
+  AiOutlineArrowUp,
   AiOutlineDelete,
   AiOutlinePlusSquare,
   AiOutlineSetting,
@@ -29,6 +31,13 @@ import useGetUser from "@component/hooks/getUserDb";
 import styled from "styled-components";
 import axios from "axios";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
+
 const WorkCateBox = styled.div`
   input{background:#fff}
   ul.depth_1 {
@@ -206,6 +215,19 @@ const WorkCateBox = styled.div`
       z-index:1;
     }
   }
+  .cate_order_list{
+    display:flex;
+    margin-bottom:15px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:5px;
+    .order{
+      display:inline-block;
+      padding:5px 10px;border:1px solid #555;
+      border-radius:5px;
+      background:#fff;
+    }
+  }
 `;
 
 function WorkCate() {
@@ -289,9 +311,12 @@ function WorkCate() {
 
     cateArr.forEach((el) => {
       if (el.sub) {
-        el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
+        //el.sub.sort((a, b) => a.depth.split("_")[1] - b.depth.split("_")[1]);
+        el.sub.sort((a, b) => a.order_num - b.order_num);
       }
     });
+
+    depthArr2.sort((a, b) => a.order_num - b.order_num);
 
     setDepthArr2(depthArr2);
     setDepthArr3(depthArr3);
@@ -308,7 +333,6 @@ function WorkCate() {
       })
       .then((res) => {
         const listData = CateDataProcessing(res.data.cate);
-        console.log(listData);
         setCateList(listData);
       });
   }, [render]);
@@ -423,6 +447,40 @@ function WorkCate() {
     }
   };
 
+  //dnd
+  const onDragEndCate = ({ source, destination }) => {
+    if (!destination) {
+      return;
+    }
+
+    const _items = JSON.parse(JSON.stringify(depthArr2));
+    const [targetItem] = _items.splice(source.index, 1);
+    _items.splice(destination.index, 0, targetItem);
+    setDepthArr2(_items);
+  };
+
+  const [orderState, setOrderState] = useState(false);
+  const onCateOrder = () => {
+    setOrderState(!orderState);
+  };
+
+  const onCateSave = () => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "update_cate_order",
+        list: depthArr2,
+      })
+      .then((res) => {
+        toast({
+          description: "저장 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        setRender(!render);
+      });
+  };
+
   return (
     <>
       <WorkCateBox>
@@ -441,6 +499,54 @@ function WorkCate() {
             생성
           </Button>
         </Flex>
+        <Flex gap={2} mb={3}>
+          <Button onClick={onCateOrder}>
+            카테고리 정렬
+            {orderState ? <AiOutlineArrowUp /> : <AiOutlineArrowDown />}
+          </Button>
+          {orderState && (
+            <Button colorScheme="teal" onClick={onCateSave}>
+              정렬 저장
+            </Button>
+          )}
+        </Flex>
+
+        {orderState && depthArr2 && (
+          <DragDropContext onDragEnd={onDragEndCate}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <div
+                  className="cate_order_list"
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {depthArr2 &&
+                    depthArr2.map((el, idx) => (
+                      <Draggable key={el.uid} draggableId={el.uid} index={idx}>
+                        {(provided, snapshot) => (
+                          <>
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={
+                                snapshot.isDragging
+                                  ? "is_dragging order"
+                                  : "order"
+                              }
+                            >
+                              [{idx}] {el.title}
+                            </div>
+                          </>
+                        )}
+                      </Draggable>
+                    ))}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
+
         <ul className="depth_1">
           {cateList &&
             cateList.map((el) => {

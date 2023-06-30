@@ -14,6 +14,15 @@ const WorkPopBox = styled(CommonPopup)`
     min-height: 300px;
     height: auto;
     max-height: 90vh;
+    .subject {
+      width: 600px;
+    }
+  }
+  @media all and (max-width: 1024px) {
+    .subject {
+      width: auto;
+      min-width: 400px;
+    }
   }
 `;
 

@@ -66,9 +66,17 @@ const HeaderTop = styled.div`
     height: 100%;
     padding: 0 0.5rem;
     a {
+      transition: all 0.2s;
       padding: 0.5rem 1rem;
       font-size: 14px;
       color: var(--m-color);
+      border-radius: 0;
+      &:hover {
+        font-weight: 600;
+        border-radius: 6px;
+        background: var(--m-color);
+        color: #fff;
+      }
     }
     &.on {
       color: var(--m-color);

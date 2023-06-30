@@ -318,6 +318,18 @@ const MainWrapper = styled.div`
       }
     }
   }
+  .header_bg_box {
+    transition: all 0.5s;
+    .bg_balck {
+      transition: all 0.5s;
+    }
+    &:hover {
+      .bg_balck {
+        opacity: 0;
+      }
+      height: 500px;
+    }
+  }
 `;
 
 const HitmapOver = styled.div`
@@ -387,7 +399,7 @@ const HitmapDetail = styled(ListUl)`
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
-  const ranBgIdx = Math.floor(Math.random() * (21 - 1) + 1);
+  const ranBgIdx = Math.floor(Math.random() * (40 - 1) + 1);
   const [headerImg, setHeaderImg] = useState(
     `https://shop.editt.co.kr/_upload/_groupware/bg/${ranBgIdx}.jpg`
   );
@@ -690,6 +702,7 @@ export default function Main() {
     <>
       <MainWrapper>
         <header
+          className="header_bg_box"
           style={{
             background: `url(${headerImg}) no-repeat center center/cover`,
           }}
