@@ -8,6 +8,7 @@ import axios from "axios";
 import { WorkBoardList } from "./WorkList";
 import useGetUser from "@component/hooks/getUserDb";
 import Link from "next/link";
+import { stateText } from "@component/work/WorkView";
 
 const WorkPopBox = styled(CommonPopup)`
   .con_box {
@@ -28,7 +29,7 @@ const WorkPopBox = styled(CommonPopup)`
 
 export const StepComponent = styled.span`
   .state {
-    width: 55px;
+    width: 65px;
     height: auto;
     display: flex;
     justify-content: center;
@@ -48,10 +49,18 @@ export const StepComponent = styled.span`
       border: 1px solid #2f855a;
     }
     &.state_4 {
-      color: #2b6cb0;
-      border: 1px solid #2b6cb0;
+      color: #c96100;
+      border: 1px solid #c96100;
     }
     &.state_5 {
+      color: #1f0b5e;
+      border: 1px solid #1f0b5e;
+    }
+    &.state_6 {
+      color: #2b6cb0;
+      border: 1px solid #a0aec0;
+    }
+    &.state_7 {
       color: #a0aec0;
       border: 1px solid #a0aec0;
     }
@@ -59,14 +68,6 @@ export const StepComponent = styled.span`
 `;
 
 export default function WorkPop({ selectWorkInfo, closeDayoffPop }) {
-  const stateText = [
-    { txt: "대기", state: 1 },
-    { txt: "접수", state: 2 },
-    { txt: "진행", state: 3 },
-    { txt: "테스트", state: 4 },
-    { txt: "완료", state: 5 },
-  ];
-
   const router = useRouter();
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);

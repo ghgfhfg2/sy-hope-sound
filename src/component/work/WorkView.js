@@ -50,6 +50,24 @@ export const WorkViewBox = styled.div`
   }
 `;
 
+export const stateText = [
+  { txt: "대기", state: 1 },
+  { txt: "접수", state: 2 },
+  { txt: "진행", state: 3 },
+  {
+    txt: "수정요청",
+    state: 4,
+    info: "클라이언트 -> 에딧에게 보내는 요청 입니다.",
+  },
+  {
+    txt: "확인요청",
+    state: 5,
+    info: "에딧 -> 클라이언트에게 보내는 요청 입니다.",
+  },
+  { txt: "확인완료", state: 6 },
+  { txt: "완료", state: 7 },
+];
+
 export default function WorkView() {
   const toast = useToast();
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -60,14 +78,6 @@ export default function WorkView() {
   const [render, setRender] = useState(true);
 
   const [stateData, setStateData] = useState();
-
-  const stateText = [
-    { txt: "대기", state: 1 },
-    { txt: "접수", state: 2 },
-    { txt: "진행", state: 3 },
-    { txt: "테스트", state: 4 },
-    { txt: "완료", state: 5 },
-  ];
 
   const [replyList, setReplyList] = useState();
   useEffect(() => {

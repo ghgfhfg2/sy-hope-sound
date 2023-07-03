@@ -4,7 +4,13 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { AiOutlineDoubleRight } from "react-icons/ai";
 import WorkStatePop from "@component/work/WorkStatePop";
-import { Button, Flex, useDisclosure, useToast } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Tooltip,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import axios from "axios";
 const StepComponent = styled.div`
   .step_list {
@@ -51,7 +57,7 @@ const StepComponent = styled.div`
   }
 
   .state {
-    width: 55px;
+    width: 75px;
     display: flex;
     justify-content: center;
     border-radius: 4px;
@@ -71,10 +77,18 @@ const StepComponent = styled.div`
       border: 1px solid #2f855a;
     }
     &.state_4 {
-      color: #2b6cb0;
-      border: 1px solid #2b6cb0;
+      color: #c96100;
+      border: 1px solid #c96100;
     }
     &.state_5 {
+      color: #1f0b5e;
+      border: 1px solid #1f0b5e;
+    }
+    &.state_6 {
+      color: #2b6cb0;
+      border: 1px solid #a0aec0;
+    }
+    &.state_7 {
       color: #a0aec0;
       border: 1px solid #a0aec0;
     }
@@ -140,7 +154,13 @@ export default function StepBox({ stateData, step, onRender, stateText }) {
                   className={realState == el.state ? "on state" : "state"}
                   onClick={() => onStateChange(el.state)}
                 >
-                  {el.txt}
+                  {el.info ? (
+                    <Tooltip color="white" label={el.info}>
+                      {el.txt}
+                    </Tooltip>
+                  ) : (
+                    <>{el.txt}</>
+                  )}
                 </li>
                 {stateText.length - 1 != idx && (
                   <li>

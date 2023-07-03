@@ -85,6 +85,9 @@ const MenuStructure = styled.div`
         align-items: center;
         justify-content: center;
         border-right: 1px solid #ddd;
+        &.state {
+          flex-direction: column;
+        }
       }
     }
   }
@@ -463,15 +466,29 @@ export default function Structure() {
                                   내역
                                 </Button>
                               </div>
-                              <div className="tit_box wid_2">
+                              <div className="tit_box wid_2 state">
                                 {list2.work?.state_1 && (
-                                  <button
-                                    onClick={() =>
-                                      onPopWorkList(1, list2.depth)
-                                    }
-                                  >
-                                    {list2.work.state_1.length} 건
-                                  </button>
+                                  <>
+                                    <button
+                                      onClick={() =>
+                                        onPopWorkList(1, list2.depth)
+                                      }
+                                    >
+                                      {list2.work.state_1.length} 건
+                                    </button>
+                                    {list2.work?.state_3 && (
+                                      <>
+                                        수정요청 : {list2.work.state_3.length}{" "}
+                                        건
+                                      </>
+                                    )}
+                                    {list2.work?.state_4 && (
+                                      <>
+                                        확인요청 : {list2.work.state_4.length}{" "}
+                                        건
+                                      </>
+                                    )}
+                                  </>
                                 )}
                               </div>
                               <div className="tit_box wid_2">

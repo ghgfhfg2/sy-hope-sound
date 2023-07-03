@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Image, Select, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import React, { useEffect, useState, useRef } from "react";
 import { MdImageSearch } from "react-icons/md";
@@ -68,6 +68,7 @@ const MainWrapper = styled.div`
       top: 0;
     }
     .btn_bg_modify {
+      transition: all 0.2s;
       padding: 0;
       opacity: 0;
       z-index: -1;
@@ -87,6 +88,9 @@ const MainWrapper = styled.div`
         height: 100%;
         padding: 0 12px;
       }
+      &:hover {
+        background: #ccc;
+      }
     }
     .content_box {
       position: relative;
@@ -104,17 +108,19 @@ const MainWrapper = styled.div`
     max-width: 1400px;
     &.con {
       min-height: 300px;
-      padding-left: 250px;
+      padding-left: 260px;
       padding-bottom: 100px;
     }
   }
   .profile_box {
     position: absolute;
-    width: 180px;
+    width: 190px;
     left: 1rem;
     top: -30px;
     z-index: 10;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     h3 {
       font-size: 20px;
       margin-top: 10px;
@@ -129,11 +135,7 @@ const MainWrapper = styled.div`
         padding: 0 1rem;
       }
     }
-    .attend_check {
-      display: flex;
-      margin-top: 15px;
-      gap: 10px;
-    }
+
     .attend_list {
       margin-top: 15px;
       li {
@@ -290,9 +292,6 @@ const MainWrapper = styled.div`
     }
     .profile_box {
       position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       width: 100%;
       top: 0;
       padding: 1rem 1rem 1rem 0;
@@ -319,11 +318,12 @@ const MainWrapper = styled.div`
     }
   }
   .header_bg_box {
+    cursor: pointer;
     transition: all 0.5s;
     .bg_balck {
       transition: all 0.5s;
     }
-    &:hover {
+    &.on {
       .bg_balck {
         opacity: 0;
       }
@@ -608,6 +608,15 @@ export default function Main() {
     });
   };
 
+  const bgRef = useRef();
+  const onBgToggle = () => {
+    if (bgRef.current.classList.contains("on")) {
+      bgRef.current.classList.remove("on");
+    } else {
+      bgRef.current.classList.add("on");
+    }
+  };
+
   //모바일 체크
   const Mobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -692,10 +701,19 @@ export default function Main() {
       })
       .then((res) => {
         if (res) {
-          console.log(res);
           setAttendList(res.data?.list);
         }
       });
+  };
+
+  const [attendTime, setattendTime] = useState();
+
+  const onChangeAttendTime = (e) => {
+    setattendTime(e.target.value);
+  };
+  //출근시간 변경
+  const onchangeAttend = () => {
+    console.log(attendTime);
   };
 
   return (
@@ -703,6 +721,8 @@ export default function Main() {
       <MainWrapper>
         <header
           className="header_bg_box"
+          ref={bgRef}
+          onClick={onBgToggle}
           style={{
             background: `url(${headerImg}) no-repeat center center/cover`,
           }}
@@ -741,7 +761,26 @@ export default function Main() {
             <Button variant="outline" className="btn_modify" size="sm">
               <Link href="/mypage">정보 수정하기</Link>
             </Button>
-            <div className="attend_check">
+            {/* <Flex gap={2} mt={3}>
+              <Select
+                size="sm"
+                onChange={onChangeAttendTime}
+                value={attendTime}
+              >
+                <option>9:00 출근</option>
+                <option>9:30 출근</option>
+                <option>10:00 출근</option>
+              </Select>
+              <Button
+                size="sm"
+                width={100}
+                colorScheme="teal"
+                onClick={onchangeAttend}
+              >
+                시간변경
+              </Button>
+            </Flex> */}
+            <Flex gap={2} mt={3}>
               <Button
                 colorScheme="teal"
                 variant="solid"
@@ -750,7 +789,7 @@ export default function Main() {
                 출근체크
               </Button>
               <Button onClick={() => onAttentCheck(2)}>퇴근체크</Button>
-            </div>
+            </Flex>
             <ul className="attend_list">
               {attendList &&
                 attendList.map((el) => (

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Button, Flex, Select, useToast } from "@chakra-ui/react";
 import { StepComponent } from "@component/work/WorkPop";
 import { IoMdTimer } from "react-icons/io";
+import { stateText } from "@component/work/WorkView";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
@@ -72,13 +73,6 @@ const WorkTopSelect = styled.div`
 export default function WorkList() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
-  const stateText = [
-    { txt: "대기", state: 1 },
-    { txt: "접수", state: 2 },
-    { txt: "진행", state: 3 },
-    { txt: "테스트", state: 4 },
-    { txt: "완료", state: 5 },
-  ];
 
   const router = useRouter();
   useGetUser();
