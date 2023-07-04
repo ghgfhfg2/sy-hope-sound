@@ -470,6 +470,7 @@ export default function Structure() {
                                 {list2.work?.state_1 && (
                                   <>
                                     <button
+                                      style={{ fontWeight: 600 }}
                                       onClick={() =>
                                         onPopWorkList(1, list2.depth)
                                       }
@@ -477,16 +478,10 @@ export default function Structure() {
                                       {list2.work.state_1.length} 건
                                     </button>
                                     {list2.work?.state_3 && (
-                                      <>
-                                        수정요청 : {list2.work.state_3.length}{" "}
-                                        건
-                                      </>
+                                      <>수정요청 {list2.work.state_3.length}</>
                                     )}
                                     {list2.work?.state_4 && (
-                                      <>
-                                        확인요청 : {list2.work.state_4.length}{" "}
-                                        건
-                                      </>
+                                      <>확인요청 {list2.work.state_4.length}</>
                                     )}
                                   </>
                                 )}
@@ -494,6 +489,7 @@ export default function Structure() {
                               <div className="tit_box wid_2">
                                 {list2.work?.state_2 && (
                                   <button
+                                    style={{ fontWeight: 600 }}
                                     onClick={() =>
                                       onPopWorkList(2, list2.depth)
                                     }

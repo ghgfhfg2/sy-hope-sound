@@ -122,7 +122,7 @@ export default function DayoffHistoryPop({ userData, closeDayoffPop }) {
                 fontSize={15}
                 fontWeight={600}
               >
-                <span>남은 연차 : {userData.dayoff}</span>
+                <span>남은 연차 : {userData.dayoff || 0}</span>
               </Flex>
             )}
           </div>

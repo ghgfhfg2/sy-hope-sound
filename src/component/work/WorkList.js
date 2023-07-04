@@ -14,6 +14,7 @@ import { Button, Flex, Select, useToast } from "@chakra-ui/react";
 import { StepComponent } from "@component/work/WorkPop";
 import { IoMdTimer } from "react-icons/io";
 import { stateText } from "@component/work/WorkView";
+import Refresh from "@component/Refresh";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
@@ -128,37 +129,44 @@ export default function WorkList() {
   }, []);
 
   const [render, setRender] = useState(false);
+  const reRender = () => {
+    setRender(!render);
+  };
 
   useEffect(() => {
     getWorkList(curPage);
   }, [userAll, curPage, userInfo, render]);
 
-  const refreshTime = 600;
-  const [refreshTimer, setRefreshTimer] = useState(refreshTime);
-  const rerender = () => {
-    setRender(!render);
-    setRefreshTimer(refreshTime);
-    toast({
-      description: "새로고침 되었습니다.",
-      status: "success",
-      duration: 1000,
-      isClosable: false,
-    });
-  };
+  // const refreshTime = 100;
+  // const [refreshTimer, setRefreshTimer] = useState(refreshTime);
+  // const rerender = () => {
+  //   setRender(!render);
+  //   setRefreshTimer(refreshTime);
+  //   toast({
+  //     description: "새로고침 되었습니다.",
+  //     status: "success",
+  //     duration: 1000,
+  //     isClosable: false,
+  //   });
+  // };
 
-  //자동 새로고침
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setRefreshTimer((time) => time - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-  useEffect(() => {
-    if (refreshTimer < 1) {
-      setRefreshTimer(refreshTime);
-      rerender();
-    }
-  }, [refreshTimer]);
+  // //자동 새로고침
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setRefreshTimer((time) => {
+  //       return time - 1;
+  //     });
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // }, []);
+  // useEffect(() => {
+  //   if (refreshTimer < 1) {
+  //     setRefreshTimer(refreshTime);
+  //     rerender();
+  //   } else {
+  //     return;
+  //   }
+  // }, [refreshTimer]);
 
   //상태 필터
   const [curState, setCurState] = useState();
@@ -211,16 +219,17 @@ export default function WorkList() {
                   </Button>
                 ))}
                 {projectList && (
-                  <>
-                    <Button
-                      width={refreshTimer < 100 ? 145 : 120}
-                      colorScheme="teal"
-                      onClick={rerender}
-                    >
-                      <IoMdTimer />
-                      새로고침{refreshTimer < 100 && <>({refreshTimer})</>}
-                    </Button>
-                  </>
+                  // <>
+                  //   <Button
+                  //     width={refreshTimer < 100 ? 145 : 120}
+                  //     colorScheme="teal"
+                  //     onClick={rerender}
+                  //   >
+                  //     <IoMdTimer />
+                  //     새로고침{refreshTimer < 100 && <>({refreshTimer})</>}
+                  //   </Button>
+                  // </>
+                  <Refresh reRender={reRender} />
                 )}
               </Flex>
             </>
