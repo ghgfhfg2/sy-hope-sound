@@ -93,6 +93,15 @@ export default function UserDayoffPop({ userData, closeDayoffPop, onRender }) {
   } = useForm();
 
   function onSubmit(values) {
+    if (!values.modiType) {
+      toast({
+        description: "증감을 선택해 주세요.",
+        status: "info",
+        duration: 1000,
+        isClosable: false,
+      });
+      return;
+    }
     let newUserData = { ...userData };
 
     if (values.modiType === "1") {
