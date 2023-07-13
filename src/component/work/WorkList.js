@@ -18,6 +18,16 @@ import Refresh from "@component/Refresh";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
+    .cate {
+      width: 130px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: block;
+      line-height: 48px;
+      text-align: center;
+      padding: 0 5px;
+    }
     &.header {
       .subject {
         justify-content: center;
