@@ -124,6 +124,7 @@ export default function Attend() {
       <AttendBoardList>
         <li className="header">
           <span className="name">이름</span>
+          <span className="date">출근시간</span>
           <span className="date">출근</span>
           <span className="date">퇴근</span>
         </li>
@@ -132,6 +133,7 @@ export default function Attend() {
             <>
               <li key={el.uid}>
                 <span>{el.name}</span>
+                <span className="date">{el.attendTime}</span>
                 <span className="date">{el.type == 1 && el.date_regis}</span>
                 <span className="date">{el.type == 2 && el.date_regis}</span>
               </li>

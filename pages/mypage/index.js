@@ -9,6 +9,7 @@ import {
   Flex,
   useToast,
   FormErrorMessage,
+  Select,
 } from "@chakra-ui/react";
 import useGetUser from "@component/hooks/getUserDb";
 
@@ -53,7 +54,21 @@ export default function Mypage() {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  const [attendTime, setAttendTime] = useState();
+  const onChangeAttendTime = (e) => {
+    setAttendTime(e.target.value);
+  };
+
   const onSubmit = async (values) => {
+    if (!attendTime) {
+      toast({
+        title: "출근시간을 정해주세요.",
+        status: "error",
+        duration: 1000,
+        isClosable: true,
+      });
+      return;
+    }
     let url;
     if (userInfo.profile) {
       url = userInfo.profile;
@@ -78,6 +93,7 @@ export default function Mypage() {
     }
     update(ref(db, `user/${userInfo.uid}`), {
       ...values,
+      attendTime,
       profile: url || "",
     }).then(() => {
       toast({
@@ -204,6 +220,25 @@ export default function Mypage() {
                     <>{`휴대폰번호 양식에 맞지 않습니다.`}</>
                   )}
                 </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errors.call} className="row_section">
+                <div className="row_box">
+                  <FormLabel className="label" htmlFor="attend_time">
+                    출근시간
+                  </FormLabel>
+                  <Select
+                    width={150}
+                    id="attend_time"
+                    onChange={onChangeAttendTime}
+                    value={attendTime}
+                    defaultValue={userData.attendTime}
+                  >
+                    <option value="">출근시간</option>
+                    <option value="09:00">09:00</option>
+                    <option value="09:30">09:30</option>
+                    <option value="10:00">10:00</option>
+                  </Select>
+                </div>
               </FormControl>
               {/* submit */}
               <Flex
