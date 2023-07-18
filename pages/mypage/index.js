@@ -60,7 +60,7 @@ export default function Mypage() {
   };
 
   const onSubmit = async (values) => {
-    if (!attendTime) {
+    if (!attendTime && !userData.attendTime) {
       toast({
         title: "출근시간을 정해주세요.",
         status: "error",
@@ -75,9 +75,12 @@ export default function Mypage() {
     }
     if (uploadList.length > 0) {
       url = uploadList;
+    } else if (initProfile) {
+      url = initProfile;
     } else {
       url = "";
     }
+
     if (uploadList.length > 0) {
       const getResizeProfile = await imageResize(uploadList[0], 300).then(
         (img) => {
@@ -91,9 +94,10 @@ export default function Mypage() {
         return downloadUrl;
       });
     }
+
     update(ref(db, `user/${userInfo.uid}`), {
       ...values,
-      attendTime,
+      attendTime: userData.attendTime || attendTime,
       profile: url || "",
     }).then(() => {
       toast({
