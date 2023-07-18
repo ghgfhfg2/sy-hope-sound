@@ -661,12 +661,14 @@ export default function Main() {
       alert("유효한 ip가 아닙니다.");
       return;
     }
+
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "add_attend_in",
         type,
         mem_uid: userInfo.uid,
         manager: userInfo.manager_uid,
+        attend_time: userInfo.attendTime,
       })
       .then((res) => {
         if (res.data.already) {
@@ -761,25 +763,7 @@ export default function Main() {
             <Button variant="outline" className="btn_modify" size="sm">
               <Link href="/mypage">정보 수정하기</Link>
             </Button>
-            {/* <Flex gap={2} mt={3}>
-              <Select
-                size="sm"
-                onChange={onChangeAttendTime}
-                value={attendTime}
-              >
-                <option>9:00 출근</option>
-                <option>9:30 출근</option>
-                <option>10:00 출근</option>
-              </Select>
-              <Button
-                size="sm"
-                width={100}
-                colorScheme="teal"
-                onClick={onchangeAttend}
-              >
-                시간변경
-              </Button>
-            </Flex> */}
+
             <Flex gap={2} mt={3}>
               <Button
                 colorScheme="teal"

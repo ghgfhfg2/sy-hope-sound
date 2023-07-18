@@ -64,7 +64,7 @@ export default function Attend() {
         date,
       })
       .then((res) => {
-        const initState = userAll.map((el) => {
+        const initState = userAll?.map((el) => {
           el.state = 1;
           return el;
         });
@@ -111,29 +111,30 @@ export default function Attend() {
           <li className="state_1">미출근</li>
           <li className="state_2">출근</li>
           <li className="state_3">퇴근</li>
+          <li>* 괄호 안은 출근 예정 시간</li>
         </AttendStateList>
       </Flex>
       <AttendStateList>
         {userStateList &&
           userStateList.map((el) => (
             <li key={el.uid} className={`state_${el.state}`}>
-              {el.name}
+              {el.name} ({el.attendTime})
             </li>
           ))}
       </AttendStateList>
       <AttendBoardList>
         <li className="header">
           <span className="name">이름</span>
+          <span className="date">예정시간</span>
           <span className="date">출근시간</span>
-          <span className="date">출근</span>
-          <span className="date">퇴근</span>
+          <span className="date">퇴근시간</span>
         </li>
         {attendList ? (
           attendList.map((el) => (
             <>
               <li key={el.uid}>
                 <span>{el.name}</span>
-                <span className="date">{el.attendTime}</span>
+                <span className="date">{el.attend_time}</span>
                 <span className="date">{el.type == 1 && el.date_regis}</span>
                 <span className="date">{el.type == 2 && el.date_regis}</span>
               </li>

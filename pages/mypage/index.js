@@ -25,6 +25,7 @@ import {
 import { CommonForm } from "pages/setting";
 import ProfileUpload from "@component/mypage/ProfileUpload";
 import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
+import axios from "axios";
 
 export default function Mypage() {
   const storage = getStorage();
@@ -60,6 +61,22 @@ export default function Mypage() {
   };
 
   const onSubmit = async (values) => {
+    const curTime = await axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "get_time",
+      })
+      .then((res) => {
+        return res.data.time;
+      });
+    if (curTime >= "09" || curTime <= "10") {
+      toast({
+        title: "09:00 ~ 10:00 에는 수정이 불가능합니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: true,
+      });
+      return;
+    }
     if (!attendTime && !userData.attendTime) {
       toast({
         title: "출근시간을 정해주세요.",
