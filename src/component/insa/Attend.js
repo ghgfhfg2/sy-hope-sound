@@ -128,6 +128,7 @@ export default function Attend() {
           <span className="date">예정시간</span>
           <span className="date">출근시간</span>
           <span className="date">퇴근시간</span>
+          <span className="date">근무시간</span>
         </li>
         {attendList ? (
           attendList.map((el) => (
@@ -137,6 +138,7 @@ export default function Attend() {
                 <span className="date">{el.attend_time}</span>
                 <span className="date">{el.type == 1 && el.date_regis}</span>
                 <span className="date">{el.type == 2 && el.date_regis}</span>
+                <span className="date">{el.work_time}</span>
               </li>
             </>
           ))

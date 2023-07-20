@@ -236,7 +236,7 @@ function WorkModify() {
         resData.cate_2 = resData.cate_2 ? JSON.parse(resData.cate_2) : "";
         resData.cate_3 = resData.cate_3 ? JSON.parse(resData.cate_3) : "";
         const writer = userAll?.find((user) => resData.writer === user.uid);
-        const managerArr = JSON.parse(resData.manager);
+        const managerArr = resData.manager ? JSON.parse(resData.manager) : [];
 
         let temp;
         for (let i = 0; i < cateList.length; i++) {
@@ -296,7 +296,7 @@ function WorkModify() {
   const [typeRadio, setTypeRadio] = useState(viewData?.type);
 
   const submitWork = (values) => {
-    values.content = values.content || viewData.content;
+    values.content = editorState || viewData.content;
     values.type = typeRadio || viewData.type;
     values.title = values.title || viewData.title;
     values.manager = values.manager || viewData.manager;

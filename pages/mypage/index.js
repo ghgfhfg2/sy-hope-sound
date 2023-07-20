@@ -68,7 +68,7 @@ export default function Mypage() {
       .then((res) => {
         return res.data.time;
       });
-    if (curTime >= "09" || curTime <= "10") {
+    if (curTime == "09") {
       toast({
         title: "09:00 ~ 10:00 에는 수정이 불가능합니다.",
         status: "error",
@@ -114,7 +114,7 @@ export default function Mypage() {
 
     update(ref(db, `user/${userInfo.uid}`), {
       ...values,
-      attendTime: userData.attendTime || attendTime,
+      attendTime: attendTime || userData.attendTime || "",
       profile: url || "",
     }).then(() => {
       toast({
