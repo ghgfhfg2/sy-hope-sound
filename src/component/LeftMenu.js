@@ -61,6 +61,10 @@ function LeftMunu({ userInfo }) {
   const dispatch = useDispatch();
   const dayoffCheckNum = useSelector((state) => state.counter.dayoffCount);
   const boardCount = useSelector((state) => state.counter.boardCount);
+  const ruleAuth = [
+    "otoentmIBsMUPuRp5as5hCLbS0W2",
+    "s9HBOUUeaGN4LFVJUs0fOkF77XU2",
+  ];
 
   useEffect(() => {
     let countRef;
@@ -146,6 +150,22 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/insa/attend" ? "on" : ""}>
                 <Link href="/insa/attend">근태정보</Link>
               </li>
+            </ul>
+          </>
+        )}
+        {router.includes("/rule") && (
+          <>
+            <ul className="depth_1">
+              <li className={router === "/rule" ? "on" : ""}>
+                <Link href="/rule/">목록</Link>
+              </li>
+              {ruleAuth.includes(userInfo?.uid) && (
+                <>
+                  <li className={router === "/rule/write" ? "on" : ""}>
+                    <Link href="/rule/write">글 작성</Link>
+                  </li>
+                </>
+              )}
             </ul>
           </>
         )}

@@ -236,6 +236,9 @@ function Header({ logoImg }) {
                 <li className={router.route.indexOf("/insa") > -1 && "on"}>
                   <Link href="/insa">인사관리</Link>
                 </li>
+                <li className={router.route.indexOf("/rule") > -1 && "on"}>
+                  <Link href="/rule">운영&규정</Link>
+                </li>
                 <li className={router.route.indexOf("/report") > -1 && "on"}>
                   <Link href="/report">업무보고</Link>
                 </li>

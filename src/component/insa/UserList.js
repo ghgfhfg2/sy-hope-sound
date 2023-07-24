@@ -55,6 +55,9 @@ export const ListUl = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    &.num {
+      flex: 70px 0;
+    }
     &.dayoff_history {
       width: 100px;
     }
