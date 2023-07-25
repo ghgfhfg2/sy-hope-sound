@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { basicForm } from "@component/BasicForm";
 
 import SunEditor, { buttonList } from "suneditor-react";
+import plugins from "suneditor/src/plugins";
 import { useToast } from "@chakra-ui/react";
 
 // const SunEditor = dynamic(() => import("suneditor-react"), {
@@ -135,6 +136,7 @@ export default function Editor({
 }) {
   const toast = useToast();
   const editor = useRef();
+
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
@@ -197,6 +199,24 @@ export default function Editor({
             onImageUploadBefore={handleImageUploadBefore}
             getSunEditorInstance={getSunEditorInstance}
             defaultValue={initTypeCon || basicForm}
+            setOptions={{
+              buttonList: [
+                ["undo", "redo"],
+                ["font", "fontSize", "formatBlock"],
+                ["paragraphStyle", "blockquote"],
+                ["bold", "underline", "italic", "strike"],
+                ["fontColor", "hiliteColor", "textStyle"],
+                ["removeFormat"],
+                "/", // Line break
+                ["outdent", "indent"],
+                ["align", "horizontalRule", "list", "lineHeight"],
+                ["table", "link" /** ,'math' */], // You must add the 'katex' library at options to use the 'math' plugin.
+                /** ['imageGallery'] */ // You must add the "imageGalleryUrl".
+                ["fullScreen", "showBlocks", "codeView"],
+                ["preview", "print"],
+                /** ['dir', 'dir_ltr', 'dir_rtl'] */ // "dir": Toggle text direction, "dir_ltr": Right to Left, "dir_rtl": Left to Right
+              ],
+            }}
           />
         </div>
       </EditorBox>

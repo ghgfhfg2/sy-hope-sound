@@ -23,6 +23,7 @@ import SelectManagerPop from "@component/popup/SelectManagerPop";
 import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import RuleCatePop from "@component/rule/RuleCatePop";
+import UploadBox from "@component/UploadBox";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
@@ -62,13 +63,33 @@ function RuleWrite() {
         ...values,
       })
       .then((res) => {
-        toast({
-          description: "저장되었습니다.",
-          status: "success",
-          duration: 1000,
-          isClosable: false,
+        console.log(res);
+        const formData = new FormData();
+        uploadList.forEach((el, idx) => {
+          formData.append(`file_${idx}`, el);
         });
-        router.push("/rule");
+        formData.append("uid", `${res.data.uid}`);
+        formData.append("folder", `rule`);
+        axios
+          .post(
+            "https://shop.editt.co.kr/_var/_xml/groupware_upload.php",
+            formData,
+            {
+              headers: {
+                "Contest-Type": "multipart/form-data",
+              },
+            }
+          )
+          .then((res) => {
+            console.log(res);
+            toast({
+              description: "저장되었습니다.",
+              status: "success",
+              duration: 1000,
+              isClosable: false,
+            });
+            router.push("/rule");
+          });
       });
   };
 
@@ -95,6 +116,36 @@ function RuleWrite() {
   };
   const closeCatePop = () => {
     setIsCatePop(false);
+  };
+
+  //파일 첨부
+  const [uploadList, setUploadList] = useState([]);
+  const onAddUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 4194304) {
+      toast({
+        description: "첨부파일 최대용량은 4MB 입니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      e.target.value = null;
+      return;
+    } else {
+      const newList = [...uploadList, file];
+      setUploadList(newList);
+      e.target.value = null;
+    }
+  };
+  const removeFile = (uid) => {
+    let newFileList = uploadList;
+    newFileList = newFileList.filter((el) => {
+      return el.lastModified !== uid;
+    });
+    setUploadList(newFileList);
   };
 
   return (
@@ -143,6 +194,14 @@ function RuleWrite() {
             </FormControl>
 
             <Editor initTypeCon=" " handleEditor={handleEditor} />
+
+            <Flex mt={4} width="100%">
+              <UploadBox
+                onAddUpload={onAddUpload}
+                uploadList={uploadList}
+                removeFile={removeFile}
+              />
+            </Flex>
 
             {/* submit */}
             <Flex

@@ -104,9 +104,7 @@ export default function UploadBox({
                 <>
                   <li key={idx}>
                     <div className="thumb" onClick={onImageZoom}>
-                      <img
-                        src={`https://shop.editt.co.kr/_upload/_groupware/work/${el}`}
-                      />
+                      <img src={`${el}`} />
                     </div>
                     <div className="name">{el}</div>
                     <Button

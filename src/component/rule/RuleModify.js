@@ -24,6 +24,7 @@ import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import { useEffect } from "react";
 import Link from "next/link";
+import UploadBox from "@component/UploadBox";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
@@ -53,6 +54,7 @@ function RuleModify() {
   }, []);
 
   const [initData, setInitData] = useState();
+  const [initUpload, setInitUpload] = useState();
   useEffect(() => {
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
@@ -60,7 +62,8 @@ function RuleModify() {
         uid: router.query.uid,
       })
       .then((res) => {
-        if (res.data.rule.writer !== userInfo?.uid) {
+        const resData = res.data.rule;
+        if (resData.writer !== userInfo?.uid) {
           toast({
             description: "다른 작성자의 글은 수정 할 수 없습니다.",
             status: "error",
@@ -69,7 +72,16 @@ function RuleModify() {
           });
           router.push("/rule");
         }
-        setInitData(res.data.rule);
+        let imgArr;
+        if (resData.images) {
+          imgArr = JSON.parse(resData.images);
+          imgArr = imgArr.map((el) => {
+            el = resData.upload + el;
+            return el;
+          });
+          setInitUpload(imgArr);
+        }
+        setInitData(resData);
       });
   }, []);
 
@@ -109,6 +121,61 @@ function RuleModify() {
 
     submitRule(values);
   };
+
+  //파일 첨부
+  const [uploadList, setUploadList] = useState([]);
+  const onAddUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 4194304) {
+      toast({
+        description: "첨부파일 최대용량은 4MB 입니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      e.target.value = null;
+      return;
+    } else {
+      const newList = [...uploadList, file];
+      setUploadList(newList);
+      e.target.value = null;
+    }
+  };
+  const removeFile = (uid) => {
+    let newFileList = uploadList;
+    newFileList = newFileList.filter((el) => {
+      return el.lastModified !== uid;
+    });
+    setUploadList(newFileList);
+  };
+
+  const removeInitFile = (img) => {
+    const agree = confirm("이미지가 즉시 삭제 됩니다.\n삭제 하시겠습니까?");
+    if (!agree) return;
+    const newInit = initUpload.filter((el) => el != img);
+    const jsonArr = newInit.length > 1 ? JSON.stringify(newInit) : "";
+
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "remove_work_img",
+        img,
+        images: jsonArr,
+        uid: viewData.uid,
+      })
+      .then((res) => {
+        toast({
+          description: "삭제되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+      });
+    setInitUpload(newInit);
+  };
+
   return (
     <>
       <CommonForm onSubmit={handleSubmit(onSubmit)}>
@@ -148,10 +215,21 @@ function RuleModify() {
               </FormErrorMessage>
             </FormControl>
             {initData && (
-              <Editor
-                initTypeCon={initData.content}
-                handleEditor={handleEditor}
-              />
+              <>
+                <Editor
+                  initTypeCon={initData.content}
+                  handleEditor={handleEditor}
+                />
+                <Flex mt={4} width="100%">
+                  <UploadBox
+                    onAddUpload={onAddUpload}
+                    uploadList={uploadList}
+                    initUpload={initUpload}
+                    removeFile={removeFile}
+                    removeInitFile={removeInitFile}
+                  />
+                </Flex>
+              </>
             )}
 
             {/* submit */}

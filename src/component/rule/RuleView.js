@@ -23,13 +23,12 @@ export default function RuleView() {
         uid,
       })
       .then((res) => {
-        const writer = userAll?.find(
-          (user) => res.data.rule.writer === user.uid
-        );
-        const manager = userAll?.find(
-          (user) => res.data.rule.manager === user.uid
-        );
-        res.data.rule.manager = manager?.name;
+        console.log(res);
+        const resData = res.data.rule;
+        const writer = userAll?.find((user) => resData.writer === user.uid);
+        const manager = userAll?.find((user) => resData.manager === user.uid);
+        resData.manager = manager?.name;
+        resData.images = JSON.parse(resData.images);
         setViewData({
           ...writer,
           ...res.data.rule,
@@ -78,6 +77,16 @@ export default function RuleView() {
                 <div
                   dangerouslySetInnerHTML={{ __html: viewData.content }}
                 ></div>
+                <Flex flexDirection="column" alignItems="flex-start" gap={1}>
+                  {viewData.images &&
+                    viewData.images.map((el) => (
+                      <>
+                        <img
+                          src={`https://shop.editt.co.kr/_upload/_groupware/rule/${el}`}
+                        />
+                      </>
+                    ))}
+                </Flex>
               </dd>
             </dl>
           </WorkViewBox>

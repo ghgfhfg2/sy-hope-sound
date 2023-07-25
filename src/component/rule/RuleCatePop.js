@@ -93,6 +93,7 @@ export default function RuleCatePop({ cateList, onRender, closeCatePop }) {
   };
   const onRemoveCate = (uid) => {
     const agree = confirm("삭제 하시겠습니까?");
+    if (!agree) return;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "remove_rule_category",

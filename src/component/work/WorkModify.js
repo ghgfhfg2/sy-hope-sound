@@ -266,9 +266,12 @@ function WorkModify() {
           }
         }
         let imgArr;
-        console.log("resData", resData);
         if (resData.images) {
           imgArr = JSON.parse(resData.images);
+          imgArr = imgArr.map((el) => {
+            el = resData.upload + el;
+            return el;
+          });
           setInitUpload(imgArr);
         }
         setViewData({

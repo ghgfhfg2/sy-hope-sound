@@ -63,6 +63,7 @@ function LeftMunu({ userInfo }) {
   const boardCount = useSelector((state) => state.counter.boardCount);
   const ruleAuth = [
     "otoentmIBsMUPuRp5as5hCLbS0W2",
+    "g7erYbL3dIPIsYFoVlz0mP9RjlQ2",
     "s9HBOUUeaGN4LFVJUs0fOkF77XU2",
   ];
 
