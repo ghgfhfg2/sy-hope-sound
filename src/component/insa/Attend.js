@@ -126,6 +126,7 @@ export default function Attend() {
         <li className="header">
           <span className="name">이름</span>
           <span className="date">예정시간</span>
+          <span className="date">점심탄력</span>
           <span className="date">출근시간</span>
           <span className="date">퇴근시간</span>
           <span className="date">근무시간</span>
@@ -136,6 +137,9 @@ export default function Attend() {
               <li key={el.uid}>
                 <span>{el.name}</span>
                 <span className="date">{el.attend_time}</span>
+                <span className="date">
+                  {el.add_lunch ? `${el.add_lunch}분` : ""}
+                </span>
                 <span className="date">{el.type == 1 && el.date_regis}</span>
                 <span className="date">{el.type == 2 && el.date_regis}</span>
                 <span className="date">{el.work_time}</span>

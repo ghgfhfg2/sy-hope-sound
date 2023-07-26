@@ -43,6 +43,7 @@ import { imageResize, dataURLtoFile } from "@component/hooks/useImgResize";
 import { ListUl } from "./insa/UserList";
 import { MdOutlineDateRange } from "react-icons/md";
 import axios from "axios";
+import AddLunchPop from "./popup/AddLunchPop";
 const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -638,8 +639,6 @@ export default function Main() {
         const ip = res.data.ip;
         const ipArr = res.data.array;
 
-        console.log(res.data);
-
         if (ipArr.includes(ip)) {
           return true;
         } else {
@@ -653,15 +652,16 @@ export default function Main() {
     }
   };
 
+  //점심탄력 팝업
+  const [isAddLunchPop, setisAddLunchPop] = useState(false);
+  const closeAddLunchPop = () => {
+    setisAddLunchPop(false);
+  };
+
   //출퇴근 체크
   const [attendList, setAttendList] = useState();
-  const onAttentCheck = async (type) => {
-    const ipCheck = await getIpAdress();
-    if (!ipCheck) {
-      alert("유효한 ip가 아닙니다.");
-      return;
-    }
 
+  const submitAddAtend = (type, addLunch) => {
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "add_attend_in",
@@ -669,13 +669,14 @@ export default function Main() {
         mem_uid: userInfo.uid,
         manager: userInfo.manager_uid,
         attend_time: userInfo.attendTime,
+        add_lunch: addLunch,
       })
       .then((res) => {
-        if (res.data.already) {
+        if (res.data?.already) {
           alert("출근 체크는 하루 한번 가능 합니다.");
           return;
         }
-        if (res.data.update) {
+        if (res.data?.update) {
           alert("퇴근 시간이 업데이트 되었습니다.");
           getAttentList();
           return;
@@ -688,6 +689,21 @@ export default function Main() {
         }
         getAttentList();
       });
+  };
+
+  const onAttentCheck = async (type) => {
+    const ipCheck = await getIpAdress();
+    if (!ipCheck) {
+      alert("유효한 ip가 아닙니다.");
+      return;
+    }
+
+    if (type == 1 && userInfo.uid == "MklXsOiU5zUYQ5H9PK2T4kWuQkA3") {
+      setisAddLunchPop(true);
+      return;
+    }
+
+    submitAddAtend(type);
   };
 
   useEffect(() => {
@@ -706,16 +722,6 @@ export default function Main() {
           setAttendList(res.data?.list);
         }
       });
-  };
-
-  const [attendTime, setattendTime] = useState();
-
-  const onChangeAttendTime = (e) => {
-    setattendTime(e.target.value);
-  };
-  //출근시간 변경
-  const onchangeAttend = () => {
-    console.log(attendTime);
   };
 
   return (
@@ -921,6 +927,12 @@ export default function Main() {
             <p>{currentBoard.date}</p>
             <p>{currentBoard.list[0].typeName}</p>
           </HitmapOver>
+        )}
+        {isAddLunchPop && (
+          <AddLunchPop
+            submitAddAtend={submitAddAtend}
+            closePop={closeAddLunchPop}
+          />
         )}
       </MainWrapper>
     </>

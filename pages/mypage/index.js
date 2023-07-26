@@ -115,6 +115,7 @@ export default function Mypage() {
     update(ref(db, `user/${userInfo.uid}`), {
       ...values,
       attendTime: attendTime || userData.attendTime || "",
+      addLunch: addLunch || userData.addLunch || "",
       profile: url || "",
     }).then(() => {
       toast({
@@ -261,6 +262,7 @@ export default function Mypage() {
                   </Select>
                 </div>
               </FormControl>
+
               {/* submit */}
               <Flex
                 width="150px"
