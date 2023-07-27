@@ -67,13 +67,6 @@ export default function AddLunchPop({ closePop, submitAddAtend }) {
     }
     if (curTime > 945) {
       arr = [{ val: 0, tit: "없음" }];
-      arr = [
-        { val: 0, tit: "없음" },
-        { val: 15, tit: "15분" },
-        { val: 30, tit: "30분" },
-        { val: 45, tit: "45분" },
-        { val: 60, tit: "1시간" },
-      ];
     }
     setSelectTime(arr);
   }, []);

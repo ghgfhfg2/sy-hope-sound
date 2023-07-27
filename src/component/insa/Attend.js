@@ -35,6 +35,10 @@ const AttendStateList = styled.ul`
       border-color: #333;
       color: #fff;
     }
+    &.state_4 {
+      background: #ffc0bd;
+      border-color: #ffc0bd;
+    }
   }
 `;
 
@@ -43,6 +47,9 @@ const AttendBoardList = styled(BoardLi)`
     .date {
       width: 150px;
       flex-shrink: 0;
+    }
+    &.under {
+      background: #ffc0bd;
     }
   }
 `;
@@ -72,12 +79,20 @@ export default function Attend() {
         setAttendList("");
         if (!res.data) return;
         const list = res.data.list.map((el) => {
-          const user = userAll.find((user) => el.mem_uid == user.uid);
+          const user = userAll?.find((user) => el.mem_uid == user.uid);
           el.date_regis = el.date_regis.split(" ")[1].substr(0, 5);
           el = {
             ...user,
             ...el,
           };
+          if (el.work_time) {
+            //7시간 근무 체크
+            const hour = el.work_time.substr(0, 2);
+            if (hour < 7) {
+              console.log("11");
+              el.isUnder = true;
+            }
+          }
           return el;
         });
         let userState = userAll.map((el) => {
@@ -98,7 +113,7 @@ export default function Attend() {
 
   return (
     <>
-      <Flex>
+      <Flex mb={3}>
         <Input
           id="date"
           type="date"
@@ -112,6 +127,7 @@ export default function Attend() {
           <li className="state_2">출근</li>
           <li className="state_3">퇴근</li>
           <li>* 괄호 안은 출근 예정 시간</li>
+          <li className="state_4">근무시간 부족</li>
         </AttendStateList>
       </Flex>
       <AttendStateList>
@@ -134,7 +150,7 @@ export default function Attend() {
         {attendList ? (
           attendList.map((el) => (
             <>
-              <li key={el.uid}>
+              <li key={el.uid} className={el.isUnder && "under"}>
                 <span>{el.name}</span>
                 <span className="date">{el.attend_time}</span>
                 <span className="date">
