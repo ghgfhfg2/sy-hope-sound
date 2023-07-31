@@ -400,7 +400,7 @@ const HitmapDetail = styled(ListUl)`
 export default function Main() {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
-  const ranBgIdx = Math.floor(Math.random() * (40 - 1) + 1);
+  const ranBgIdx = Math.floor(Math.random() * (60 - 1) + 1);
   const [headerImg, setHeaderImg] = useState(
     `https://shop.editt.co.kr/_upload/_groupware/bg/${ranBgIdx}.jpg`
   );

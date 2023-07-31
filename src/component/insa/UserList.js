@@ -119,6 +119,8 @@ export default function UserList() {
         return a["timestamp"] - b["timestamp"];
       });
 
+      console.log("userAll", userAll);
+
       setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);
@@ -267,7 +269,7 @@ export default function UserList() {
                       {adminCheck && (
                         <>
                           <span className="box dayoff">
-                            {el.dayoff ? `${el.dayoff}일` : "0일"}
+                            {`${el.dayoff}일`}
 
                             <Button
                               size="sm"

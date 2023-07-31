@@ -31,6 +31,7 @@ import styled from "styled-components";
 import { el } from "date-fns/locale";
 import Loading from "../../src/component/Loading";
 import { Flex } from "@chakra-ui/react";
+import axios from "axios";
 
 export const ScheduleCalendar = styled.div`
   .header {
@@ -75,7 +76,7 @@ export const ScheduleCalendar = styled.div`
   .body {
     .col {
       height: 110px;
-      border: 1px solid #ededed;
+      border: 1px solid #ddd;
       margin-left: -1px;
       margin-top: -1px;
       position: relative;
@@ -93,8 +94,21 @@ export const ScheduleCalendar = styled.div`
       z-index: 1;
     }
     .valid {
+      &.sunday,
+      &.holiday {
+        background: #ffefef;
+      }
       &.sunday .num {
         color: #e53e3e;
+        font-weight: 600;
+      }
+      &.holiday .num {
+        color: #e53e3e;
+        font-weight: 600;
+        .date_name {
+          font-size: 12px;
+          margin-left: 3px;
+        }
       }
     }
     .valid:hover {
@@ -143,11 +157,13 @@ export const ScheduleCalendar = styled.div`
     }
   }
 
-  @media screen and (max-width:1024px) {
-    .body{
-      .row{
-        flex-direction:column;
-        .disabled{display:none}
+  @media screen and (max-width: 1024px) {
+    .body {
+      .row {
+        flex-direction: column;
+        .disabled {
+          display: none;
+        }
       }
     }
   }
@@ -195,6 +211,7 @@ const RenderCells = ({
   selectedDate,
   dayoffList,
   onDateClick,
+  restDeList,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -206,10 +223,32 @@ const RenderCells = ({
   let day = startDate;
   let formattedDate = "";
 
+  const isHoliday = (list, date) => {
+    if (!list) {
+      return;
+    }
+    let res;
+    if (Array.isArray(list)) {
+      res = list.find(
+        (el) => Number(String(el.locdate).substring(6, 8)) == date
+      );
+    } else {
+      if (Number(String(list.locdate).substring(6, 8)) == date) {
+        res = list;
+      }
+    }
+    return res;
+  };
+
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       formattedDate = format(day, "d");
       const cloneDay = day;
+
+      let holiday;
+      if (isSameMonth(day, monthStart)) {
+        holiday = isHoliday(restDeList, formattedDate);
+      }
       days.push(
         <div
           className={`col ani__fade_in custom__scroll_bar cell ${
@@ -221,7 +260,8 @@ const RenderCells = ({
               ? "not-valid"
               : "valid"
           } ${isSunday(day) ? "sunday" : ""}
-                    `}
+            ${holiday ? "holiday" : ""}      
+          `}
           key={day}
           onClick={() => onDateClick(cloneDay)}
         >
@@ -233,6 +273,9 @@ const RenderCells = ({
             }
           >
             {formattedDate}
+            <span className="date_name">
+              {holiday && ` ${holiday.dateName}`}
+            </span>
             <ul className="dayoff_list">
               {dayoffList &&
                 dayoffList[formattedDate] &&
@@ -279,10 +322,40 @@ function Schedule() {
 
   const [isMonthLoading, setIsMonthLoading] = useState(false);
 
+  const [restDeList, setrestDeList] = useState();
   const [dayoffList, setDayoffList] = useState();
   useEffect(() => {
     const startDate = format(new Date(currentMonth), "yyyyMM") + "01";
     const endDate = format(new Date(currentMonth), "yyyyMM") + "31";
+
+    const curYear = format(new Date(currentMonth), "yyyy");
+    const curMonth = format(new Date(currentMonth), "MM");
+    const RestDeInfoUrl = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${curYear}&solMonth=${curMonth}&ServiceKey=OSeR%2BiY89%2FobvrUM6TW7sB0xmJYF8e4lC8dyxpewmdE5pUOOvPovA1slxvX258F%2FNEl%2F34pHxQr0duB9kgkBUA%3D%3D`; /*URL*/
+
+    axios.get(RestDeInfoUrl).then((res) => {
+      let resList = res.data.response.body.items.item;
+      if (resList && Array.isArray(resList)) {
+        resList.map((el) => {
+          if (String(el.locdate).substring(4, 8) == "0101") {
+            el.dateName = "신정";
+          }
+          if (String(el.locdate).substring(4, 8) == "1225") {
+            el.dateName = "성탄절";
+          }
+          return el;
+        });
+      } else if (resList) {
+        if (String(resList.locdate).substring(4, 8) == "1225") {
+          resList.dateName = "성탄절";
+        }
+        if (String(resList.locdate).substring(4, 8) == "0101") {
+          resList.dateName = "신정";
+        }
+      }
+      console.log(resList);
+      setrestDeList(resList);
+    });
+
     const listRef = query(
       ref(db, `dayoff/list`),
       orderByKey(),
@@ -347,6 +420,7 @@ function Schedule() {
           currentMonth={currentMonth}
           selectedDate={selectedDate}
           dayoffList={dayoffList}
+          restDeList={restDeList}
           onDateClick={onDateClick}
         />
       ) : (

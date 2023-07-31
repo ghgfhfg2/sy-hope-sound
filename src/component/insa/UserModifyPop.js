@@ -131,7 +131,6 @@ export default function UserModifyPop({
         call2: values.call2 || "",
         part: values.part || "",
         rank: values.rank || "",
-        dayoff: Number(values.dayoff) || "",
         manager_uid: values.manager_uid || "",
         date: values.date || "",
         timestamp: new Date(values.date).getTime(),
@@ -139,6 +138,7 @@ export default function UserModifyPop({
         .then(() => {
           values.part = values.part ? partList[values.part] : "";
           values.rank = values.rank ? rankList[values.rank] : "";
+
           dispatch(updateAllUser(values));
           closeUserModify();
           onRender();

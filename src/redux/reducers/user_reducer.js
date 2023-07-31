@@ -33,7 +33,7 @@ const user = (state = initState, action) => {
       let newAllUser = state.allUser.map((el) => {
         if (el.uid === action.payload.uid) {
           for (const key in el) {
-            if (el[key] !== action.payload[key]) {
+            if (action.payload[key] && el[key] !== action.payload[key]) {
               el[key] = action.payload[key];
             }
           }
