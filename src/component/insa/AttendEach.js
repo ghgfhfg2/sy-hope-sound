@@ -61,15 +61,28 @@ const AttendUserList = styled(AttendStateList)`
   }
 `;
 const AttendEachWrap = styled(MainWrapper)`
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 5px;
   .loading_box {
     height: 300px;
     display: flex;
     align-items: center;
   }
   .hitmap_box {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    align-items: flex-start;
+    overflow: auto;
     .react-calendar-heatmap text {
       font-size: 7px;
     }
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none; /* 인터넷 익스플로러 */
+    scrollbar-width: none; /* 파이어폭스 */
   }
   .react-calendar-heatmap {
     .work {
@@ -379,21 +392,21 @@ export default function AttendEach() {
               }}
               showWeekdayLabels={true}
             />
-            <Flex width="100%" justifyContent="space-between">
-              <ul className="type_info">
-                <li className="am_off">오전반차</li>
-                <li className="pm_off">오후반차</li>
-                <li className="all_off">연차</li>
-                {/* <li className="holiday">공휴일</li> */}
-              </ul>
-              <ul className="type_info">
-                <li className="basic">정상출근</li>
-                <li className="error">비정상 체크</li>
-                <li className="under">근무시간 부족</li>
-                <li className="late">지각(10시 초과)</li>
-              </ul>
-            </Flex>
           </div>
+          <Flex width="100%" justifyContent="space-between">
+            <ul className="type_info">
+              <li className="am_off">오전반차</li>
+              <li className="pm_off">오후반차</li>
+              <li className="all_off">연차</li>
+              {/* <li className="holiday">공휴일</li> */}
+            </ul>
+            <ul className="type_info">
+              <li className="basic">정상출근</li>
+              <li className="error">비정상 체크</li>
+              <li className="under">근무시간 부족</li>
+              <li className="late">지각(10시 초과)</li>
+            </ul>
+          </Flex>
           {currentAttend && (
             <HitmapOver pos={tooltipPos} data={currentAttend}>
               <p>{currentAttend.date}</p>
