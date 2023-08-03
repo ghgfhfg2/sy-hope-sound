@@ -44,7 +44,7 @@ import { ListUl } from "./insa/UserList";
 import { MdOutlineDateRange } from "react-icons/md";
 import axios from "axios";
 import AddLunchPop from "./popup/AddLunchPop";
-const MainWrapper = styled.div`
+export const MainWrapper = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -333,7 +333,7 @@ const MainWrapper = styled.div`
   }
 `;
 
-const HitmapOver = styled.div`
+export const HitmapOver = styled.div`
   position: absolute;
   left: ${(props) => `${props.pos.x}px` || 0};
   top: ${(props) => `${props.pos.y}px` || 0};
@@ -533,6 +533,7 @@ export default function Main() {
         });
         return arr;
       });
+      console.log(getDayoff);
       setDayOffList(getDayoff);
       setBoardList(getBoardList);
     };

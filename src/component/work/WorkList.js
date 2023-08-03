@@ -143,10 +143,6 @@ export default function WorkList() {
     setRender(!render);
   };
 
-  useEffect(() => {
-    getWorkList(curPage);
-  }, [userAll, curPage, userInfo, render]);
-
   // const refreshTime = 100;
   // const [refreshTimer, setRefreshTimer] = useState(refreshTime);
   // const rerender = () => {
@@ -179,7 +175,7 @@ export default function WorkList() {
   // }, [refreshTimer]);
 
   //상태 필터
-  const [curState, setCurState] = useState();
+  const [curState, setCurState] = useState("ndone");
   const filterState = (state) => {
     setCurState(state);
     getWorkList(1, state);
@@ -191,6 +187,10 @@ export default function WorkList() {
     setCurProject(e.target.value);
     getWorkList(1, "", e.target.value);
   };
+
+  useEffect(() => {
+    getWorkList(curPage, curState, curProject);
+  }, [userAll, curPage, userInfo, render]);
 
   return (
     <>
@@ -218,6 +218,12 @@ export default function WorkList() {
                   onClick={() => filterState()}
                 >
                   전체
+                </Button>
+                <Button
+                  colorScheme={curState == "ndone" ? "teal" : "gray"}
+                  onClick={() => filterState("ndone")}
+                >
+                  미완료 전체
                 </Button>
                 {stateText.map((el) => (
                   <Button

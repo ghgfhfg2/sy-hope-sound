@@ -330,7 +330,7 @@ function Schedule() {
 
     const curYear = format(new Date(currentMonth), "yyyy");
     const curMonth = format(new Date(currentMonth), "MM");
-    const RestDeInfoUrl = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${curYear}&solMonth=${curMonth}&ServiceKey=OSeR%2BiY89%2FobvrUM6TW7sB0xmJYF8e4lC8dyxpewmdE5pUOOvPovA1slxvX258F%2FNEl%2F34pHxQr0duB9kgkBUA%3D%3D`; /*URL*/
+    const RestDeInfoUrl = `https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${curYear}&solMonth=${curMonth}&ServiceKey=OSeR%2BiY89%2FobvrUM6TW7sB0xmJYF8e4lC8dyxpewmdE5pUOOvPovA1slxvX258F%2FNEl%2F34pHxQr0duB9kgkBUA%3D%3D`; /*URL*/
 
     axios.get(RestDeInfoUrl).then((res) => {
       let resList = res.data.response.body.items.item;
@@ -352,7 +352,6 @@ function Schedule() {
           resList.dateName = "신정";
         }
       }
-      console.log(resList);
       setrestDeList(resList);
     });
 

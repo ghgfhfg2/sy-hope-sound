@@ -149,7 +149,10 @@ function LeftMunu({ userInfo }) {
                 <Link href="/insa/">직원정보</Link>
               </li>
               <li className={router === "/insa/attend" ? "on" : ""}>
-                <Link href="/insa/attend">근태정보</Link>
+                <Link href="/insa/attend">근태정보(전체)</Link>
+              </li>
+              <li className={router === "/insa/attend_each" ? "on" : ""}>
+                <Link href="/insa/attend_each">근태정보(개별)</Link>
               </li>
             </ul>
           </>
