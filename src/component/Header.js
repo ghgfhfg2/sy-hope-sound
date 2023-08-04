@@ -262,6 +262,11 @@ function Header({ logoImg }) {
                 <li className={router.route.includes("/partners") && "on"}>
                   <Link href="/partners">협력사</Link>
                 </li>
+                {userInfo.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
+                  <li className={router.route.includes("/vote") && "on"}>
+                    <Link href="/vote">투표</Link>
+                  </li>
+                )}
               </>
             )}
           </ul>

@@ -179,6 +179,11 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/report" ? "on" : ""}>
                 <Link href="/report/">목록</Link>
               </li>
+              {userInfo.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
+                <li className={router === "/report/report_each" ? "on" : ""}>
+                  <Link href="/report/report_each">목록(개별)</Link>
+                </li>
+              )}
               <li className={router === "/report/write" ? "on" : ""}>
                 <Link href="/report/write">글 작성</Link>
               </li>
@@ -280,6 +285,19 @@ function LeftMunu({ userInfo }) {
             </ul>
           </>
         )}
+        {router.includes("/vote") &&
+          userInfo?.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
+            <>
+              <ul className="depth_1">
+                <li className={router === "/vote" ? "on" : ""}>
+                  <Link href="/vote">투표 리스트</Link>
+                </li>
+                <li className={router === "/vote/write" ? "on" : ""}>
+                  <Link href="/vote/write">투표 등록</Link>
+                </li>
+              </ul>
+            </>
+          )}
       </LeftMenu>
     </>
   );

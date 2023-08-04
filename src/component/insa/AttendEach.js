@@ -237,15 +237,20 @@ export default function AttendEach() {
               obj = {
                 attend_in: attend_in?.date_regis,
                 work_time: attend_out?.work_time,
+                ex_state: el.ex_state,
                 date: dateKey,
                 erorr: false,
                 subject: `출근 : ${attend_in?.date_regis.substring(
                   11,
                   16
-                )}<br />퇴근 : ${attend_out?.date_regis.substring(11, 16)}`,
+                )}<br />퇴근 : ${attend_out?.date_regis.substring(11, 16)}
+                ${el.ex_comment ? `<br />비고 : ${el.ex_comment}` : ""}
+                `,
               };
               obj.under =
-                Number(obj.work_time?.split(":")[0]) < 7 ? "under" : "basic";
+                Number(obj.work_time?.split(":")[0]) < 7 && obj.ex_state == 0
+                  ? "under"
+                  : "basic";
             }
           });
           //연차 합치기
@@ -340,24 +345,26 @@ export default function AttendEach() {
             <MdArrowForwardIos style={{ marginLeft: "4px" }} />
           </button>
         </div>
-        {userInfo?.authority.indexOf("admin") > -1 && (
-          <AttendUserList>
-            {userAll &&
-              userAll.map((el) => {
-                if (!el.hidden) {
-                  return (
-                    <li
-                      className={selectUser == el.uid ? "on" : ""}
-                      key={el.uid}
-                      onClick={() => onSelectUser(el.uid)}
-                    >
-                      {el.name}
-                    </li>
-                  );
-                }
-              })}
-          </AttendUserList>
-        )}
+        {userInfo &&
+          userInfo.authority &&
+          userInfo.authority.indexOf("admin") > -1 && (
+            <AttendUserList>
+              {userAll &&
+                userAll.map((el) => {
+                  if (!el.hidden) {
+                    return (
+                      <li
+                        className={selectUser == el.uid ? "on" : ""}
+                        key={el.uid}
+                        onClick={() => onSelectUser(el.uid)}
+                      >
+                        {el.name}
+                      </li>
+                    );
+                  }
+                })}
+            </AttendUserList>
+          )}
       </ScheduleCalendar>
       {isLoading ? (
         <>
@@ -372,8 +379,8 @@ export default function AttendEach() {
           <div className="hitmap_box">
             <CalendarHeatmap
               gutterSize={2}
-              startDate={format(subMonths(curDate, 11), "yyyy-MM-dd")}
-              endDate={format(addMonths(curDate, 1), "yyyy-MM-dd")}
+              startDate={`${format(curDate, "yyyy")}-01-01`}
+              endDate={`${format(curDate, "yyyy")}-12-31`}
               values={attendList}
               classForValue={(value) => {
                 if (!value) {

@@ -11,7 +11,8 @@ import axios from "axios";
 import useGetUser from "@component/hooks/getUserDb";
 import { Pagenation } from "../Pagenation";
 import Link from "next/link";
-import { Flex, Input } from "@chakra-ui/react";
+import { Button, Flex, Input, useToast } from "@chakra-ui/react";
+import ExAttendPop from "@component/insa/ExAttendPop";
 
 export const AttendStateList = styled.ul`
   display: flex;
@@ -55,20 +56,25 @@ const AttendBoardList = styled(BoardLi)`
 `;
 
 export default function Attend() {
+  const toast = useToast();
+  const userInfo = useSelector((state) => state.user.currentUser);
   const today = getFormatDate(new Date());
-  const router = useRouter();
+  const [curDate, setCurDate] = useState(today.full_);
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);
 
   const [attendList, setAttendList] = useState();
   const [userStateList, setUserStateList] = useState();
 
-  const getAttendList = (e) => {
-    const date = e?.target.value || today.full_;
+  const onChangeDate = (e) => {
+    setCurDate(e.target.value);
+  };
+
+  const getAttendList = () => {
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "attend_all_list",
-        date,
+        date: curDate,
       })
       .then((res) => {
         const initState = userAll?.map((el) => {
@@ -88,8 +94,7 @@ export default function Attend() {
           if (el.work_time) {
             //7시간 근무 체크
             const hour = el.work_time.substr(0, 2);
-            if (hour < 7) {
-              console.log("11");
+            if (hour < 7 && el.ex_state == 0) {
               el.isUnder = true;
             }
           }
@@ -107,9 +112,45 @@ export default function Attend() {
         setAttendList(list);
       });
   };
+
+  const [render, setRender] = useState(false);
+  const onRender = () => {
+    setRender(!render);
+  };
   useEffect(() => {
     getAttendList();
-  }, []);
+  }, [render, curDate]);
+
+  const [isExAttendPop, setIsExAttendPop] = useState(false);
+  const [selectUser, setSelectUser] = useState();
+  //예외처리 팝업
+  const onExAttendPop = (data) => {
+    setSelectUser(data);
+    setIsExAttendPop(true);
+  };
+  const closeExAttendPop = () => {
+    setIsExAttendPop(false);
+  };
+
+  const cancelExAttend = (data) => {
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "update_attend_ex",
+        uid: data.uid,
+        state: "0",
+      })
+      .then((res) => {
+        console.log(res);
+        toast({
+          description: "예외처리가 취소 되었습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        closeExAttendPop();
+        onRender();
+      });
+  };
 
   return (
     <>
@@ -120,7 +161,7 @@ export default function Attend() {
           defaultValue={today.full_}
           style={{ width: "150px", marginBottom: "10px", marginRight: "10px" }}
           placeholder="날짜"
-          onChange={getAttendList}
+          onChange={onChangeDate}
         />
         <AttendStateList>
           <li className="state_1">미출근</li>
@@ -146,6 +187,10 @@ export default function Attend() {
           <span className="date">출근시간</span>
           <span className="date">퇴근시간</span>
           <span className="date">근무시간</span>
+          <span className="date">비고</span>
+          {userInfo && userInfo?.authority.indexOf("admin") > -1 && (
+            <span className="date">관리</span>
+          )}
         </li>
         {attendList ? (
           attendList.map((el) => (
@@ -159,6 +204,28 @@ export default function Attend() {
                 <span className="date">{el.type == 1 && el.date_regis}</span>
                 <span className="date">{el.type == 2 && el.date_regis}</span>
                 <span className="date">{el.work_time}</span>
+                <span className="date">{el.ex_comment}</span>
+                {el.type == 2 &&
+                  userInfo &&
+                  userInfo?.authority.indexOf("admin") > -1 && (
+                    <span className="date">
+                      {el.ex_state == 0 && (
+                        <Button size="sm" onClick={() => onExAttendPop(el)}>
+                          예외처리
+                        </Button>
+                      )}
+                      {el.ex_state == 1 && (
+                        <Button
+                          ml={2}
+                          size="sm"
+                          colorScheme="red"
+                          onClick={() => cancelExAttend(el)}
+                        >
+                          예외처리 취소
+                        </Button>
+                      )}
+                    </span>
+                  )}
               </li>
             </>
           ))
@@ -166,6 +233,14 @@ export default function Attend() {
           <None />
         )}
       </AttendBoardList>
+      {isExAttendPop && (
+        <ExAttendPop
+          curDate={curDate}
+          attendData={selectUser}
+          closeExAttendPop={closeExAttendPop}
+          onRender={onRender}
+        />
+      )}
     </>
   );
 }
