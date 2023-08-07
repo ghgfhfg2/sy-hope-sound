@@ -188,7 +188,7 @@ export default function Attend() {
           <span className="date">퇴근시간</span>
           <span className="date">근무시간</span>
           <span className="date">비고</span>
-          {userInfo && userInfo?.authority.indexOf("admin") > -1 && (
+          {userInfo && userInfo.authority?.indexOf("admin") > -1 && (
             <span className="date">관리</span>
           )}
         </li>
@@ -207,7 +207,7 @@ export default function Attend() {
                 <span className="date">{el.ex_comment}</span>
                 {el.type == 2 &&
                   userInfo &&
-                  userInfo?.authority.indexOf("admin") > -1 && (
+                  userInfo.authority?.indexOf("admin") > -1 && (
                     <span className="date">
                       {el.ex_state == 0 && (
                         <Button size="sm" onClick={() => onExAttendPop(el)}>

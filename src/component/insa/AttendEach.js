@@ -379,7 +379,7 @@ export default function AttendEach() {
           <div className="hitmap_box">
             <CalendarHeatmap
               gutterSize={2}
-              startDate={`${format(curDate, "yyyy")}-01-01`}
+              startDate={`${format(subYears(curDate, 1), "yyyy")}-12-31`}
               endDate={`${format(curDate, "yyyy")}-12-31`}
               values={attendList}
               classForValue={(value) => {
