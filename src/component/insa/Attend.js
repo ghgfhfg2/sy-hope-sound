@@ -113,8 +113,6 @@ export default function Attend() {
       });
   };
 
-  //테스트
-
   const [render, setRender] = useState(false);
   const onRender = () => {
     setRender(!render);
