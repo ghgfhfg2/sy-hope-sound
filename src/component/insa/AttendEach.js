@@ -50,7 +50,7 @@ import { ScheduleCalendar } from "../../../pages/schedule";
 import Loading from "../Loading";
 import { AttendStateList } from "@component/insa/Attend";
 
-const AttendUserList = styled(AttendStateList)`
+export const AttendUserList = styled(AttendStateList)`
   li {
     cursor: pointer;
     &.on {
