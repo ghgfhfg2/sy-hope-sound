@@ -179,11 +179,10 @@ function LeftMunu({ userInfo }) {
               <li className={router === "/report" ? "on" : ""}>
                 <Link href="/report/">목록</Link>
               </li>
-              {userInfo.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
-                <li className={router === "/report/report_each" ? "on" : ""}>
-                  <Link href="/report/report_each">목록(개별)</Link>
-                </li>
-              )}
+
+              <li className={router === "/report/report_each" ? "on" : ""}>
+                <Link href="/report/report_each">목록(개별)</Link>
+              </li>
               <li className={router === "/report/write" ? "on" : ""}>
                 <Link href="/report/write">글 작성</Link>
               </li>
@@ -270,6 +269,24 @@ function LeftMunu({ userInfo }) {
               <li className={router.includes("/mypage/dayoff") ? "on" : ""}>
                 <Link href="/mypage/dayoff">연차내역</Link>
               </li>
+              {userInfo.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
+                <>
+                  <li
+                    className={
+                      router.includes("/mypage/message_list") ? "on" : ""
+                    }
+                  >
+                    <Link href="/mypage/message_list">쪽지목록</Link>
+                  </li>
+                  <li
+                    className={
+                      router.includes("/mypage/message_write") ? "on" : ""
+                    }
+                  >
+                    <Link href="/mypage/message_write">쪽지작성</Link>
+                  </li>
+                </>
+              )}
             </ul>
           </>
         )}
