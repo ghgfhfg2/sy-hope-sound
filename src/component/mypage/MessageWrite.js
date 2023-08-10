@@ -64,7 +64,7 @@ function MessageWrite({ selectWorkInfo, closeRender }) {
       })
       .then((res) => {
         toast({
-          description: "저장되었습니다.",
+          description: "쪽지를 보냈습니다.",
           status: "success",
           duration: 1000,
           isClosable: false,

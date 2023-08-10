@@ -19,14 +19,11 @@ const MessageBoardList = styled(WorkBoardList)`
       cursor: pointer;
       font-weight: 600;
       color: #222;
-      &.read {
-        color: #888;
-      }
     }
   }
 `;
 
-export default function MessageList() {
+export default function MessageSendList() {
   const router = useRouter();
   const toast = useToast();
   useGetUser();
@@ -45,7 +42,7 @@ export default function MessageList() {
     if (!userInfo) return;
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
-        a: "get_message_list",
+        a: "get_send_message_list",
         mem_uid: userInfo.uid,
         page: curPage,
       })
@@ -76,36 +73,8 @@ export default function MessageList() {
     setisMessagePop(true);
   };
 
-  const readMessage = (uid) => {
-    const newList = listData.map((el) => {
-      if (el.uid == uid) {
-        el.read_state = "1";
-      }
-      return el;
-    });
-    setListData(newList);
-    axios.post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
-      a: "update_message_state",
-      uid,
-      read_state: 1,
-    });
-  };
-
   const closeMessagePop = () => {
     setisMessagePop(false);
-  };
-
-  const [isReplyPop, setIsReplyPop] = useState(false);
-  const onReplyPop = () => {
-    setIsReplyPop(true);
-  };
-  const closeReplyPop = () => {
-    setIsReplyPop(false);
-  };
-
-  const onRemoveMessage = () => {
-    console.log(11);
-    console.log(msgData);
   };
 
   return (
@@ -115,7 +84,6 @@ export default function MessageList() {
           <span>번호</span>
           <span className="name">상태</span>
           <span className="subject">제목</span>
-          <span className="name">보낸사람</span>
           <span className="date">보낸시간</span>
         </li>
         {listData &&
@@ -135,9 +103,6 @@ export default function MessageList() {
                 >
                   {el.title}
                 </span>
-                <span className="name">
-                  {el.name}({el.rank})
-                </span>
                 <span className="date">{format(el.date_regis, "ko")}</span>
               </li>
             );
@@ -152,19 +117,9 @@ export default function MessageList() {
       />
       {isMessagePop && (
         <MessageViewPop
-          onReplyPop={onReplyPop}
           msgData={msgData}
-          onRemoveMessage={onRemoveMessage}
-          readMessage={readMessage}
+          readOnly={true}
           closeMessagePop={closeMessagePop}
-        />
-      )}
-      {isReplyPop && (
-        <MeessageReplyPop
-          msgData={msgData}
-          closeReplyPop={closeReplyPop}
-          closeMessagePop={closeMessagePop}
-          onRender={onRender}
         />
       )}
     </>
