@@ -32,6 +32,11 @@ const MessageViewPopup = styled(CommonPopup)`
       dd {
         border-bottom: 1px solid #ddd;
         padding: 1rem 10px;
+        &.info_dd {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
         .info {
           display: flex;
           gap: 1rem;
@@ -49,30 +54,50 @@ export default function MessageViewPop({
   closeMessagePop,
   onReplyPop,
   readMessage,
-  onRemoveMessage,
   readOnly,
+  onRender,
 }) {
-  console.log(msgData);
+  const toast = useToast();
   const [recipientList, setRecipientList] = useState();
+  const userInfo = useSelector((state) => state.user.currentUser);
   const userAll = useSelector((state) => state.user.allUser);
   useEffect(() => {
     if (readOnly) {
       const users = userAll.filter(
         (el) => msgData.recipient.indexOf(el.uid) > -1
       );
-      console.log(users);
       setRecipientList(users);
-      return;
+    } else if (userInfo) {
+      readMessage(msgData.uid, userInfo.uid);
     }
-    readMessage(msgData.uid);
-  }, []);
+  }, [userInfo]);
+
+  const onRemoveMessage = () => {
+    const agree = confirm("삭제 하시겠습니까?");
+    if (!agree) return;
+    axios
+      .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+        a: "remove_message_list",
+        uid: msgData.uid,
+      })
+      .then((res) => {
+        closeMessagePop();
+        toast({
+          description: "쪽지를 삭제했습니다.",
+          status: "success",
+          duration: 1000,
+          isClosable: false,
+        });
+        onRender();
+      });
+  };
 
   return (
     <MessageViewPopup>
       <div className="con_box">
         <dl>
           <dt>{msgData.title}</dt>
-          <dd>
+          <dd className="info_dd">
             <ul className="info">
               <li>
                 <span className="tit">
@@ -100,9 +125,45 @@ export default function MessageViewPop({
                 </span>
               </li>
               <li>
-                <span className="tit">보낸날짜 : {}</span>
+                <span className="tit">보낸날짜 : </span>
                 <span className="con">
                   {format(new Date(msgData.date_regis), "yyyy-MM-dd H:m:s")}
+                </span>
+              </li>
+            </ul>
+            <ul className="info">
+              <li>
+                <span className="tit">읽은 사람 : </span>
+                <span className="con">
+                  {msgData.readCheck &&
+                    msgData.readCheck.map((el, idx) => {
+                      return msgData.readCheck.length == idx + 1 ? (
+                        <>
+                          {el.name}({el.rank})
+                        </>
+                      ) : (
+                        <>
+                          {el.name}({el.rank}),{" "}
+                        </>
+                      );
+                    })}
+                </span>
+              </li>
+              <li>
+                <span className="tit">안읽은 사람 : </span>
+                <span className="con">
+                  {msgData.nonReadCheck &&
+                    msgData.nonReadCheck.map((el, idx) => {
+                      return msgData.nonReadCheck.length == idx + 1 ? (
+                        <>
+                          {el.name}({el.rank})
+                        </>
+                      ) : (
+                        <>
+                          {el.name}({el.rank}),{" "}
+                        </>
+                      );
+                    })}
                 </span>
               </li>
             </ul>

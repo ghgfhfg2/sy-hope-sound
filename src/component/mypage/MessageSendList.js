@@ -11,7 +11,6 @@ import None from "@component/None";
 import MessageViewPop from "./MessageViewPop";
 import { format, register } from "timeago.js";
 import koLocale from "timeago.js/lib/lang/ko";
-import MeessageReplyPop from "./MessageReplyPop";
 register("ko", koLocale);
 const MessageBoardList = styled(WorkBoardList)`
   .body {
@@ -52,11 +51,28 @@ export default function MessageSendList() {
         setTotalPage(total);
         const list = res.data.list?.map((el) => {
           const findUser = userAll?.find((user) => el.writer === user.uid);
+          const readUser = el.read_state ? JSON.parse(el.read_state) : [];
+          const recipiArr = JSON.parse(el.recipient);
+          let readCheck = [];
+          let nonReadCheck = [];
+          let readCount = [readUser.length, recipiArr.length];
+          recipiArr.forEach((el2) => {
+            const user = userAll.find((u) => u.uid == el2);
+            if (readUser && readUser.find((e) => e == el2)) {
+              readCheck.push(user);
+            } else {
+              nonReadCheck.push(user);
+            }
+          });
           return {
             ...findUser,
+            readCheck,
+            nonReadCheck,
+            readCount,
             ...el,
           };
         });
+        console.log(list);
         setListData(list);
       });
   }, [userInfo, render]);
@@ -93,14 +109,15 @@ export default function MessageSendList() {
               <li className="body" key={el.uid}>
                 <span>{num}</span>
                 <span className="date">
-                  {el.read_state > 0 ? "읽음" : "미확인"}
+                  {el.readCount[1] == el.readCount[0] ? (
+                    <>모두읽음</>
+                  ) : (
+                    <>
+                      {el.readCount[0]}/{el.readCount[1]} 읽음
+                    </>
+                  )}
                 </span>
-                <span
-                  onClick={() => onMessageViewPop(el)}
-                  className={`${
-                    el.read_state > 0 ? "subject read" : "subject"
-                  }`}
-                >
+                <span onClick={() => onMessageViewPop(el)} className="subject">
                   {el.title}
                 </span>
                 <span className="date">{format(el.date_regis, "ko")}</span>
@@ -120,6 +137,7 @@ export default function MessageSendList() {
           msgData={msgData}
           readOnly={true}
           closeMessagePop={closeMessagePop}
+          onRender={onRender}
         />
       )}
     </>

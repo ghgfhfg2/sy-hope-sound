@@ -15,6 +15,7 @@ import { StepComponent } from "@component/work/WorkPop";
 import { IoMdTimer } from "react-icons/io";
 import { stateText } from "@component/work/WorkView";
 import Refresh from "@component/Refresh";
+import NameComponent from "../NameComponent";
 
 export const WorkBoardList = styled(BoardLi)`
   li {
@@ -291,7 +292,9 @@ export default function WorkList() {
                   </span>
                 )}
               </span>
-              <span className="name">{el.name}</span>
+              <span className="name">
+                <NameComponent name={el.name} user={el} />
+              </span>
               <span className="manager">
                 {el.manager.map((mng, idx) => {
                   let comma = "";

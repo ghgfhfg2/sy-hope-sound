@@ -86,7 +86,7 @@ export default function SearchUserPop({
   };
 
   const onAddUser = (uid) => {
-    if (userList && userList.find((el) => uid)) {
+    if (userList && userList.find((el) => el == uid)) {
       toast({
         description: "이미 추가된 사람 입니다.",
         status: "error",

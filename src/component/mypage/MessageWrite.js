@@ -28,7 +28,7 @@ const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
 
-function MessageWrite({ selectWorkInfo, closeRender }) {
+function MessageWrite({ selectWorkInfo }) {
   const router = useRouter();
   useGetUser();
   const toast = useToast();

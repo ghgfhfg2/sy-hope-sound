@@ -76,18 +76,28 @@ export default function MessageList() {
     setisMessagePop(true);
   };
 
-  const readMessage = (uid) => {
+  const readMessage = (uid, mem_uid) => {
+    let isAlerady = false;
+    let new_read_state;
     const newList = listData.map((el) => {
       if (el.uid == uid) {
-        el.read_state = "1";
+        if (el.read_state.indexOf(mem_uid) > -1) {
+          isAlerady = true;
+        } else {
+          el.read_state = el.read_state
+            ? [...JSON.parse(el.read_state), mem_uid]
+            : [mem_uid];
+          new_read_state = JSON.stringify(el.read_state);
+        }
       }
       return el;
     });
+    if (isAlerady) return;
     setListData(newList);
     axios.post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
       a: "update_message_state",
       uid,
-      read_state: 1,
+      read_state: new_read_state,
     });
   };
 
@@ -101,11 +111,6 @@ export default function MessageList() {
   };
   const closeReplyPop = () => {
     setIsReplyPop(false);
-  };
-
-  const onRemoveMessage = () => {
-    console.log(11);
-    console.log(msgData);
   };
 
   return (
@@ -125,12 +130,16 @@ export default function MessageList() {
               <li className="body" key={el.uid}>
                 <span>{num}</span>
                 <span className="date">
-                  {el.read_state > 0 ? "읽음" : "미확인"}
+                  {el.read_state.indexOf(userInfo?.uid) > -1
+                    ? "읽음"
+                    : "미확인"}
                 </span>
                 <span
                   onClick={() => onMessageViewPop(el)}
                   className={`${
-                    el.read_state > 0 ? "subject read" : "subject"
+                    el.read_state.indexOf(userInfo?.uid) > -1
+                      ? "subject read"
+                      : "subject"
                   }`}
                 >
                   {el.title}
@@ -154,7 +163,6 @@ export default function MessageList() {
         <MessageViewPop
           onReplyPop={onReplyPop}
           msgData={msgData}
-          onRemoveMessage={onRemoveMessage}
           readMessage={readMessage}
           closeMessagePop={closeMessagePop}
         />

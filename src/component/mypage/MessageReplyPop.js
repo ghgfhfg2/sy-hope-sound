@@ -51,7 +51,7 @@ export default function MeessageReplyPop({
   function onSubmit(values) {
     values = {
       ...values,
-      recipient: JSON.stringify([msgData.uid]),
+      recipient: JSON.stringify([msgData.writer]),
       writer: userInfo.uid,
       content: editorState,
     };
