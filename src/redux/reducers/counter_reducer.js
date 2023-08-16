@@ -2,6 +2,7 @@ import {
   SET_DAYOFF_COUNT,
   UPDATE_DAYOFF_COUNT,
   BOARD_COUNT,
+  UPDATE_NON_READ,
 } from "../actions/types";
 
 const initState = {
@@ -26,6 +27,11 @@ const counter = (state = initState, action) => {
       return {
         ...state,
         boardCount: action.payload,
+      };
+    case UPDATE_NON_READ:
+      return {
+        ...state,
+        nonRead: action.payload,
       };
     default:
       return state;

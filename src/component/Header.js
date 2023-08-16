@@ -94,7 +94,22 @@ const HeaderTop = styled.div`
     align-items: center;
     height: 100%;
     li a {
+      position: relative;
       padding: 0.5rem;
+      .non_read {
+        position: absolute;
+        right: -5px;
+        top: -2px;
+        border-radius: 50%;
+        width: 17px;
+        height: 17px;
+        color: #fff;
+        display: flex;
+        font-size: 11px;
+        align-items: center;
+        justify-content: center;
+        background: red;
+      }
     }
   }
   .btn_menu {
@@ -146,6 +161,7 @@ const LeftMenuBox = styled.div`
 function Header({ logoImg }) {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.currentUser);
+  const nonRead = useSelector((state) => state.counter.nonRead);
   const auth = getAuth();
   const router = useRouter();
   const onLogout = () => {
@@ -168,6 +184,7 @@ function Header({ logoImg }) {
           </span>
           <Link href="/mypage">
             <a>
+              {nonRead > 0 && <span className="non_read">{nonRead}</span>}
               <BiUser style={{ fontSize: "1.2rem" }} />
             </a>
           </Link>

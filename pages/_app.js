@@ -29,6 +29,8 @@ import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import { AiOutlineAlert } from "react-icons/ai";
 import PaymentAlertPop from "@component/ragular/PaymentAlertPop";
+import axios from "axios";
+import { updateNonRead } from "@redux/actions/counter_action";
 
 const BtnRegular = styled.button`
   position: fixed;
@@ -74,6 +76,20 @@ function App({ Component, pageProps }) {
   };
 
   useEffect(() => {
+    if (userInfo) {
+      axios
+        .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
+          a: "get_non_read_message",
+          mem_uid: userInfo.uid,
+        })
+        .then((res) => {
+          let count = 0;
+          if (res.data?.cnt) {
+            count = res.data.cnt;
+          }
+          dispatch(updateNonRead(count));
+        });
+    }
     const handleStart = (url) => {
       NProgress.start();
     };
@@ -151,7 +167,6 @@ function App({ Component, pageProps }) {
   const [regularList, setRegularList] = useState();
   useEffect(() => {
     if (userInfo?.partner && !router.route.includes("/work")) {
-      console.log("router.query", router.route.includes("/work"));
       router.push("/work");
     }
     if (userInfo && userInfo.authority?.includes("admin")) {

@@ -13,7 +13,6 @@ export const clearUser = () => {
   };
 };
 
-
 export const setAllUser = (user) => {
   return {
     type: SET_ALL_USER,

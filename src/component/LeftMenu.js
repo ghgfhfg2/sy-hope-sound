@@ -269,14 +269,14 @@ function LeftMunu({ userInfo }) {
               <li className={router.includes("/mypage/dayoff") ? "on" : ""}>
                 <Link href="/mypage/dayoff">연차내역</Link>
               </li>
-              {userInfo.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
+              {userInfo?.uid == "g7erYbL3dIPIsYFoVlz0mP9RjlQ2" && (
                 <>
                   <li
                     className={
                       router.includes("/mypage/message_list") ? "on" : ""
                     }
                   >
-                    <Link href="/mypage/message_list">쪽지목록</Link>
+                    <Link href="/mypage/message_list?type=1">쪽지목록</Link>
                   </li>
                   <li
                     className={

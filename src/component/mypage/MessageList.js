@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { updateNonRead } from "@redux/actions/counter_action";
 import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
@@ -12,6 +13,7 @@ import MessageViewPop from "./MessageViewPop";
 import { format, register } from "timeago.js";
 import koLocale from "timeago.js/lib/lang/ko";
 import MeessageReplyPop from "./MessageReplyPop";
+import NameComponent from "@component/NameComponent";
 register("ko", koLocale);
 const MessageBoardList = styled(WorkBoardList)`
   .body {
@@ -28,9 +30,11 @@ const MessageBoardList = styled(WorkBoardList)`
 
 export default function MessageList() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const toast = useToast();
   useGetUser();
   const userAll = useSelector((state) => state.user.allUser);
+  const nonRead = useSelector((state) => state.counter.nonRead);
   const userInfo = useSelector((state) => state.user.currentUser);
   const [listData, setListData] = useState();
 
@@ -88,6 +92,8 @@ export default function MessageList() {
             ? [...JSON.parse(el.read_state), mem_uid]
             : [mem_uid];
           new_read_state = JSON.stringify(el.read_state);
+          const newNonRead = 1 * nonRead - 1;
+          dispatch(updateNonRead(newNonRead));
         }
       }
       return el;
@@ -145,7 +151,7 @@ export default function MessageList() {
                   {el.title}
                 </span>
                 <span className="name">
-                  {el.name}({el.rank})
+                  <NameComponent name={el.name} user={el} />
                 </span>
                 <span className="date">{format(el.date_regis, "ko")}</span>
               </li>

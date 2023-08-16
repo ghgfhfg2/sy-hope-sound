@@ -119,8 +119,6 @@ export default function UserList() {
         return a["timestamp"] - b["timestamp"];
       });
 
-      console.log("userAll", userAll);
-
       setUserAllState(userAll);
       if (userInfo?.authority && userInfo.authority.includes("admin")) {
         setAdminCheck(true);

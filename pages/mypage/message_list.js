@@ -1,12 +1,13 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 import MessageList from "@component/mypage/MessageList";
 import { Tab, TabIndicator, TabList, Tabs } from "@chakra-ui/react";
 import MessageSendList from "@component/mypage/MessageSendList";
 
 export default function Message_list() {
-  const [listType, setListType] = useState(0);
+  const router = useRouter();
   const onChangeType = (e) => {
-    setListType(e);
+    router.push(`/mypage/message_list?type=${e + 1}`);
   };
   return (
     <>
@@ -16,13 +17,14 @@ export default function Message_list() {
         variant="soft-rounded"
         colorScheme="teal"
         mb={7}
+        defaultIndex={router.query.type - 1}
       >
         <TabList>
           <Tab _selected={{ color: "white", bg: "teal.500" }}>받은쪽지</Tab>
           <Tab _selected={{ color: "white", bg: "teal.500" }}>보낸쪽지</Tab>
         </TabList>
       </Tabs>
-      {listType == 0 ? <MessageList /> : <MessageSendList />}
+      {router.query.type == 1 ? <MessageList /> : <MessageSendList />}
     </>
   );
 }

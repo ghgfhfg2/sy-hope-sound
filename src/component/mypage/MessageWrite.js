@@ -35,6 +35,7 @@ function MessageWrite({ selectWorkInfo }) {
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -51,9 +52,16 @@ function MessageWrite({ selectWorkInfo }) {
 
   const [selectUser, setSelectUser] = useState();
   const onSelectManager = (checkedItems) => {
-    console.log(checkedItems);
     setSelectUser(checkedItems);
     closeManagerPop();
+  };
+
+  const onResetForm = () => {
+    reset();
+    handleEditor("");
+    setSelectUser("");
+    document.querySelector(".se-wrapper-wysiwyg").innerHTML = "<p></p>";
+    setEditorState("");
   };
 
   const submitWork = (values) => {
@@ -69,6 +77,7 @@ function MessageWrite({ selectWorkInfo }) {
           duration: 1000,
           isClosable: false,
         });
+        onResetForm();
       });
   };
 
@@ -85,7 +94,6 @@ function MessageWrite({ selectWorkInfo }) {
       writer: userInfo.uid,
       content: editorState,
     };
-    console.log(values);
     submitWork(values);
   };
 

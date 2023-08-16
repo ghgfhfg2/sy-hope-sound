@@ -57,7 +57,7 @@ export default function MessageSendList() {
           let nonReadCheck = [];
           let readCount = [readUser.length, recipiArr.length];
           recipiArr.forEach((el2) => {
-            const user = userAll.find((u) => u.uid == el2);
+            const user = userAll?.find((u) => u.uid == el2);
             if (readUser && readUser.find((e) => e == el2)) {
               readCheck.push(user);
             } else {
@@ -72,7 +72,6 @@ export default function MessageSendList() {
             ...el,
           };
         });
-        console.log(list);
         setListData(list);
       });
   }, [userInfo, render]);

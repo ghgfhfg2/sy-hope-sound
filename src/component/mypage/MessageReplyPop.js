@@ -68,8 +68,12 @@ export default function MeessageReplyPop({
           isClosable: false,
         });
         closeReplyPop();
-        closeMessagePop();
-        onRender();
+        if (closeMessagePop) {
+          closeMessagePop();
+        }
+        if (onRender) {
+          onRender();
+        }
       });
   }
 
