@@ -44,6 +44,8 @@ import { ListUl } from "./insa/UserList";
 import { MdOutlineDateRange } from "react-icons/md";
 import axios from "axios";
 import AddLunchPop from "./popup/AddLunchPop";
+import ReportList from "./report/ReportList";
+import RuleList from "./rule/RuleList";
 export const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -793,6 +795,45 @@ export default function Main() {
                 ))}
             </ul>
           </div>
+          <Flex gap={6}>
+            <Box width={{ base: "100%", lg: "50%" }}>
+              <Flex justifyContent="space-between" alignItems="center" mb={3}>
+                <h2 className="title">업무보고</h2>
+                <Link href="/report">
+                  <a className="link">
+                    <Flex alignItems="center">
+                      more
+                      <HiExternalLink
+                        style={{ marginTop: "4px", marginLeft: "4px" }}
+                      />
+                    </Flex>
+                  </a>
+                </Link>
+              </Flex>
+
+              <ReportList main={true} />
+            </Box>
+
+            <Box width={{ base: "100%", lg: "50%" }}>
+              <Flex justifyContent="space-between" alignItems="center" mb={3}>
+                <h2 className="title">운영 & 규정</h2>
+                <Link href="/rule">
+                  <a className="link">
+                    <Flex alignItems="center">
+                      more
+                      <HiExternalLink
+                        style={{ marginTop: "4px", marginLeft: "4px" }}
+                      />
+                    </Flex>
+                  </a>
+                </Link>
+              </Flex>
+
+              <RuleList main={true} />
+            </Box>
+          </Flex>
+          <div className="divide"></div>
+
           <Flex justifyContent="space-between" alignItems="center">
             <h2 className="title">
               연차내역{" "}
@@ -812,7 +853,6 @@ export default function Main() {
               </a>
             </Link>
           </Flex>
-
           <div className="hitmap_box">
             <CalendarHeatmap
               gutterSize={2}
