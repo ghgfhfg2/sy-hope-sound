@@ -30,7 +30,6 @@ export default function RuleList({ main }) {
         mem_uid: userInfo?.uid,
       })
       .then((res) => {
-        console.log(res);
         if (!res.data) return;
         const total = res.data.total;
         setTotalPage(total);

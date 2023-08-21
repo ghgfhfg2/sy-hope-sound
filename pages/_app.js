@@ -29,6 +29,7 @@ import { format, getMonth, getDate } from "date-fns";
 import styled from "styled-components";
 import { AiOutlineAlert } from "react-icons/ai";
 import PaymentAlertPop from "@component/ragular/PaymentAlertPop";
+import AlertPop from "@component/popup/AlertPop";
 import axios from "axios";
 import { updateNonRead } from "@redux/actions/counter_action";
 
@@ -123,6 +124,11 @@ function App({ Component, pageProps }) {
       .catch((error) => console.error(error));
   }, []);
 
+  const [isAlertPop, setIsAlertPop] = useState(false);
+  const [alertState, setAlertState] = useState();
+  const closeAlertPop = () => {
+    setIsAlertPop(false);
+  };
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       let userData;
@@ -146,6 +152,14 @@ function App({ Component, pageProps }) {
               ...data.val(),
             };
             dispatch(setUser(userData));
+            const alertData = data.val().alert || "";
+            const alertViewState = data.val().alert_view || false;
+            if (alertData && alertViewState) {
+              if (alertState != alertData) {
+                setAlertState(alertData);
+                setIsAlertPop(true);
+              }
+            }
           }
           setAuthCheck(true);
         });
@@ -238,6 +252,9 @@ function App({ Component, pageProps }) {
               </>
             )}
           </>
+        )}
+        {isAlertPop && (
+          <AlertPop alertState={alertState} closeAlertPop={closeAlertPop} />
         )}
       </ChakraProvider>
     </>

@@ -20,6 +20,7 @@ import {
 import { BiUser } from "react-icons/bi";
 import { TbLogout } from "react-icons/tb";
 import { AiOutlineMenu } from "react-icons/ai";
+import { BsEnvelope } from "react-icons/bs";
 import MobileMenu from "@component/MobileMenu";
 
 const HeaderTop = styled.div`
@@ -85,6 +86,10 @@ const HeaderTop = styled.div`
         border-radius: 6px;
         background: var(--m-color);
         color: #fff;
+        &.non {
+          color: var(--m-color);
+          background: none;
+        }
       }
     }
   }
@@ -98,7 +103,7 @@ const HeaderTop = styled.div`
       padding: 0.5rem;
       .non_read {
         position: absolute;
-        right: -5px;
+        right: -3px;
         top: -2px;
         border-radius: 50%;
         width: 17px;
@@ -182,9 +187,23 @@ function Header({ logoImg }) {
           <span style={{ marginRight: "10px" }}>
             {userInfo.name} 님 환영합니다.
           </span>
-          <Link href="/mypage">
-            <a>
+          <Link href="/mypage/message_list?type=1">
+            <a
+              style={{ margin: "0 5px" }}
+              className={
+                router.route.indexOf("/mypage/message_list") == -1 && "non"
+              }
+            >
               {nonRead > 0 && <span className="non_read">{nonRead}</span>}
+              <BsEnvelope style={{ fontSize: "1.2rem" }} />
+            </a>
+          </Link>
+          <Link href="/mypage">
+            <a
+              className={
+                router.route.indexOf("/mypage/message_list") > -1 && "non"
+              }
+            >
               <BiUser style={{ fontSize: "1.2rem" }} />
             </a>
           </Link>
@@ -204,6 +223,14 @@ function Header({ logoImg }) {
   useEffect(() => {
     onClose();
   }, [router]);
+
+  const onMainRefresh = () => {
+    if (router.route == "/") {
+      router.reload();
+    } else {
+      router.push("/");
+    }
+  };
 
   return (
     <>
@@ -232,10 +259,8 @@ function Header({ logoImg }) {
             <AiOutlineMenu />
           </Button>
           <div className="logo_box">
-            <h1 className="logo">
-              <Link href="/">
-                <Image alt="" src={logoImg} />
-              </Link>
+            <h1 className="logo" onClick={onMainRefresh}>
+              <Image alt="" src={logoImg} />
             </h1>
           </div>
           <ul className="menu">

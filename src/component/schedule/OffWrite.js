@@ -27,6 +27,7 @@ import ko from "date-fns/locale/ko";
 import { CommonForm } from "pages/setting";
 import ManagerListPop from "@component/board/ManagerListPop";
 import useGetUser from "@component/hooks/getUserDb";
+import { onSendAlert } from "../hooks/sendAlertFunc";
 
 export const DayOffList = styled.ul`
   display: flex;
@@ -57,16 +58,24 @@ export const DayOffList = styled.ul`
 `;
 
 const DayOffAdd = styled.div`
-  .radio_date_box{display:flex;
-    label{margin-right:7px}
-    .date_box{display:flex}
-  }
-  @media screen and (max-width:1024px){
-    .radio_date_box{flex-direction:column;
-      .date_box{margin-top:10px;}
+  .radio_date_box {
+    display: flex;
+    label {
+      margin-right: 7px;
+    }
+    .date_box {
+      display: flex;
     }
   }
-`
+  @media screen and (max-width: 1024px) {
+    .radio_date_box {
+      flex-direction: column;
+      .date_box {
+        margin-top: 10px;
+      }
+    }
+  }
+`;
 
 export default function OffWrite({ userInfo, userAll }) {
   const toast = useToast();
@@ -199,6 +208,8 @@ export default function OffWrite({ userInfo, userAll }) {
                   duration: 1000,
                   isClosable: false,
                 });
+                let alertUserList = checkManagerList.map((el) => el.id);
+                onSendAlert(alertUserList, "dayoff");
               })
               .then(() => {
                 onFormInit();
@@ -310,9 +321,9 @@ export default function OffWrite({ userInfo, userAll }) {
                     })}
                   />
                   <div className="manager_sel_btn_box">
-                  <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                    결재자 선택
-                  </Button>
+                    <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
+                      결재자 선택
+                    </Button>
                   </div>
                 </div>
                 <FormErrorMessage>
@@ -332,14 +343,14 @@ export default function OffWrite({ userInfo, userAll }) {
                 <DayOffAdd className="lg" {...group}>
                   <div className="radio_date_box">
                     <Flex>
-                    {options.map((value) => {
-                      const radio = getRadioProps({ value });
-                      return (
-                        <RadioCard key={value} {...radio}>
-                          {value}
-                        </RadioCard>
-                      );
-                    })}
+                      {options.map((value) => {
+                        const radio = getRadioProps({ value });
+                        return (
+                          <RadioCard key={value} {...radio}>
+                            {value}
+                          </RadioCard>
+                        );
+                      })}
                     </Flex>
                     <div className="date_box">
                       <Box mr={2}>

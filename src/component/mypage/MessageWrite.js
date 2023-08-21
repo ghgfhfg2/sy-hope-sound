@@ -24,6 +24,7 @@ import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import UploadBox from "@component/UploadBox";
 import SearchUserPop from "@component/popup/SearchUserPop";
+import { onSendAlert } from "@component/hooks/sendAlertFunc";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
@@ -65,6 +66,8 @@ function MessageWrite({ selectWorkInfo }) {
   };
 
   const submitWork = (values) => {
+    const list = JSON.parse(values.recipient);
+    onSendAlert(list, "message");
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "regis_message_list",

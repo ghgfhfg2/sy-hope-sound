@@ -46,6 +46,7 @@ import axios from "axios";
 import AddLunchPop from "./popup/AddLunchPop";
 import ReportList from "./report/ReportList";
 import RuleList from "./rule/RuleList";
+import WorkList from "./work/WorkList";
 export const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -795,6 +796,25 @@ export default function Main() {
                 ))}
             </ul>
           </div>
+
+          <Flex justifyContent="space-between" alignItems="center" mb={3}>
+            <h2 className="title">프로젝트 & 유지보수</h2>
+            <Link href="/work">
+              <a className="link">
+                <Flex alignItems="center">
+                  more
+                  <HiExternalLink
+                    style={{ marginTop: "4px", marginLeft: "4px" }}
+                  />
+                </Flex>
+              </a>
+            </Link>
+          </Flex>
+
+          <WorkList main={true} />
+
+          <div className="divide"></div>
+
           <Flex gap={6}>
             <Box width={{ base: "100%", lg: "50%" }}>
               <Flex justifyContent="space-between" alignItems="center" mb={3}>

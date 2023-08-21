@@ -14,6 +14,7 @@ import { format, register } from "timeago.js";
 import koLocale from "timeago.js/lib/lang/ko";
 import MeessageReplyPop from "./MessageReplyPop";
 import NameComponent from "@component/NameComponent";
+import { onReadAlert } from "../hooks/sendAlertFunc";
 register("ko", koLocale);
 const MessageBoardList = styled(WorkBoardList)`
   .body {

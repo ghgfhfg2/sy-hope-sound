@@ -82,7 +82,7 @@ const WorkTopSelect = styled.div`
   }
 `;
 
-export default function WorkList() {
+export default function WorkList({ main }) {
   const userInfo = useSelector((state) => state.user.currentUser);
   const toast = useToast();
 
@@ -92,6 +92,7 @@ export default function WorkList() {
   const [listData, setListData] = useState();
   const curPage = router.query["p"] || 1;
 
+  const limit = main ? 5 : 20;
   const [totalPage, setTotalPage] = useState();
   const getWorkList = (page, state, project) => {
     if (!userInfo) return;
@@ -99,6 +100,7 @@ export default function WorkList() {
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "get_work_list",
         page,
+        limit,
         state,
         project,
         depth: userInfo.project_depth || "",
@@ -195,71 +197,77 @@ export default function WorkList() {
 
   return (
     <>
-      <WorkTopSelect>
-        <Flex className="wrap" gap={2}>
-          {projectList && (
-            <>
-              <Select onChange={onFilterProject} width={200}>
-                <option value="" key="-1">
-                  전체 프로젝트
-                </option>
-                {projectList.map((el) => (
-                  <option value={el.uid} key={el.uid}>
-                    {el.title}
+      {!main && (
+        <WorkTopSelect>
+          <Flex className="wrap" gap={2}>
+            {projectList && (
+              <>
+                <Select onChange={onFilterProject} width={200}>
+                  <option value="" key="-1">
+                    전체 프로젝트
                   </option>
-                ))}
-              </Select>
-            </>
-          )}
-          {stateText && (
-            <>
-              <Flex className="state" mb={3} gap={2}>
-                <Button
-                  colorScheme={curState ? "gray" : "teal"}
-                  onClick={() => filterState()}
-                >
-                  전체
-                </Button>
-                <Button
-                  colorScheme={curState == "ndone" ? "teal" : "gray"}
-                  onClick={() => filterState("ndone")}
-                >
-                  미완료 전체
-                </Button>
-                {stateText.map((el) => (
+                  {projectList.map((el) => (
+                    <option value={el.uid} key={el.uid}>
+                      {el.title}
+                    </option>
+                  ))}
+                </Select>
+              </>
+            )}
+            {stateText && (
+              <>
+                <Flex className="state" mb={3} gap={2}>
                   <Button
-                    colorScheme={curState == el.state ? "teal" : "gray"}
-                    key={el.state}
-                    onClick={() => filterState(el.state)}
+                    colorScheme={curState ? "gray" : "teal"}
+                    onClick={() => filterState()}
                   >
-                    {el.txt}
+                    전체
                   </Button>
-                ))}
-                {projectList && (
-                  // <>
-                  //   <Button
-                  //     width={refreshTimer < 100 ? 145 : 120}
-                  //     colorScheme="teal"
-                  //     onClick={rerender}
-                  //   >
-                  //     <IoMdTimer />
-                  //     새로고침{refreshTimer < 100 && <>({refreshTimer})</>}
-                  //   </Button>
-                  // </>
-                  <Refresh reRender={reRender} />
-                )}
-              </Flex>
-            </>
-          )}
-        </Flex>
-      </WorkTopSelect>
+                  <Button
+                    colorScheme={curState == "ndone" ? "teal" : "gray"}
+                    onClick={() => filterState("ndone")}
+                  >
+                    미완료 전체
+                  </Button>
+                  {stateText.map((el) => (
+                    <Button
+                      colorScheme={curState == el.state ? "teal" : "gray"}
+                      key={el.state}
+                      onClick={() => filterState(el.state)}
+                    >
+                      {el.txt}
+                    </Button>
+                  ))}
+                  {projectList && (
+                    // <>
+                    //   <Button
+                    //     width={refreshTimer < 100 ? 145 : 120}
+                    //     colorScheme="teal"
+                    //     onClick={rerender}
+                    //   >
+                    //     <IoMdTimer />
+                    //     새로고침{refreshTimer < 100 && <>({refreshTimer})</>}
+                    //   </Button>
+                    // </>
+                    <Refresh reRender={reRender} />
+                  )}
+                </Flex>
+              </>
+            )}
+          </Flex>
+        </WorkTopSelect>
+      )}
       <WorkBoardList>
         <li className="header">
-          <span>번호</span>
+          {!main && <span>번호</span>}
           <span>상태</span>
           <span className="cate">프로젝트</span>
-          <span className="cate">카테고리1</span>
-          <span className="cate">카테고리2</span>
+          {!main && (
+            <>
+              <span className="cate">카테고리1</span>
+              <span className="cate">카테고리2</span>
+            </>
+          )}
           <span className="subject">제목</span>
           <span className="name">작성자</span>
           <span className="manager">담당자</span>
@@ -268,15 +276,19 @@ export default function WorkList() {
         {listData &&
           listData.map((el) => (
             <li className="body" key={shortid()}>
-              <span>{el.uid}</span>
+              {!main && <span>{el.uid}</span>}
               <StepComponent>
                 <span className={`state state_${el.state}`}>
                   {stateText[el.state - 1].txt}
                 </span>
               </StepComponent>
               <span className="cate">{el.cate_1.title}</span>
-              <span className="cate">{el.cate_2.title}</span>
-              <span className="cate">{el.cate_3.title}</span>
+              {!main && (
+                <>
+                  <span className="cate">{el.cate_2.title}</span>
+                  <span className="cate">{el.cate_3.title}</span>
+                </>
+              )}
               <span className="subject">
                 <Link
                   href={{
@@ -318,7 +330,9 @@ export default function WorkList() {
           ))}
         {!listData && <None />}
       </WorkBoardList>
-      <Pagenation total={totalPage} current={curPage} viewPage={10} />
+      {!main && (
+        <Pagenation total={totalPage} current={curPage} viewPage={10} />
+      )}
     </>
   );
 }
