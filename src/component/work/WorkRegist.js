@@ -24,6 +24,7 @@ import SelectManagerPop from "@component/popup/SelectManagerPop";
 import useGetUser from "@component/hooks/getUserDb";
 import axios from "axios";
 import UploadBox from "@component/UploadBox";
+import { onSendAlert } from "../hooks/sendAlertFunc";
 const Editor = dynamic(() => import("@component/board/Editor"), {
   ssr: false,
 });
@@ -186,7 +187,6 @@ function WorkRegist({ selectWorkInfo, closeRender }) {
           setCateUid1(el);
         }
         if (el.depth == obj.depth_2) {
-          console.log("setSelectCateDepth2", el);
           setCateUid2(el);
         }
         if (el.depth == obj.depth_3) {
@@ -243,6 +243,15 @@ function WorkRegist({ selectWorkInfo, closeRender }) {
       : "";
     values.depth = cateUid3.depth;
     values.project = cateUid1.uid;
+
+    //알림 유저 필터
+    const userFilter = userAll.filter((el) => {
+      return !el.hidden && !el.partner;
+    });
+    const userUidList = userFilter.map((el) => el.uid);
+    //알림 보내기
+    onSendAlert(userUidList, "work");
+
     axios
       .post("https://shop.editt.co.kr/_var/_xml/groupware.php", {
         a: "regis_work_list",
@@ -271,6 +280,7 @@ function WorkRegist({ selectWorkInfo, closeRender }) {
               duration: 1000,
               isClosable: false,
             });
+
             if (selectWorkInfo) {
               //팝업일때
               closeRender();

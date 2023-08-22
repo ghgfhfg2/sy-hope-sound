@@ -30,6 +30,8 @@ function AlertPop({ alertState, closeAlertPop }) {
   const typeObj = {
     message: "쪽지",
     dayoff: "연차결재",
+    work: "프로젝트&유지보수",
+    expenses: "지출결의서",
   };
   const [msgData, setMsgData] = useState();
   useEffect(() => {

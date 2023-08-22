@@ -47,6 +47,7 @@ import AddLunchPop from "./popup/AddLunchPop";
 import ReportList from "./report/ReportList";
 import RuleList from "./rule/RuleList";
 import WorkList from "./work/WorkList";
+import SignBoardList from "./board/SignBoardList";
 export const MainWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -812,6 +813,24 @@ export default function Main() {
           </Flex>
 
           <WorkList main={true} />
+
+          <div className="divide"></div>
+
+          <Flex justifyContent="space-between" alignItems="center" mb={3}>
+            <h2 className="title">지출결의서(요청)</h2>
+            <Link href="//board/wait">
+              <a className="link">
+                <Flex alignItems="center">
+                  more
+                  <HiExternalLink
+                    style={{ marginTop: "4px", marginLeft: "4px" }}
+                  />
+                </Flex>
+              </a>
+            </Link>
+          </Flex>
+
+          <SignBoardList main={true} />
 
           <div className="divide"></div>
 

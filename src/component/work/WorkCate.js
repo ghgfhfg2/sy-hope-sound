@@ -424,9 +424,9 @@ function WorkCate() {
     box.classList.toggle("on");
   };
 
-  const removeList = (depth, uid) => {
+  const removeList = (depth, uid, title) => {
     const agree = confirm(
-      "삭제 하시겠습니까?\n상위 카테고리의 경우 하위 카테고리까지 모두 삭제 됩니다."
+      `${title}을(를) 삭제 하시겠습니까?\n상위 카테고리의 경우 하위 카테고리까지 모두 삭제 됩니다.`
     );
     if (agree) {
       axios
@@ -577,7 +577,7 @@ function WorkCate() {
                           <FiEdit />
                         </Button>
                         <Button
-                          onClick={() => removeList(el.depth, el.uid)}
+                          onClick={() => removeList(el.depth, el.uid, el.title)}
                           className="btn_add remove"
                           size="sm"
                           ml={2}
@@ -662,7 +662,11 @@ function WorkCate() {
                                   </Button>
                                   <Button
                                     onClick={() =>
-                                      removeList(list.depth, list.uid)
+                                      removeList(
+                                        list.depth,
+                                        list.uid,
+                                        list.title
+                                      )
                                     }
                                     className="btn_add remove"
                                     size="sm"
@@ -759,7 +763,8 @@ function WorkCate() {
                                               onClick={() =>
                                                 removeList(
                                                   list2.depth,
-                                                  list2.uid
+                                                  list2.uid,
+                                                  list2.title
                                                 )
                                               }
                                               className="btn_add remove"

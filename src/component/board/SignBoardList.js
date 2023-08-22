@@ -41,22 +41,32 @@ const SignBoardLi = styled(BoardLi)`
       max-width: 120px;
       flex: 1;
     }
-    .type{width:150px}
+    .type {
+      width: 150px;
+    }
   }
   .body {
     .subject {
       justify-content: flex-start;
       padding: 0 1rem;
     }
-    .income{color:#C53030;font-weight:600}
-    .spend{color:#2B6CB0;font-weight:600}
+    .income {
+      color: #c53030;
+      font-weight: 600;
+    }
+    .spend {
+      color: #2b6cb0;
+      font-weight: 600;
+    }
   }
-  @media screen and (max-width:1024px) {
-    li{min-width:1000px}
+  @media screen and (max-width: 1024px) {
+    li {
+      min-width: 1000px;
+    }
   }
 `;
 
-export default function SignBoardList({ stateType }) {
+export default function SignBoardList({ stateType, main }) {
   useGetUser();
   const router = useRouter();
   const userInfo = useSelector((state) => state.user.currentUser);
@@ -64,16 +74,12 @@ export default function SignBoardList({ stateType }) {
   const [boardList, setBoardList] = useState();
   const [searchDate, setSearchDate] = useState(new Date());
 
-  const [typeState, setTypeState] = useState()
+  const [typeState, setTypeState] = useState();
   useEffect(() => {
-    get(ref(db,`board/type_list`))
-    .then(data=>{
-      setTypeState(data.val())
-    })
-
-  }, [])
-  
- 
+    get(ref(db, `board/type_list`)).then((data) => {
+      setTypeState(data.val());
+    });
+  }, []);
 
   useEffect(() => {
     const formatDate = format(searchDate, "yyyyMM");
@@ -101,30 +107,36 @@ export default function SignBoardList({ stateType }) {
             (user) => user.uid === el.val()[key].writer_uid
           );
           let viewCheck;
-          if (stateType === "ing"){
-            viewCheck = el.val()[key].nextManager.uid === userInfo.uid ||
-            el.val()[key].writer_uid === userInfo.uid
-          }else{
-            viewCheck = mg_list.includes(userInfo.uid) ||
-            el.val()[key].writer_uid === userInfo.uid
+          if (stateType === "ing") {
+            viewCheck =
+              el.val()[key].nextManager.uid === userInfo.uid ||
+              el.val()[key].writer_uid === userInfo.uid;
+          } else {
+            viewCheck =
+              mg_list.includes(userInfo.uid) ||
+              el.val()[key].writer_uid === userInfo.uid;
           }
-          if (
-            viewCheck
-          ) {
+          if (viewCheck) {
             let obj = {
               ...el.val()[key],
               uid: key,
               writer,
               date: format(el.val()[key].timestamp, "yyyyMM"),
-              date_: el.val()[key].date || '',
+              date_: el.val()[key].date || "",
             };
             listArr.push(obj);
           }
         }
         listArr = listArr.filter((el) => el.state === stateType);
         listArr = listArr.sort((a, b) => {
-          return format(new Date(b.date_),"yyyyMMdd") - format(new Date(a.date_),"yyyyMMdd");
+          return (
+            format(new Date(b.date_), "yyyyMMdd") -
+            format(new Date(a.date_), "yyyyMMdd")
+          );
         });
+        if (main) {
+          listArr = listArr.slice(0, 5);
+        }
         setBoardList(listArr);
       }
     });
@@ -178,7 +190,9 @@ export default function SignBoardList({ stateType }) {
                   ? "결재완료"
                   : ""}
               </span>
-              <span className="type">{typeState && typeState[el.type].title}</span>
+              <span className="type">
+                {typeState && typeState[el.type].title}
+              </span>
               <Link href={`/board/view?id=${el.uid}`}>
                 <span className="subject link">{el.subject}</span>
               </Link>
@@ -186,7 +200,9 @@ export default function SignBoardList({ stateType }) {
               <span className="spend">{comma(el.spend)}</span>
               <span className="name">{el?.writer.name}</span>
               <span className="date">{el?.date_}</span>
-              <span className="date">{format(new Date(el.timestamp),'yyyy-MM-dd')}</span>
+              <span className="date">
+                {format(new Date(el.timestamp), "yyyy-MM-dd")}
+              </span>
             </li>
           ))}
         {boardList?.length === 0 && <None />}

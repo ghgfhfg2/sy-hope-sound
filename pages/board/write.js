@@ -39,7 +39,7 @@ import ManagerListPop from "@component/board/ManagerListPop";
 import UploadBox from "@component/UploadBox";
 import useGetUser from "@component/hooks/getUserDb";
 import { numberToKorean } from "@component/CommonFunc";
-
+import { onSendAlert } from "../../src/component/hooks/sendAlertFunc";
 
 const BoardWrite = styled(CommonForm)`
   .row_box {
@@ -96,7 +96,10 @@ export default function Write() {
     const imgPromise = uploadList.map(async (el) => {
       const storageRef = sRef(
         storage,
-        `board/list/${format(new Date(values.date), "yyyyMMdd")}${uid}/${shortid.generate()}`
+        `board/list/${format(
+          new Date(values.date),
+          "yyyyMMdd"
+        )}${uid}/${shortid.generate()}`
       );
       const url = await uploadBytes(storageRef, el).then((snapshot) => {
         const downloadUrl = getDownloadURL(snapshot.ref);
@@ -152,6 +155,7 @@ export default function Write() {
           });
         })
         .then(() => {
+          onSendAlert(managerArr, "expenses");
           router.push("/board/wait");
           resolve();
         });
@@ -179,7 +183,7 @@ export default function Write() {
   }, []);
 
   const [writeOption, setWriteOption] = useState();
-  const [curType, setCurType] = useState()
+  const [curType, setCurType] = useState();
   useEffect(() => {
     if (watchRadio) {
       const currentType = typeCon.find((el) => el.uid === watchRadio);
@@ -187,15 +191,15 @@ export default function Write() {
         date: currentType.date || false,
         price: currentType.price || false,
       };
-      setCurType(currentType)
+      setCurType(currentType);
       setWriteOption({
         ...option,
       });
 
-      if(currentType.manager){
-        setCheckManagerList(currentType.manager)
-      }else{
-        setCheckManagerList('')
+      if (currentType.manager) {
+        setCheckManagerList(currentType.manager);
+      } else {
+        setCheckManagerList("");
       }
     }
   }, [watchRadio]);
@@ -464,16 +468,20 @@ export default function Write() {
                       }
                       readOnly
                     />
-                    {!curType?.manager &&
-                    <div className="manager_sel_btn_box">
-                      <Button colorScheme="teal" onClick={onManagerPop} ml={2}>
-                        결재자 선택
-                      </Button>
-                      <Button colorScheme="red" onClick={offManager} ml={2}>
-                        선택취소
-                      </Button>
-                    </div>
-                    }
+                    {!curType?.manager && (
+                      <div className="manager_sel_btn_box">
+                        <Button
+                          colorScheme="teal"
+                          onClick={onManagerPop}
+                          ml={2}
+                        >
+                          결재자 선택
+                        </Button>
+                        <Button colorScheme="red" onClick={offManager} ml={2}>
+                          선택취소
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <FormErrorMessage>
                     {errors.manager && errors.manager.message}
