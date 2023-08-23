@@ -50,6 +50,10 @@ import { ScheduleCalendar } from "../../../pages/schedule";
 import Loading from "../Loading";
 import { AttendStateList } from "@component/insa/Attend";
 
+const AttendEachComponent = styled.div`
+  max-width: 1400px;
+`;
+
 export const AttendUserList = styled(AttendStateList)`
   li {
     cursor: pointer;
@@ -331,99 +335,101 @@ export default function AttendEach() {
 
   return (
     <>
-      <ScheduleCalendar>
-        <div className="header row">
-          <button type="button" onClick={prevYear}>
-            <MdArrowBackIos style={{ marginRight: "4px" }} />
-            {subYears(curDate, 1).getFullYear()}년
-          </button>
-          <div className="col">
-            <span className="current_date">{format(curDate, "yyyy")}년</span>
-          </div>
-          <button type="button" onClick={nextYear}>
-            {addYears(curDate, 1).getFullYear()}년
-            <MdArrowForwardIos style={{ marginLeft: "4px" }} />
-          </button>
-        </div>
-        {userInfo &&
-          userInfo.authority &&
-          userInfo.authority.indexOf("admin") > -1 && (
-            <AttendUserList>
-              {userAll &&
-                userAll.map((el) => {
-                  if (!el.hidden) {
-                    return (
-                      <li
-                        className={selectUser == el.uid ? "on" : ""}
-                        key={el.uid}
-                        onClick={() => onSelectUser(el.uid)}
-                      >
-                        {el.name}
-                      </li>
-                    );
-                  }
-                })}
-            </AttendUserList>
-          )}
-      </ScheduleCalendar>
-      {isLoading ? (
-        <>
-          <AttendEachWrap>
-            <div className="loading_box">
-              <Loading />
+      <AttendEachComponent>
+        <ScheduleCalendar>
+          <div className="header row">
+            <button type="button" onClick={prevYear}>
+              <MdArrowBackIos style={{ marginRight: "4px" }} />
+              {subYears(curDate, 1).getFullYear()}년
+            </button>
+            <div className="col">
+              <span className="current_date">{format(curDate, "yyyy")}년</span>
             </div>
-          </AttendEachWrap>
-        </>
-      ) : (
-        <AttendEachWrap>
-          <div className="hitmap_box">
-            <CalendarHeatmap
-              gutterSize={2}
-              startDate={`${format(subYears(curDate, 1), "yyyy")}-12-31`}
-              endDate={`${format(curDate, "yyyy")}-12-31`}
-              values={attendList}
-              classForValue={(value) => {
-                if (!value) {
-                  return "color-empty";
-                }
-                let addClassName = "";
-                addClassName += value.error ? " error" : "";
-                addClassName += value.under ? value.under : "";
-                addClassName += value.offType ? `off_${value.type}` : "";
-                addClassName += value.isHoliday ? `holiday` : "";
-                addClassName += value.late ? ` late` : "";
-                return `work ${addClassName}`;
-              }}
-              onMouseOver={(e, value) => {
-                onTooltip(e, value, "attend");
-              }}
-              showWeekdayLabels={true}
-            />
+            <button type="button" onClick={nextYear}>
+              {addYears(curDate, 1).getFullYear()}년
+              <MdArrowForwardIos style={{ marginLeft: "4px" }} />
+            </button>
           </div>
-          <Flex width="100%" justifyContent="space-between">
-            <ul className="type_info">
-              <li className="am_off">오전반차</li>
-              <li className="pm_off">오후반차</li>
-              <li className="all_off">연차</li>
-              {/* <li className="holiday">공휴일</li> */}
-            </ul>
-            <ul className="type_info">
-              <li className="basic">정상출근</li>
-              <li className="error">비정상 체크</li>
-              <li className="under">근무시간 부족</li>
-              <li className="late">지각(10시 초과)</li>
-            </ul>
-          </Flex>
-          {currentAttend && (
-            <HitmapOver pos={tooltipPos} data={currentAttend}>
-              <p>{currentAttend.date}</p>
-              <p
-                dangerouslySetInnerHTML={{ __html: currentAttend.subject }}
-              ></p>
-            </HitmapOver>
-          )}
-        </AttendEachWrap>
-      )}
+          {userInfo &&
+            userInfo.authority &&
+            userInfo.authority.indexOf("admin") > -1 && (
+              <AttendUserList>
+                {userAll &&
+                  userAll.map((el) => {
+                    if (!el.hidden) {
+                      return (
+                        <li
+                          className={selectUser == el.uid ? "on" : ""}
+                          key={el.uid}
+                          onClick={() => onSelectUser(el.uid)}
+                        >
+                          {el.name}
+                        </li>
+                      );
+                    }
+                  })}
+              </AttendUserList>
+            )}
+        </ScheduleCalendar>
+        {isLoading ? (
+          <>
+            <AttendEachWrap>
+              <div className="loading_box">
+                <Loading />
+              </div>
+            </AttendEachWrap>
+          </>
+        ) : (
+          <AttendEachWrap>
+            <div className="hitmap_box">
+              <CalendarHeatmap
+                gutterSize={2}
+                startDate={`${format(subYears(curDate, 1), "yyyy")}-12-31`}
+                endDate={`${format(curDate, "yyyy")}-12-31`}
+                values={attendList}
+                classForValue={(value) => {
+                  if (!value) {
+                    return "color-empty";
+                  }
+                  let addClassName = "";
+                  addClassName += value.error ? " error" : "";
+                  addClassName += value.under ? value.under : "";
+                  addClassName += value.offType ? `off_${value.type}` : "";
+                  addClassName += value.isHoliday ? `holiday` : "";
+                  addClassName += value.late ? ` late` : "";
+                  return `work ${addClassName}`;
+                }}
+                onMouseOver={(e, value) => {
+                  onTooltip(e, value, "attend");
+                }}
+                showWeekdayLabels={true}
+              />
+            </div>
+            <Flex width="100%" justifyContent="space-between">
+              <ul className="type_info">
+                <li className="am_off">오전반차</li>
+                <li className="pm_off">오후반차</li>
+                <li className="all_off">연차</li>
+                {/* <li className="holiday">공휴일</li> */}
+              </ul>
+              <ul className="type_info">
+                <li className="basic">정상출근</li>
+                <li className="error">비정상 체크</li>
+                <li className="under">근무시간 부족</li>
+                <li className="late">지각(10시 초과)</li>
+              </ul>
+            </Flex>
+            {currentAttend && (
+              <HitmapOver pos={tooltipPos} data={currentAttend}>
+                <p>{currentAttend.date}</p>
+                <p
+                  dangerouslySetInnerHTML={{ __html: currentAttend.subject }}
+                ></p>
+              </HitmapOver>
+            )}
+          </AttendEachWrap>
+        )}
+      </AttendEachComponent>
     </>
   );
 }

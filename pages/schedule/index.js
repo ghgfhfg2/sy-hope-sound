@@ -16,7 +16,7 @@ import {
   startAt,
   endAt,
 } from "firebase/database";
-import { format, addMonths, subMonths } from "date-fns";
+import { format, addMonths, subMonths, add, sub } from "date-fns";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
 import {
   isSameMonth,
@@ -212,11 +212,16 @@ const RenderCells = ({
   dayoffList,
   onDateClick,
   restDeList,
+  main,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart);
-  const endDate = endOfWeek(monthEnd);
+  let startDate = startOfWeek(monthStart);
+  let endDate = endOfWeek(monthEnd);
+  if (main) {
+    startDate = startOfWeek(currentMonth);
+    endDate = endOfWeek(add(startDate, { days: 7 }));
+  }
 
   const rows = [];
   let days = [];
@@ -252,7 +257,7 @@ const RenderCells = ({
       days.push(
         <div
           className={`col ani__fade_in custom__scroll_bar cell ${
-            !isSameMonth(day, monthStart)
+            !isSameMonth(day, monthStart) && !main
               ? "disabled"
               : isSameDay(day, selectedDate)
               ? "selected"
@@ -280,7 +285,7 @@ const RenderCells = ({
               {dayoffList &&
                 dayoffList[formattedDate] &&
                 dayoffList[formattedDate].map((el) => {
-                  if (isSameMonth(day, monthStart)) {
+                  if (isSameMonth(day, monthStart) || main) {
                     return (
                       <>
                         <li
@@ -316,7 +321,7 @@ const RenderCells = ({
   return <div className="body">{rows}</div>;
 };
 
-function Schedule() {
+function Schedule({ main }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -325,8 +330,12 @@ function Schedule() {
   const [restDeList, setrestDeList] = useState();
   const [dayoffList, setDayoffList] = useState();
   useEffect(() => {
-    const startDate = format(new Date(currentMonth), "yyyyMM") + "01";
-    const endDate = format(new Date(currentMonth), "yyyyMM") + "31";
+    let startDate = format(new Date(currentMonth), "yyyyMM") + "01";
+    let endDate = format(new Date(currentMonth), "yyyyMM") + "31";
+    if (main) {
+      startDate = format(startOfWeek(currentMonth), "yyyyMMdd");
+      endDate = format(add(currentMonth, { days: 13 }), "yyyyMMdd");
+    }
 
     const curYear = format(new Date(currentMonth), "yyyy");
     const curMonth = format(new Date(currentMonth), "MM");
@@ -376,6 +385,7 @@ function Schedule() {
           listObj[date] = listObj[date] ? [...listObj[date], value] : [value];
         }
       });
+      console.log("listObj", listObj);
       setDayoffList(listObj);
     });
     return () => {
@@ -403,16 +413,20 @@ function Schedule() {
   };
   return (
     <ScheduleCalendar>
-      <ul className="type_info">
-        <li className="am_off">오전반차</li>
-        <li className="pm_off">오후반차</li>
-        <li className="all_off">연차</li>
-      </ul>
-      <RenderHeader
-        currentMonth={currentMonth}
-        prevMonth={prevMonth}
-        nextMonth={nextMonth}
-      />
+      {!main && (
+        <>
+          <ul className="type_info">
+            <li className="am_off">오전반차</li>
+            <li className="pm_off">오후반차</li>
+            <li className="all_off">연차</li>
+          </ul>
+          <RenderHeader
+            currentMonth={currentMonth}
+            prevMonth={prevMonth}
+            nextMonth={nextMonth}
+          />
+        </>
+      )}
       <RenderDays />
       {!isMonthLoading ? (
         <RenderCells
@@ -421,12 +435,14 @@ function Schedule() {
           dayoffList={dayoffList}
           restDeList={restDeList}
           onDateClick={onDateClick}
+          main={main}
         />
       ) : (
         <RenderCells
           currentMonth={currentMonth}
           selectedDate={selectedDate}
           onDateClick={onDateClick}
+          main={main}
         />
       )}
     </ScheduleCalendar>
