@@ -3,25 +3,18 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 const FooterBox = styled.div`
+  background: #fff;
+  z-index: 1;
   border-top: 1px solid #ddd;
   .content_box {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
   }
-  .logo {
-    width: 100px;
-    margin-right: 80px;
-    opacity: 0.5;
-  }
   .footer_con {
     color: #888;
-  }
-  @media screen and (max-width: 1024px) {
-    .logo {
-      margin-right: 2rem;
-      width: 70px;
-    }
+    text-align: center;
+    width: 100%;
   }
 `;
 
