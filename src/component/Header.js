@@ -21,7 +21,6 @@ import { BiUser } from "react-icons/bi";
 import { TbLogout } from "react-icons/tb";
 import { AiOutlineMenu } from "react-icons/ai";
 import { BsEnvelope } from "react-icons/bs";
-import MobileMenu from "@component/MobileMenu";
 
 const HeaderTop = styled.div`
   width: 100%;
@@ -163,10 +162,9 @@ const LeftMenuBox = styled.div`
   }
 `;
 
-function Header({ logoImg }) {
+function Header() {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.currentUser);
-  const nonRead = useSelector((state) => state.counter.nonRead);
   const auth = getAuth();
   const router = useRouter();
   const onLogout = () => {
@@ -174,55 +172,10 @@ function Header({ logoImg }) {
       .then((res) => {
         dispatch(clearUser());
       })
-      .then((res) => router.push("/login"))
       .catch((error) => {
         console.log(error);
       });
   };
-
-  const UserMenu = () => {
-    return (
-      <ul className="right">
-        <li className={router.route.indexOf("/mypage") > -1 && "on"}>
-          <span style={{ marginRight: "10px" }}>
-            {userInfo.name} 님 환영합니다.
-          </span>
-          <Link href="/mypage/message_list?type=1">
-            <a
-              style={{ margin: "0 5px" }}
-              className={
-                router.route.indexOf("/mypage/message_list") == -1 && "non"
-              }
-            >
-              {nonRead > 0 && <span className="non_read">{nonRead}</span>}
-              <BsEnvelope style={{ fontSize: "1.2rem" }} />
-            </a>
-          </Link>
-          <Link href="/mypage">
-            <a
-              className={
-                router.route.indexOf("/mypage/message_list") > -1 && "non"
-              }
-            >
-              <BiUser style={{ fontSize: "1.2rem" }} />
-            </a>
-          </Link>
-        </li>
-        <li>
-          <a href="#" onClick={onLogout}>
-            <TbLogout style={{ fontSize: "1.2rem" }} />
-          </a>
-        </li>
-      </ul>
-    );
-  };
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef();
-
-  useEffect(() => {
-    onClose();
-  }, [router]);
 
   const onMainRefresh = () => {
     if (router.route == "/") {
@@ -234,82 +187,7 @@ function Header({ logoImg }) {
 
   return (
     <>
-      <HeaderTop>
-        <Drawer
-          isOpen={isOpen}
-          placement="left"
-          onClose={onClose}
-          finalFocusRef={btnRef}
-        >
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerBody px={0}>
-              <LeftMenuBox>{userInfo && <UserMenu />}</LeftMenuBox>
-              <MobileMenu
-                router={router.route}
-                userInfo={userInfo}
-                onClose={onClose}
-              />
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-
-        <div className="left">
-          <Button ref={btnRef} onClick={onOpen} className="btn_menu">
-            <AiOutlineMenu />
-          </Button>
-          <div className="logo_box">
-            <h1 className="logo" onClick={onMainRefresh}>
-              <Image alt="" src={logoImg} />
-            </h1>
-          </div>
-          <ul className="menu">
-            {userInfo && userInfo.partner ? (
-              <li className={router.route.indexOf("/work") > -1 && "on"}>
-                <Link href="/work">프로젝트&유지보수</Link>
-              </li>
-            ) : (
-              <>
-                {userInfo && userInfo.authority?.includes("admin") && (
-                  <li className={router.route.indexOf("/setting") > -1 && "on"}>
-                    <Link href="/setting">설정</Link>
-                  </li>
-                )}
-                <li className={router.route.indexOf("/insa") > -1 && "on"}>
-                  <Link href="/insa">인사관리</Link>
-                </li>
-                <li className={router.route.indexOf("/rule") > -1 && "on"}>
-                  <Link href="/rule">운영&규정</Link>
-                </li>
-                <li className={router.route.indexOf("/report") > -1 && "on"}>
-                  <Link href="/report">업무보고</Link>
-                </li>
-                <li className={router.route.indexOf("/work") > -1 && "on"}>
-                  <Link href="/work">프로젝트&유지보수</Link>
-                </li>
-                <li className={router.route.indexOf("/schedule") > -1 && "on"}>
-                  <Link href="/schedule">일정관리</Link>
-                </li>
-                <li className={router.route.includes("/board/") && "on"}>
-                  <Link href="/board/wait">지출결의서</Link>
-                </li>
-                <li className={router.route.includes("/ragular") && "on"}>
-                  <Link href="/ragular">정기결제</Link>
-                </li>
-                {userInfo && userInfo.authority?.includes("admin") && (
-                  <li className={router.route.includes("/stats") && "on"}>
-                    <Link href="/stats/price">통계</Link>
-                  </li>
-                )}
-                <li className={router.route.includes("/partners") && "on"}>
-                  <Link href="/partners">협력사</Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-        {userInfo && <UserMenu />}
-      </HeaderTop>
+      <HeaderTop></HeaderTop>
     </>
   );
 }

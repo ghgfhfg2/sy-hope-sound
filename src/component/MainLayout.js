@@ -5,12 +5,11 @@ import Header from "./Header";
 import Loading from "./Loading";
 import Footer from "./Footer";
 
-export default function MainLayout({ children, logoImg }) {
-  const logoUrl = useSelector((state) => state.logo.url);
+export default function MainLayout({ children }) {
   return (
     <>
       <div className="wrapper">
-        <Header logoImg={logoUrl} />
+        <Header />
         {children ? (
           <main>{children}</main>
         ) : (
